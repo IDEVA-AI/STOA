@@ -1,0 +1,92 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,700;0,9..144,900;1,9..144,300;1,9..144,400&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Fraunces", serif;
+  --font-mono: "DM Mono", monospace;
+
+  --color-gold: #b8873a;
+  --color-gold-light: #e8d5b0;
+  --color-ink: #0e0c0a;
+  --color-paper: #f4f0e8;
+  --color-warm-gray: #7a7268;
+  --color-rust: #5c2418;
+  --color-line: var(--theme-line);
+  
+  --color-bg: var(--theme-bg);
+  --color-text: var(--theme-text);
+  --color-surface: var(--theme-surface);
+}
+
+@layer base {
+  :root {
+    --theme-bg: #f4f0e8;
+    --theme-text: #0e0c0a;
+    --theme-surface: #ffffff;
+    --theme-line: #ddd8cc;
+  }
+
+  .theme-dark {
+    --theme-bg: #0e0c0a;
+    --theme-text: #f4f0e8;
+    --theme-surface: #1a1714;
+    --theme-line: rgba(244, 240, 232, 0.1);
+  }
+
+  .theme-rust {
+    --theme-bg: #5c2418;
+    --theme-text: #f4f0e8;
+    --theme-surface: #6d2b1d;
+    --theme-line: rgba(244, 240, 232, 0.15);
+  }
+
+  body {
+    @apply bg-bg text-text antialiased font-sans font-light transition-colors duration-500;
+  }
+}
+
+.serif-display {
+  @apply font-serif font-black tracking-tight leading-[0.95];
+}
+
+.mono-label {
+  @apply font-mono text-[10px] uppercase tracking-[0.25em];
+}
+
+.card-editorial {
+  @apply bg-surface border border-line transition-all duration-300;
+}
+
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  @apply bg-gold/20 rounded-full hover:bg-gold/40 transition-colors;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-text/10 rounded-full;
+}
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-text/20;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+

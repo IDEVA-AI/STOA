@@ -1,0 +1,8 @@
+export { default as AdminDashboard } from './AdminDashboard';
+export { default as AdminCommunities } from './AdminCommunities';
+export { default as AdminCourses } from './AdminCourses';
+export { default as AdminMedia } from './AdminMedia';
+export { default as AdminIntegrations } from './AdminIntegrations';
+export { default as AdminUnlocks } from './AdminUnlocks';
+export { default as AdminModeration } from './AdminModeration';
+export { default as AdminSettings } from './AdminSettings';
