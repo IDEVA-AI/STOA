@@ -108,4 +108,46 @@ export function seedDatabase() {
   if (communities.length > 0) {
     db.prepare("UPDATE posts SET community_id = ? WHERE community_id IS NULL").run(communities[0].id);
   }
+
+  // 9. Seed default lesson templates
+  seedLessonTemplates(workspaceId);
+}
+
+function seedLessonTemplates(workspaceId: number) {
+  const count = db.prepare("SELECT count(*) as count FROM lesson_templates").get() as { count: number };
+  if (count.count > 0) return;
+
+  const insertTemplate = db.prepare(
+    "INSERT INTO lesson_templates (workspace_id, name, description, is_default) VALUES (?, ?, ?, ?)"
+  );
+  const insertBlock = db.prepare(
+    "INSERT INTO lesson_template_blocks (template_id, block_type, content, position) VALUES (?, ?, ?, ?)"
+  );
+
+  // Template 1: Aula com Video
+  const t1 = insertTemplate.run(workspaceId, "Aula com Video", "Layout com video principal e material de apoio", 1);
+  const t1Id = Number(t1.lastInsertRowid);
+  insertBlock.run(t1Id, "video", JSON.stringify({ url: "", provider: "youtube" }), 0);
+  insertBlock.run(t1Id, "text", JSON.stringify({ html: "<h2>Sobre esta aula</h2><p>Descricao do conteudo...</p>" }), 1);
+  insertBlock.run(t1Id, "divider", JSON.stringify({}), 2);
+  insertBlock.run(t1Id, "file", JSON.stringify({ url: "", filename: "Material de apoio", size: "" }), 3);
+
+  // Template 2: Aula Teorica
+  const t2 = insertTemplate.run(workspaceId, "Aula Teorica", "Layout para conteudo teorico com imagens e destaques", 1);
+  const t2Id = Number(t2.lastInsertRowid);
+  insertBlock.run(t2Id, "text", JSON.stringify({ html: "<h2>Introducao</h2><p>Contexto e objetivos...</p>" }), 0);
+  insertBlock.run(t2Id, "image", JSON.stringify({ url: "", caption: "Diagrama ilustrativo", alt: "" }), 1);
+  insertBlock.run(t2Id, "text", JSON.stringify({ html: "<h2>Desenvolvimento</h2><p>Conteudo principal...</p>" }), 2);
+  insertBlock.run(t2Id, "callout", JSON.stringify({ text: "Ponto-chave para lembrar", type: "tip" }), 3);
+  insertBlock.run(t2Id, "button", JSON.stringify({ label: "Fazer exercicio", url: "", style: "primary" }), 4);
+
+  // Template 3: Workshop Pratico
+  const t3 = insertTemplate.run(workspaceId, "Workshop Pratico", "Layout para aulas praticas com passo a passo", 1);
+  const t3Id = Number(t3.lastInsertRowid);
+  insertBlock.run(t3Id, "video", JSON.stringify({ url: "", provider: "youtube" }), 0);
+  insertBlock.run(t3Id, "text", JSON.stringify({ html: "<h2>Passo a passo</h2><ol><li>Primeiro...</li><li>Segundo...</li></ol>" }), 1);
+  insertBlock.run(t3Id, "file", JSON.stringify({ url: "", filename: "Template para download", size: "" }), 2);
+  insertBlock.run(t3Id, "file", JSON.stringify({ url: "", filename: "Checklist", size: "" }), 3);
+  insertBlock.run(t3Id, "callout", JSON.stringify({ text: "Dica: siga o template para melhores resultados", type: "tip" }), 4);
+  insertBlock.run(t3Id, "button", JSON.stringify({ label: "Submeter resultado", url: "", style: "primary" }), 5);
 }

@@ -3,13 +3,15 @@ import { motion, AnimatePresence } from 'motion/react';
 import {
   Play, Type, Image, FileDown, MousePointer, Minus, AlertCircle,
   ChevronUp, ChevronDown, Trash2, Pencil, X, Check, GripVertical,
-  Loader2, Save,
+  Loader2, Save, LayoutTemplate, BookmarkPlus,
 } from 'lucide-react';
 import { cn } from '@/src/lib/utils';
 import { Card, CardBody, Button, Badge, Input, Textarea } from '../ui';
 import { Heading, Label } from '../ui/Typography';
-import { getLessonBlocks, setLessonBlocks } from '@/src/services/api';
+import { getLessonBlocks, setLessonBlocks, createTemplateFromLesson } from '@/src/services/api';
 import type { LessonBlock } from '@/src/types';
+import { useWorkspace } from '@/src/hooks/useWorkspace';
+import TemplatePicker from './TemplatePicker';
 
 interface LessonBlockEditorProps {
   lessonId: number;
@@ -230,24 +232,53 @@ function BlockEditForm({ block, onChange }: { block: LessonBlock; onChange: (con
 }
 
 export default function LessonBlockEditor({ lessonId, onClose }: LessonBlockEditorProps) {
+  const { activeWorkspace } = useWorkspace();
+  const workspaceId = activeWorkspace?.id;
   const [blocks, setBlocks] = useState<LessonBlock[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [editingIdx, setEditingIdx] = useState<number | null>(null);
   const [dirty, setDirty] = useState(false);
+  const [showTemplatePicker, setShowTemplatePicker] = useState(false);
+  const [showInitialPicker, setShowInitialPicker] = useState(false);
 
   const load = useCallback(async () => {
     try {
       setLoading(true);
       const data = await getLessonBlocks(lessonId);
-      setBlocks(data.sort((a, b) => a.position - b.position));
+      const sorted = data.sort((a, b) => a.position - b.position);
+      setBlocks(sorted);
+      if (sorted.length === 0 && workspaceId) {
+        setShowInitialPicker(true);
+      }
     } catch (err) {
       console.error('Failed to load blocks:', err);
       setBlocks([]);
+      if (workspaceId) setShowInitialPicker(true);
     } finally {
       setLoading(false);
     }
-  }, [lessonId]);
+  }, [lessonId, workspaceId]);
+
+  const handleSaveAsTemplate = async () => {
+    if (!workspaceId) return;
+    const name = prompt('Nome do template:');
+    if (!name?.trim()) return;
+    try {
+      await createTemplateFromLesson(workspaceId, lessonId, name.trim());
+      alert('Template criado com sucesso!');
+    } catch (err) {
+      console.error('Failed to save as template:', err);
+      alert('Falha ao criar template.');
+    }
+  };
+
+  const handleTemplateApplied = () => {
+    setShowInitialPicker(false);
+    setShowTemplatePicker(false);
+    setDirty(false);
+    load();
+  };
 
   useEffect(() => {
     load();
@@ -352,6 +383,28 @@ export default function LessonBlockEditor({ lessonId, onClose }: LessonBlockEdit
             )}
           </div>
           <div className="flex items-center gap-3">
+            {workspaceId && (
+              <>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  icon={<LayoutTemplate size={14} />}
+                  onClick={() => setShowTemplatePicker(true)}
+                >
+                  Usar Template
+                </Button>
+                {blocks.length > 0 && (
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    icon={<BookmarkPlus size={14} />}
+                    onClick={handleSaveAsTemplate}
+                  >
+                    Salvar como Template
+                  </Button>
+                )}
+              </>
+            )}
             <Button
               size="sm"
               icon={saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
@@ -460,7 +513,18 @@ export default function LessonBlockEditor({ lessonId, onClose }: LessonBlockEdit
           {blocks.length === 0 && (
             <div className="text-center py-12 text-warm-gray/30">
               <p className="font-serif italic text-sm">Nenhum bloco adicionado.</p>
-              <p className="text-xs mt-2">Use a barra abaixo para adicionar conteudo.</p>
+              <p className="text-xs mt-2">Use a barra abaixo para adicionar conteudo ou escolha um template.</p>
+              {workspaceId && (
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  icon={<LayoutTemplate size={14} />}
+                  onClick={() => setShowTemplatePicker(true)}
+                  className="mt-4"
+                >
+                  Escolher Template
+                </Button>
+              )}
             </div>
           )}
         </div>
@@ -486,6 +550,16 @@ export default function LessonBlockEditor({ lessonId, onClose }: LessonBlockEdit
           </div>
         </div>
       </div>
+
+      {/* Template Picker modals */}
+      {workspaceId && (showTemplatePicker || showInitialPicker) && (
+        <TemplatePicker
+          workspaceId={workspaceId}
+          lessonId={lessonId}
+          onApply={handleTemplateApplied}
+          onClose={() => { setShowTemplatePicker(false); setShowInitialPicker(false); }}
+        />
+      )}
     </motion.div>
   );
 }

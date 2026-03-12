@@ -19,6 +19,7 @@ import {
   Route,
   ChevronDown,
   Building2,
+  LayoutTemplate,
 } from 'lucide-react';
 import { cn } from '@/src/lib/utils';
 import NavItem from '../ui/NavItem';
@@ -221,6 +222,13 @@ export default function Sidebar({
                 label="Cursos"
                 active={adminSection === 'courses'}
                 onClick={() => setAdminSection('courses')}
+                layoutId="activeAdminNav"
+              />
+              <NavItem
+                icon={<LayoutTemplate size={18} />}
+                label="Templates"
+                active={adminSection === 'templates'}
+                onClick={() => setAdminSection('templates')}
                 layoutId="activeAdminNav"
               />
               <NavItem

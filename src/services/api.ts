@@ -878,3 +878,70 @@ export async function setLessonBlocks(lessonId: number, blocks: { block_type: st
   if (!res.ok) throw new Error('Falha ao salvar blocos.');
   return res.json();
 }
+
+// ── Lesson Templates API ──────────────────────────────────────────
+
+export interface LessonTemplate {
+  id: number;
+  workspace_id: number;
+  name: string;
+  description: string | null;
+  thumbnail: string | null;
+  is_default: number;
+  created_at: string;
+  block_count?: number;
+  blocks?: LessonBlock[];
+}
+
+export async function getLessonTemplates(workspaceId: number): Promise<LessonTemplate[]> {
+  const res = await authFetch(`/api/lesson-templates/workspace/${workspaceId}`);
+  if (!res.ok) throw new Error('Falha ao carregar templates.');
+  return res.json();
+}
+
+export async function getLessonTemplate(id: number): Promise<LessonTemplate> {
+  const res = await authFetch(`/api/lesson-templates/${id}`);
+  if (!res.ok) throw new Error('Falha ao carregar template.');
+  return res.json();
+}
+
+export async function createLessonTemplate(data: { workspace_id: number; name: string; description?: string; blocks?: { block_type: string; content: Record<string, any>; position: number }[] }): Promise<{ id: number }> {
+  const res = await authFetch('/api/lesson-templates', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Falha ao criar template.');
+  return res.json();
+}
+
+export async function updateLessonTemplate(id: number, data: Partial<{ name: string; description: string; is_default: number; blocks: { block_type: string; content: Record<string, any>; position: number }[] }>): Promise<void> {
+  const res = await authFetch(`/api/lesson-templates/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Falha ao atualizar template.');
+}
+
+export async function deleteLessonTemplate(id: number): Promise<void> {
+  const res = await authFetch(`/api/lesson-templates/${id}`, { method: 'DELETE' });
+  if (!res.ok) throw new Error('Falha ao excluir template.');
+}
+
+export async function createTemplateFromLesson(workspaceId: number, lessonId: number, name: string): Promise<{ id: number }> {
+  const res = await authFetch('/api/lesson-templates/from-lesson', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ workspace_id: workspaceId, lesson_id: lessonId, name }),
+  });
+  if (!res.ok) throw new Error('Falha ao criar template da aula.');
+  return res.json();
+}
+
+export async function applyTemplateToLesson(templateId: number, lessonId: number): Promise<void> {
+  const res = await authFetch(`/api/lesson-templates/${templateId}/apply/${lessonId}`, {
+    method: 'POST',
+  });
+  if (!res.ok) throw new Error('Falha ao aplicar template.');
+}

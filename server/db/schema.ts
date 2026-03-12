@@ -261,6 +261,26 @@ export function initializeSchema() {
       position INTEGER NOT NULL DEFAULT 0,
       FOREIGN KEY(lesson_id) REFERENCES lessons(id) ON DELETE CASCADE
     );
+
+    CREATE TABLE IF NOT EXISTS lesson_templates (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      workspace_id INTEGER NOT NULL,
+      name TEXT NOT NULL,
+      description TEXT,
+      thumbnail TEXT,
+      is_default INTEGER NOT NULL DEFAULT 0,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY(workspace_id) REFERENCES workspaces(id)
+    );
+
+    CREATE TABLE IF NOT EXISTS lesson_template_blocks (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      template_id INTEGER NOT NULL,
+      block_type TEXT NOT NULL,
+      content TEXT NOT NULL DEFAULT '{}',
+      position INTEGER NOT NULL DEFAULT 0,
+      FOREIGN KEY(template_id) REFERENCES lesson_templates(id) ON DELETE CASCADE
+    );
   `);
 
   // Safely add new columns to existing users table (SQLite has no IF NOT EXISTS for ALTER TABLE)
@@ -344,6 +364,8 @@ export function initializeSchema() {
     CREATE INDEX IF NOT EXISTS idx_courses_workspace_id ON courses(workspace_id);
     CREATE INDEX IF NOT EXISTS idx_posts_community_id ON posts(community_id);
     CREATE INDEX IF NOT EXISTS idx_lesson_blocks_lesson_id ON lesson_blocks(lesson_id);
+    CREATE INDEX IF NOT EXISTS idx_lesson_templates_workspace_id ON lesson_templates(workspace_id);
+    CREATE INDEX IF NOT EXISTS idx_lesson_template_blocks_template_id ON lesson_template_blocks(template_id);
   `);
 
   // Migrate existing relationships to junction tables
