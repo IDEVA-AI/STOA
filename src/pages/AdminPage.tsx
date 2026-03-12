@@ -15,6 +15,8 @@ import {
   AdminUnlocks,
   AdminModeration,
   AdminSettings,
+  AdminProducts,
+  AdminTrails,
 } from '../components/admin';
 
 interface AdminPageProps {
@@ -25,6 +27,8 @@ const sectionTitles: Record<AdminSection, string> = {
   dashboard: 'Painel de Administração',
   communities: 'Comunidades',
   courses: 'Cursos',
+  products: 'Produtos',
+  trails: 'Trilhas',
   media: 'Biblioteca de Mídia',
   integrations: 'Integrações',
   unlocks: 'Acessos',
@@ -36,6 +40,8 @@ const sectionComponents: Record<AdminSection, () => JSX.Element> = {
   dashboard: AdminDashboard,
   communities: AdminCommunities,
   courses: AdminCourses,
+  products: AdminProducts,
+  trails: AdminTrails,
   media: AdminMedia,
   integrations: AdminIntegrations,
   unlocks: AdminUnlocks,

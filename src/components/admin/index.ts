@@ -6,3 +6,5 @@ export { default as AdminIntegrations } from './AdminIntegrations';
 export { default as AdminUnlocks } from './AdminUnlocks';
 export { default as AdminModeration } from './AdminModeration';
 export { default as AdminSettings } from './AdminSettings';
+export { default as AdminProducts } from './AdminProducts';
+export { default as AdminTrails } from './AdminTrails';

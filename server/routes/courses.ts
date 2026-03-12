@@ -4,7 +4,8 @@ import * as courseService from "../services/courseService";
 const router = Router();
 
 router.get("/", (req, res) => {
-  const courses = courseService.listCourses();
+  const workspaceId = req.query.workspaceId ? Number(req.query.workspaceId) : undefined;
+  const courses = courseService.listCourses(workspaceId);
   res.json(courses);
 });
 

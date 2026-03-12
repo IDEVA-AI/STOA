@@ -1,14 +1,35 @@
 import db from "../db/connection";
 
-export function getAllCourses() {
+export function getAllCourses(workspaceId?: number) {
+  if (workspaceId) {
+    return db.prepare("SELECT * FROM courses WHERE workspace_id = ?").all(workspaceId);
+  }
   return db.prepare("SELECT * FROM courses").all();
 }
 
+export function getByWorkspace(workspaceId: number) {
+  return db.prepare("SELECT * FROM courses WHERE workspace_id = ?").all(workspaceId);
+}
+
 export function getCourseModules(courseId: number) {
-  const modules = db.prepare('SELECT * FROM modules WHERE course_id = ? ORDER BY "order" ASC').all(courseId) as any[];
+  const modules = db
+    .prepare(
+      `SELECT m.* FROM modules m
+       JOIN courses_modules cm ON cm.module_id = m.id
+       WHERE cm.course_id = ?
+       ORDER BY cm.position`
+    )
+    .all(courseId) as any[];
 
   for (const mod of modules) {
-    mod.lessons = db.prepare('SELECT * FROM lessons WHERE module_id = ? ORDER BY "order" ASC').all(mod.id);
+    mod.lessons = db
+      .prepare(
+        `SELECT l.* FROM lessons l
+         JOIN modules_lessons ml ON ml.lesson_id = l.id
+         WHERE ml.module_id = ?
+         ORDER BY ml.position`
+      )
+      .all(mod.id);
   }
 
   return modules;

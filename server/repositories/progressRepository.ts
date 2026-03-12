@@ -2,7 +2,9 @@ import db from "../db/connection";
 
 export function getOverallProgress(userId: number) {
   const total = db.prepare(`
-    SELECT COUNT(*) as count FROM lessons
+    SELECT COUNT(DISTINCT ml.lesson_id) as count
+    FROM modules_lessons ml
+    JOIN courses_modules cm ON cm.module_id = ml.module_id
   `).get() as { count: number };
 
   const completed = db.prepare(`
@@ -29,8 +31,10 @@ export function getLastAccessedLesson(userId: number) {
       c.id AS course_id
     FROM lesson_progress lp
     JOIN lessons l ON l.id = lp.lesson_id
-    JOIN modules m ON m.id = l.module_id
-    JOIN courses c ON c.id = m.course_id
+    JOIN modules_lessons ml ON ml.lesson_id = l.id
+    JOIN modules m ON m.id = ml.module_id
+    JOIN courses_modules cm ON cm.module_id = m.id
+    JOIN courses c ON c.id = cm.course_id
     WHERE lp.user_id = ?
     ORDER BY lp.completed_at DESC
     LIMIT 1

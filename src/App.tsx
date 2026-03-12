@@ -5,6 +5,7 @@ import { NavigationProvider } from './stores/NavigationContext';
 import { CourseProvider } from './stores/CourseContext';
 import { CommunityProvider } from './stores/CommunityContext';
 import { MessagesProvider } from './stores/MessagesContext';
+import { WorkspaceProvider } from './stores/WorkspaceContext';
 import { AppRoutes } from './router';
 import ErrorBoundary from './components/ErrorBoundary';
 
@@ -12,19 +13,21 @@ export default function App() {
   return (
     <ErrorBoundary>
       <AuthProvider>
-        <ThemeProvider>
-          <BrowserRouter>
-            <NavigationProvider>
-              <CourseProvider>
-                <CommunityProvider>
-                  <MessagesProvider>
-                    <AppRoutes />
-                  </MessagesProvider>
-                </CommunityProvider>
-              </CourseProvider>
-            </NavigationProvider>
-          </BrowserRouter>
-        </ThemeProvider>
+        <WorkspaceProvider>
+          <ThemeProvider>
+            <BrowserRouter>
+              <NavigationProvider>
+                <CourseProvider>
+                  <CommunityProvider>
+                    <MessagesProvider>
+                      <AppRoutes />
+                    </MessagesProvider>
+                  </CommunityProvider>
+                </CourseProvider>
+              </NavigationProvider>
+            </BrowserRouter>
+          </ThemeProvider>
+        </WorkspaceProvider>
       </AuthProvider>
     </ErrorBoundary>
   );

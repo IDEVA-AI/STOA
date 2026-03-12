@@ -36,6 +36,7 @@ function resolveTabFromPath(pathname: string): TabId {
   if (PATH_TO_TAB[pathname]) return PATH_TO_TAB[pathname];
   if (pathname.startsWith('/admin')) return 'admin';
   if (pathname.startsWith('/cursos')) return 'courses';
+  if (pathname.startsWith('/comunidade')) return 'community';
   return 'dashboard';
 }
 

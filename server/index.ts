@@ -19,6 +19,11 @@ import messagesRouter from "./routes/messages";
 import uploadRouter from "./routes/upload";
 import profileRouter from "./routes/profile";
 import announcementsRouter from "./routes/announcements";
+import workspacesRouter from "./routes/workspaces";
+import productsRouter from "./routes/products";
+import purchasesRouter from "./routes/purchases";
+import trailsRouter from "./routes/trails";
+import communitiesRouter from "./routes/communities";
 
 initializeSchema();
 seedDatabase();
@@ -58,6 +63,11 @@ async function startServer() {
   app.use("/api/upload", uploadRouter);
   app.use("/api/profile", profileRouter);
   app.use("/api/announcements", announcementsRouter);
+  app.use("/api/workspaces", workspacesRouter);
+  app.use("/api/products", productsRouter);
+  app.use("/api/purchases", purchasesRouter);
+  app.use("/api/trails", trailsRouter);
+  app.use("/api/communities", communitiesRouter);
 
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {

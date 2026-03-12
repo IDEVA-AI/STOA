@@ -1,4 +1,6 @@
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
   BookOpen,
@@ -12,11 +14,16 @@ import {
   Lock,
   Flag,
   ArrowRight,
-  Palette
+  Palette,
+  Package,
+  Route,
+  ChevronDown,
 } from 'lucide-react';
 import { cn } from '@/src/lib/utils';
 import NavItem from '../ui/NavItem';
-import type { TabId, AdminSection, Theme } from '@/src/types';
+import type { TabId, AdminSection, Theme, Community } from '@/src/types';
+import { useWorkspace } from '@/src/hooks/useWorkspace';
+import * as api from '@/src/services/api';
 
 interface SidebarProps {
   activeTab: TabId;
@@ -37,6 +44,29 @@ export default function Sidebar({
   setTheme,
   onLogout
 }: SidebarProps) {
+  const navigate = useNavigate();
+  const { activeWorkspace } = useWorkspace();
+  const [communities, setCommunities] = useState<Community[]>([]);
+  const [communityOpen, setCommunityOpen] = useState(false);
+
+  useEffect(() => {
+    if (!activeWorkspace) return;
+    api.getCommunities(activeWorkspace.id)
+      .then(setCommunities)
+      .catch(() => setCommunities([]));
+  }, [activeWorkspace]);
+
+  const handleCommunityClick = () => {
+    if (communities.length === 1) {
+      navigate(`/comunidade/${communities[0].id}`);
+    } else if (communities.length > 1) {
+      setCommunityOpen((prev) => !prev);
+      setActiveTab('community');
+    } else {
+      setActiveTab('community');
+    }
+  };
+
   return (
     <aside className="w-20 lg:w-72 border-r border-line flex flex-col items-center lg:items-stretch py-10 px-6 bg-surface transition-all duration-500 relative overflow-hidden">
       <div className="flex flex-col gap-1 px-4 mb-16 relative z-10">
@@ -84,12 +114,57 @@ export default function Sidebar({
                 active={activeTab === 'courses'}
                 onClick={() => setActiveTab('courses')}
               />
-              <NavItem
-                icon={<Users size={18} />}
-                label="Comunidade"
-                active={activeTab === 'community'}
-                onClick={() => setActiveTab('community')}
-              />
+              {/* Community nav with sub-links */}
+              <div>
+                <div className="flex items-center">
+                  <div className="flex-1">
+                    <NavItem
+                      icon={<Users size={18} />}
+                      label="Comunidade"
+                      active={activeTab === 'community'}
+                      onClick={handleCommunityClick}
+                    />
+                  </div>
+                  {communities.length > 1 && (
+                    <button
+                      onClick={() => setCommunityOpen((prev) => !prev)}
+                      className="p-1 text-warm-gray/40 hover:text-gold transition-colors"
+                    >
+                      <ChevronDown
+                        size={14}
+                        className={cn(
+                          'transition-transform duration-300',
+                          communityOpen && 'rotate-180'
+                        )}
+                      />
+                    </button>
+                  )}
+                </div>
+                <AnimatePresence>
+                  {communityOpen && communities.length > 1 && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="pl-10 space-y-0.5 py-1">
+                        {communities.map((comm) => (
+                          <button
+                            key={comm.id}
+                            onClick={() => navigate(`/comunidade/${comm.id}`)}
+                            className="w-full text-left px-4 py-2 text-[11px] font-bold tracking-tight text-warm-gray/60 hover:text-gold transition-all hover:translate-x-0.5 truncate"
+                          >
+                            {comm.name}
+                          </button>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
               <NavItem
                 icon={<MessageSquare size={18} />}
                 label="Mensagens"
@@ -145,6 +220,20 @@ export default function Sidebar({
                 label="Cursos"
                 active={adminSection === 'courses'}
                 onClick={() => setAdminSection('courses')}
+                layoutId="activeAdminNav"
+              />
+              <NavItem
+                icon={<Package size={18} />}
+                label="Produtos"
+                active={adminSection === 'products'}
+                onClick={() => setAdminSection('products')}
+                layoutId="activeAdminNav"
+              />
+              <NavItem
+                icon={<Route size={18} />}
+                label="Trilhas"
+                active={adminSection === 'trails'}
+                onClick={() => setAdminSection('trails')}
                 layoutId="activeAdminNav"
               />
               <NavItem

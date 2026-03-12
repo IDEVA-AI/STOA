@@ -42,6 +42,9 @@ export interface Post {
   likes: number;
   has_liked: boolean;
   created_at: string;
+  pinned?: boolean;
+  category_id?: number | null;
+  community_id?: number | null;
 }
 
 export interface Comment {
@@ -115,7 +118,7 @@ export type AuthMode = 'login' | 'register';
 
 export type TabId = 'dashboard' | 'courses' | 'community' | 'admin' | 'profile' | 'messages' | 'design-system';
 
-export type AdminSection = 'dashboard' | 'communities' | 'courses' | 'media' | 'integrations' | 'unlocks' | 'moderation' | 'settings';
+export type AdminSection = 'dashboard' | 'communities' | 'courses' | 'media' | 'integrations' | 'unlocks' | 'moderation' | 'settings' | 'products' | 'trails';
 
 export type Theme = 'light' | 'dark' | 'rust';
 
@@ -135,4 +138,81 @@ export interface Message {
   sender_avatar: string;
   content: string;
   created_at: string;
+}
+
+// ── SaaS Types ─────────────────────────────────────────────────────
+
+export interface Workspace {
+  id: number;
+  name: string;
+  slug: string;
+  logo: string | null;
+  owner_id: number;
+  plan: string;
+  created_at: string;
+}
+
+export interface WorkspaceMember {
+  id: number;
+  user_id: number;
+  name: string;
+  email: string;
+  avatar: string | null;
+  role: string;
+  joined_at: string;
+}
+
+export interface Product {
+  id: number;
+  workspace_id: number;
+  title: string;
+  description: string | null;
+  price: number;
+  type: 'course' | 'bundle';
+  is_published: number;
+  created_at: string;
+  course_count?: number;
+  courses?: Course[];
+}
+
+export interface Purchase {
+  id: number;
+  user_id: number;
+  product_id: number;
+  workspace_id: number;
+  status: 'active' | 'expired' | 'refunded';
+  purchased_at: string;
+  expires_at: string | null;
+  product_title?: string;
+  product_price?: number;
+}
+
+export interface Trail {
+  id: number;
+  workspace_id: number;
+  title: string;
+  description: string | null;
+  thumbnail: string | null;
+  is_published: number;
+  created_at: string;
+  course_count?: number;
+  courses?: Course[];
+}
+
+export interface Community {
+  id: number;
+  workspace_id: number;
+  course_id: number | null;
+  name: string;
+  description: string | null;
+  created_at: string;
+  post_count?: number;
+  categories?: CommunityCategory[];
+}
+
+export interface CommunityCategory {
+  id: number;
+  community_id: number;
+  name: string;
+  position: number;
 }

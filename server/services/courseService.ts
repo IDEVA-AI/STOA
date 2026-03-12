@@ -1,7 +1,7 @@
 import * as courseRepo from "../repositories/courseRepository";
 
-export function listCourses() {
-  return courseRepo.getAllCourses();
+export function listCourses(workspaceId?: number) {
+  return courseRepo.getAllCourses(workspaceId);
 }
 
 export function getCourseContent(courseId: number) {

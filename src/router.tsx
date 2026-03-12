@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import { AnimatePresence } from 'motion/react';
+import { useParams } from 'react-router-dom';
 import { useAuth } from './hooks/useAuth';
 import { useNavigation } from './hooks/useNavigation';
 import { useCourses } from './hooks/useCourses';
@@ -128,9 +129,13 @@ function CoursesRoute() {
 }
 
 function CommunityRoute() {
-  const { posts, newPost, setNewPost, submitPost, toggleLike } = useCommunity();
+  return <CommunityPage />;
+}
 
-  return <CommunityPage posts={posts} newPost={newPost} setNewPost={setNewPost} onPostSubmit={submitPost} onToggleLike={toggleLike} />;
+function CommunityByIdRoute() {
+  const { communityId } = useParams<{ communityId: string }>();
+
+  return <CommunityPage communityId={communityId ? Number(communityId) : undefined} />;
 }
 
 function AdminRoute() {
@@ -149,6 +154,7 @@ export function AppRoutes() {
           <Route path="/cursos" element={<CoursesRoute />} />
           <Route path="/cursos/:courseId/aula/:lessonId" element={<CoursesRoute />} />
           <Route path="/comunidade" element={<CommunityRoute />} />
+          <Route path="/comunidade/:communityId" element={<CommunityByIdRoute />} />
           <Route path="/mensagens" element={<MessagesPage />} />
           <Route path="/perfil" element={<ProfilePage />} />
           <Route path="/admin" element={<AdminRoute />} />

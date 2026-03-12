@@ -49,4 +49,63 @@ export function seedDatabase() {
   db.prepare("INSERT INTO messages (conversation_id, sender_id, content) VALUES (1, 2, ?)").run("Ola Julio! Analisei a estrutura que voce propos para o novo modulo.");
   db.prepare("INSERT INTO messages (conversation_id, sender_id, content) VALUES (1, 1, ?)").run("Otimo! Vou ajustar os diagramas e te envio ainda hoje.");
   db.prepare("INSERT INTO messages (conversation_id, sender_id, content) VALUES (1, 2, ?)").run("Perfeito. O sistema deve ser invisivel, mas a autoridade deve ser sentida.");
+
+  // --- SaaS Multi-tenant seed data ---
+
+  // 1. Default workspace
+  db.prepare("INSERT INTO workspaces (name, slug, owner_id, plan) VALUES (?, ?, ?, ?)").run("STOA", "stoa", 1, "free");
+  const workspaceId = 1;
+
+  // 2. Workspace members for existing users
+  db.prepare("INSERT INTO workspace_members (workspace_id, user_id, role) VALUES (?, ?, ?)").run(workspaceId, 1, "owner");
+  db.prepare("INSERT INTO workspace_members (workspace_id, user_id, role) VALUES (?, ?, ?)").run(workspaceId, 2, "member");
+
+  // 3. Update existing courses to belong to workspace
+  db.prepare("UPDATE courses SET workspace_id = ? WHERE workspace_id IS NULL").run(workspaceId);
+
+  // 4. Create default communities for each course
+  const courses = db.prepare("SELECT id, title FROM courses").all() as Array<{ id: number; title: string }>;
+  for (const course of courses) {
+    db.prepare("INSERT INTO communities (workspace_id, course_id, name, description) VALUES (?, ?, ?, ?)").run(
+      workspaceId,
+      course.id,
+      `${course.title} Community`,
+      `Comunidade do curso ${course.title}`
+    );
+  }
+
+  // 5. Create community categories for each community
+  const communities = db.prepare("SELECT id FROM communities").all() as Array<{ id: number }>;
+  const categoryNames = ["Discussões", "Dúvidas", "Resultados"];
+  for (const community of communities) {
+    for (let i = 0; i < categoryNames.length; i++) {
+      db.prepare("INSERT INTO community_categories (community_id, name, position) VALUES (?, ?, ?)").run(community.id, categoryNames[i], i);
+    }
+  }
+
+  // 6. Create default product for each course
+  for (const course of courses) {
+    db.prepare("INSERT INTO products (workspace_id, title, description, price, type, is_published) VALUES (?, ?, ?, ?, ?, ?)").run(
+      workspaceId,
+      course.title,
+      `Acesso ao curso ${course.title}`,
+      0,
+      "course",
+      1
+    );
+  }
+
+  // 7. Link products to courses via product_courses
+  const products = db.prepare("SELECT id, title FROM products").all() as Array<{ id: number; title: string }>;
+  for (const product of products) {
+    const matchingCourse = courses.find((c) => c.title === product.title);
+    if (matchingCourse) {
+      db.prepare("INSERT INTO product_courses (product_id, course_id) VALUES (?, ?)").run(product.id, matchingCourse.id);
+    }
+  }
+
+  // 8. Update existing posts to belong to the first community
+  if (communities.length > 0) {
+    db.prepare("UPDATE posts SET community_id = ? WHERE community_id IS NULL").run(communities[0].id);
+  }
 }

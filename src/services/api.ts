@@ -1,4 +1,4 @@
-import { Course, Module, Post, Comment, DashboardProgress, CommunitySidebar, SearchResults, Conversation, Message, AuthResponse, AuthUser } from '../types';
+import { Course, Module, Post, Comment, DashboardProgress, CommunitySidebar, SearchResults, Conversation, Message, AuthResponse, AuthUser, Workspace, WorkspaceMember, Product, Purchase, Trail, Community, CommunityCategory } from '../types';
 
 // ── Token helpers ──────────────────────────────────────────────────────
 
@@ -566,5 +566,264 @@ export async function deleteAnnouncement(id: number): Promise<{ success: boolean
     method: 'DELETE',
   });
   if (!res.ok) throw new Error('Falha ao excluir anuncio.');
+  return res.json();
+}
+
+// ── Workspaces API ────────────────────────────────────────────────
+
+export async function getMyWorkspaces(): Promise<Workspace[]> {
+  const res = await authFetch('/api/workspaces');
+  if (!res.ok) throw new Error('Falha ao carregar workspaces.');
+  return res.json();
+}
+
+export async function getWorkspaceBySlug(slug: string): Promise<Workspace> {
+  const res = await authFetch(`/api/workspaces/${slug}`);
+  if (!res.ok) throw new Error('Workspace nao encontrado.');
+  return res.json();
+}
+
+export async function createWorkspace(data: { name: string; slug: string; logo?: string }): Promise<{ id: number }> {
+  const res = await authFetch('/api/workspaces', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Falha ao criar workspace.');
+  return res.json();
+}
+
+export async function updateWorkspace(id: number, data: { name?: string; slug?: string; logo?: string }): Promise<void> {
+  const res = await authFetch(`/api/workspaces/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Falha ao atualizar workspace.');
+}
+
+export async function getWorkspaceMembers(workspaceId: number): Promise<WorkspaceMember[]> {
+  const res = await authFetch(`/api/workspaces/${workspaceId}/members`);
+  if (!res.ok) throw new Error('Falha ao carregar membros.');
+  return res.json();
+}
+
+export async function addWorkspaceMember(workspaceId: number, userId: number, role?: string): Promise<void> {
+  const res = await authFetch(`/api/workspaces/${workspaceId}/members`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ userId, role }),
+  });
+  if (!res.ok) throw new Error('Falha ao adicionar membro.');
+}
+
+export async function updateWorkspaceMemberRole(workspaceId: number, userId: number, role: string): Promise<void> {
+  const res = await authFetch(`/api/workspaces/${workspaceId}/members/${userId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ role }),
+  });
+  if (!res.ok) throw new Error('Falha ao atualizar membro.');
+}
+
+export async function removeWorkspaceMember(workspaceId: number, userId: number): Promise<void> {
+  const res = await authFetch(`/api/workspaces/${workspaceId}/members/${userId}`, {
+    method: 'DELETE',
+  });
+  if (!res.ok) throw new Error('Falha ao remover membro.');
+}
+
+// ── Products API ──────────────────────────────────────────────────
+
+export async function getProducts(workspaceId: number): Promise<Product[]> {
+  const res = await authFetch(`/api/products/workspace/${workspaceId}`);
+  if (!res.ok) throw new Error('Falha ao carregar produtos.');
+  return res.json();
+}
+
+export async function getProduct(id: number): Promise<Product> {
+  const res = await authFetch(`/api/products/${id}`);
+  if (!res.ok) throw new Error('Falha ao carregar produto.');
+  return res.json();
+}
+
+export async function createProduct(data: { workspace_id: number; title: string; description?: string; price?: number; type?: string; is_published?: number; courseIds?: number[] }): Promise<{ id: number }> {
+  const res = await authFetch('/api/products', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Falha ao criar produto.');
+  return res.json();
+}
+
+export async function updateProduct(id: number, data: Partial<{ title: string; description: string; price: number; type: string; is_published: number; courseIds: number[] }>): Promise<void> {
+  const res = await authFetch(`/api/products/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Falha ao atualizar produto.');
+}
+
+export async function deleteProduct(id: number): Promise<void> {
+  const res = await authFetch(`/api/products/${id}`, { method: 'DELETE' });
+  if (!res.ok) throw new Error('Falha ao excluir produto.');
+}
+
+// ── Purchases API ─────────────────────────────────────────────────
+
+export async function getMyPurchases(): Promise<Purchase[]> {
+  const res = await authFetch('/api/purchases/my');
+  if (!res.ok) throw new Error('Falha ao carregar compras.');
+  return res.json();
+}
+
+export async function checkCourseAccess(courseId: number): Promise<{ hasAccess: boolean }> {
+  const res = await authFetch(`/api/purchases/check/${courseId}`);
+  if (!res.ok) throw new Error('Falha ao verificar acesso.');
+  return res.json();
+}
+
+export async function getMyAccessibleCourseIds(): Promise<{ courseIds: number[] }> {
+  const res = await authFetch('/api/purchases/my/courses');
+  if (!res.ok) throw new Error('Falha ao carregar cursos acessiveis.');
+  return res.json();
+}
+
+export async function createPurchase(data: { product_id: number; workspace_id: number }): Promise<{ id: number }> {
+  const res = await authFetch('/api/purchases', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Falha ao registrar compra.');
+  return res.json();
+}
+
+export async function getWorkspacePurchases(workspaceId: number): Promise<Purchase[]> {
+  const res = await authFetch(`/api/purchases/workspace/${workspaceId}`);
+  if (!res.ok) throw new Error('Falha ao carregar vendas.');
+  return res.json();
+}
+
+// ── Trails API ────────────────────────────────────────────────────
+
+export async function getTrails(workspaceId: number): Promise<Trail[]> {
+  const res = await authFetch(`/api/trails/workspace/${workspaceId}`);
+  if (!res.ok) throw new Error('Falha ao carregar trilhas.');
+  return res.json();
+}
+
+export async function getTrail(id: number): Promise<Trail> {
+  const res = await authFetch(`/api/trails/${id}`);
+  if (!res.ok) throw new Error('Falha ao carregar trilha.');
+  return res.json();
+}
+
+export async function createTrail(data: { workspace_id: number; title: string; description?: string; thumbnail?: string; courseIds?: number[] }): Promise<{ id: number }> {
+  const res = await authFetch('/api/trails', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Falha ao criar trilha.');
+  return res.json();
+}
+
+export async function updateTrail(id: number, data: Partial<{ title: string; description: string; thumbnail: string; is_published: number; courseIds: number[] }>): Promise<void> {
+  const res = await authFetch(`/api/trails/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Falha ao atualizar trilha.');
+}
+
+export async function deleteTrail(id: number): Promise<void> {
+  const res = await authFetch(`/api/trails/${id}`, { method: 'DELETE' });
+  if (!res.ok) throw new Error('Falha ao excluir trilha.');
+}
+
+// ── Communities API ───────────────────────────────────────────────
+
+export async function getCommunities(workspaceId: number): Promise<Community[]> {
+  const res = await authFetch(`/api/communities/workspace/${workspaceId}`);
+  if (!res.ok) throw new Error('Falha ao carregar comunidades.');
+  return res.json();
+}
+
+export async function getCourseCommunity(courseId: number): Promise<Community> {
+  const res = await authFetch(`/api/communities/course/${courseId}`);
+  if (!res.ok) throw new Error('Falha ao carregar comunidade do curso.');
+  return res.json();
+}
+
+export async function getCommunity(id: number): Promise<Community> {
+  const res = await authFetch(`/api/communities/${id}`);
+  if (!res.ok) throw new Error('Falha ao carregar comunidade.');
+  return res.json();
+}
+
+export async function createCommunity(data: { workspace_id: number; course_id?: number; name: string; description?: string }): Promise<{ id: number }> {
+  const res = await authFetch('/api/communities', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Falha ao criar comunidade.');
+  return res.json();
+}
+
+export async function updateCommunity(id: number, data: { name?: string; description?: string }): Promise<void> {
+  const res = await authFetch(`/api/communities/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Falha ao atualizar comunidade.');
+}
+
+export async function deleteCommunity(id: number): Promise<void> {
+  const res = await authFetch(`/api/communities/${id}`, { method: 'DELETE' });
+  if (!res.ok) throw new Error('Falha ao excluir comunidade.');
+}
+
+export async function getCommunityPosts(communityId: number, opts?: { categoryId?: number; limit?: number; offset?: number }): Promise<Post[]> {
+  const params = new URLSearchParams();
+  if (opts?.categoryId) params.set('categoryId', String(opts.categoryId));
+  if (opts?.limit) params.set('limit', String(opts.limit));
+  if (opts?.offset) params.set('offset', String(opts.offset));
+  const qs = params.toString() ? `?${params}` : '';
+  const res = await authFetch(`/api/communities/${communityId}/posts${qs}`);
+  if (!res.ok) throw new Error('Falha ao carregar posts.');
+  return res.json();
+}
+
+export async function createCommunityPost(communityId: number, content: string, categoryId?: number): Promise<{ id: number }> {
+  const body: Record<string, unknown> = { content };
+  if (categoryId) body.categoryId = categoryId;
+  const res = await authFetch(`/api/communities/${communityId}/posts`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) throw new Error('Falha ao criar post na comunidade.');
+  return res.json();
+}
+
+export async function getCommunityCategories(communityId: number): Promise<CommunityCategory[]> {
+  const res = await authFetch(`/api/communities/${communityId}/categories`);
+  if (!res.ok) throw new Error('Falha ao carregar categorias.');
+  return res.json();
+}
+
+export async function createCommunityCategory(communityId: number, name: string, position?: number): Promise<{ id: number }> {
+  const res = await authFetch(`/api/communities/${communityId}/categories`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, position }),
+  });
+  if (!res.ok) throw new Error('Falha ao criar categoria.');
   return res.json();
 }
