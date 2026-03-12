@@ -31,6 +31,15 @@ export interface Lesson {
   duration?: number;
   order: number;
   completed?: boolean;
+  blocks?: LessonBlock[];
+}
+
+export interface LessonBlock {
+  id?: number;
+  lesson_id?: number;
+  block_type: 'video' | 'text' | 'image' | 'file' | 'button' | 'divider' | 'callout';
+  content: Record<string, any>;
+  position: number;
 }
 
 export interface Post {

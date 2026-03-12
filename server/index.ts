@@ -28,6 +28,7 @@ import productsRouter from "./routes/products";
 import purchasesRouter from "./routes/purchases";
 import trailsRouter from "./routes/trails";
 import communitiesRouter from "./routes/communities";
+import lessonBlocksRouter from "./routes/lessonBlocks";
 
 initializeSchema();
 seedDatabase();
@@ -72,6 +73,7 @@ async function startServer() {
   app.use("/api/purchases", purchasesRouter);
   app.use("/api/trails", trailsRouter);
   app.use("/api/communities", communitiesRouter);
+  app.use("/api/lesson-blocks", lessonBlocksRouter);
 
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {

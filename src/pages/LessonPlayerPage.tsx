@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/src/lib/utils';
 import type { Course, Module, Lesson } from '../types';
+import BlockRenderer from '../components/blocks/BlockRenderer';
 import {
   Button,
   Avatar,
@@ -204,105 +205,125 @@ export default function LessonPlayerPage({
               </div>
             </header>
 
-            {/* Video Player Stage */}
-            <div className="relative group">
-              <div className="absolute -inset-4 bg-gold/5 rounded-[2rem] blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
-              <div className="aspect-video bg-black shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5)] overflow-hidden relative z-10 border border-line">
-                {selectedLesson.content_type === 'video' ? (
-                  <>
-                    <iframe
-                      ref={iframeRef}
-                      src={`${selectedLesson.content_url}${selectedLesson.content_url?.includes('?') ? '&' : '?'}enablejsapi=1&modestbranding=1&rel=0&controls=0&disablekb=1&iv_load_policy=3&fs=0&playsinline=1&cc_load_policy=0&showinfo=0&autoplay=0`}
-                      className="absolute inset-0 w-full h-full pointer-events-none"
-                      title={selectedLesson.title}
-                      allow="accelerometer; autoplay; encrypted-media; gyroscope"
-                    />
-                    {/* Overlay — blocks all YouTube UI, custom play/pause */}
-                    <button
-                      onClick={togglePlay}
-                      className="absolute inset-0 z-10 cursor-pointer flex items-center justify-center group/play"
-                      aria-label={isPlaying ? 'Pausar vídeo' : 'Reproduzir vídeo'}
+            {/* Content: Blocks or Legacy Video */}
+            {selectedLesson.blocks && selectedLesson.blocks.length > 0 ? (
+              /* Block-based content */
+              <div className="max-w-4xl space-y-10">
+                {selectedLesson.blocks
+                  .sort((a, b) => a.position - b.position)
+                  .map((block, idx) => (
+                    <motion.div
+                      key={block.id ?? idx}
+                      initial={{ opacity: 0, y: 12 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.4, delay: idx * 0.05 }}
                     >
-                      <div className={cn(
-                        'w-20 h-20 rounded-full flex items-center justify-center transition-all duration-500',
-                        isPlaying
-                          ? 'bg-paper/0 opacity-0 group-hover/play:opacity-100 group-hover/play:bg-paper/10 backdrop-blur-sm'
-                          : 'bg-paper/10 backdrop-blur-sm shadow-2xl border border-white/10'
-                      )}>
-                        {isPlaying ? (
-                          <Pause size={32} className="text-paper drop-shadow-lg" />
-                        ) : (
-                          <Play size={32} className="text-paper drop-shadow-lg ml-1" />
-                        )}
-                      </div>
-                    </button>
-                  </>
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-surface">
-                    <div className="text-center space-y-4">
-                      <FileText size={48} className="mx-auto text-gold/20" />
-                      <p className="text-warm-gray font-serif italic">Conteúdo em formato {selectedLesson.content_type}</p>
-                    </div>
-                  </div>
-                )}
+                      <BlockRenderer block={block} />
+                    </motion.div>
+                  ))}
               </div>
-            </div>
-
-            {/* Content Blocks — Editorial Style */}
-            <div className="max-w-4xl">
-              <div className="space-y-20 text-warm-gray font-light leading-relaxed">
-                <section className="space-y-8 relative">
-                  <div className="absolute -left-12 top-0 text-gold/20">
-                    <Lightbulb size={32} />
-                  </div>
-                  <div className="space-y-4">
-                    <Label variant="gold" className="text-[11px] tracking-[0.3em]">Insight Estrutural</Label>
-                    <p className="text-3xl font-serif italic text-text leading-tight border-l-4 border-gold/20 pl-10 py-4">
-                      "A estrutura não é apenas o que você vê no organograma; é o fluxo invisível de autoridade e informação que define o que é possível."
-                    </p>
-                  </div>
-                </section>
-
-                <section className="space-y-10">
-                  <div className="flex items-baseline gap-4">
-                    <span className="font-serif text-4xl font-black text-gold/20">01</span>
-                    <h3 className="text-text font-black text-2xl tracking-tight">O Framework da Invisibilidade</h3>
-                  </div>
-                  <p className="text-xl leading-relaxed text-text/70">
-                    Para construir sistemas que escalam, o arquiteto deve focar em três pilares fundamentais que operam abaixo da superfície da consciência organizacional:
-                  </p>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    {[
-                      { title: "Protocolos", desc: "Regras automáticas de decisão que eliminam a necessidade de microgestão constante." },
-                      { title: "Canais", desc: "Caminhos de menor resistência que guiam o fluxo de energia e informação." },
-                      { title: "Filtros", desc: "Mecanismos de seleção que garantem que apenas o essencial chegue ao topo." }
-                    ].map((item, i) => (
-                      <div key={i} className="p-8 border border-line bg-surface/30 hover:bg-surface transition-all duration-500 group cursor-default">
-                        <Label variant="gold" className="mb-4 block group-hover:tracking-[0.4em] transition-all">{item.title}</Label>
-                        <p className="text-xs text-warm-gray leading-relaxed opacity-80 group-hover:opacity-100">{item.desc}</p>
+            ) : (
+              /* Legacy: single video embed + editorial placeholders */
+              <>
+                <div className="relative group">
+                  <div className="absolute -inset-4 bg-gold/5 rounded-[2rem] blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+                  <div className="aspect-video bg-black shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5)] overflow-hidden relative z-10 border border-line">
+                    {selectedLesson.content_type === 'video' ? (
+                      <>
+                        <iframe
+                          ref={iframeRef}
+                          src={`${selectedLesson.content_url}${selectedLesson.content_url?.includes('?') ? '&' : '?'}enablejsapi=1&modestbranding=1&rel=0&controls=0&disablekb=1&iv_load_policy=3&fs=0&playsinline=1&cc_load_policy=0&showinfo=0&autoplay=0`}
+                          className="absolute inset-0 w-full h-full pointer-events-none"
+                          title={selectedLesson.title}
+                          allow="accelerometer; autoplay; encrypted-media; gyroscope"
+                        />
+                        <button
+                          onClick={togglePlay}
+                          className="absolute inset-0 z-10 cursor-pointer flex items-center justify-center group/play"
+                          aria-label={isPlaying ? 'Pausar video' : 'Reproduzir video'}
+                        >
+                          <div className={cn(
+                            'w-20 h-20 rounded-full flex items-center justify-center transition-all duration-500',
+                            isPlaying
+                              ? 'bg-paper/0 opacity-0 group-hover/play:opacity-100 group-hover/play:bg-paper/10 backdrop-blur-sm'
+                              : 'bg-paper/10 backdrop-blur-sm shadow-2xl border border-white/10'
+                          )}>
+                            {isPlaying ? (
+                              <Pause size={32} className="text-paper drop-shadow-lg" />
+                            ) : (
+                              <Play size={32} className="text-paper drop-shadow-lg ml-1" />
+                            )}
+                          </div>
+                        </button>
+                      </>
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-surface">
+                        <div className="text-center space-y-4">
+                          <FileText size={48} className="mx-auto text-gold/20" />
+                          <p className="text-warm-gray font-serif italic">Conteudo em formato {selectedLesson.content_type}</p>
+                        </div>
                       </div>
-                    ))}
+                    )}
                   </div>
-                </section>
+                </div>
 
-                <section className="p-12 bg-gold/5 border border-gold/10 relative overflow-hidden group">
-                  <div className="absolute -right-10 -bottom-10 text-gold/5 rotate-12 transition-transform duration-1000 group-hover:rotate-0">
-                    <Quote size={200} />
+                {/* Static editorial content for legacy lessons */}
+                <div className="max-w-4xl">
+                  <div className="space-y-20 text-warm-gray font-light leading-relaxed">
+                    <section className="space-y-8 relative">
+                      <div className="absolute -left-12 top-0 text-gold/20">
+                        <Lightbulb size={32} />
+                      </div>
+                      <div className="space-y-4">
+                        <Label variant="gold" className="text-[11px] tracking-[0.3em]">Insight Estrutural</Label>
+                        <p className="text-3xl font-serif italic text-text leading-tight border-l-4 border-gold/20 pl-10 py-4">
+                          "A estrutura nao e apenas o que voce ve no organograma; e o fluxo invisivel de autoridade e informacao que define o que e possivel."
+                        </p>
+                      </div>
+                    </section>
+
+                    <section className="space-y-10">
+                      <div className="flex items-baseline gap-4">
+                        <span className="font-serif text-4xl font-black text-gold/20">01</span>
+                        <h3 className="text-text font-black text-2xl tracking-tight">O Framework da Invisibilidade</h3>
+                      </div>
+                      <p className="text-xl leading-relaxed text-text/70">
+                        Para construir sistemas que escalam, o arquiteto deve focar em tres pilares fundamentais que operam abaixo da superficie da consciencia organizacional:
+                      </p>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        {[
+                          { title: "Protocolos", desc: "Regras automaticas de decisao que eliminam a necessidade de microgestao constante." },
+                          { title: "Canais", desc: "Caminhos de menor resistencia que guiam o fluxo de energia e informacao." },
+                          { title: "Filtros", desc: "Mecanismos de selecao que garantem que apenas o essencial chegue ao topo." }
+                        ].map((item, i) => (
+                          <div key={i} className="p-8 border border-line bg-surface/30 hover:bg-surface transition-all duration-500 group cursor-default">
+                            <Label variant="gold" className="mb-4 block group-hover:tracking-[0.4em] transition-all">{item.title}</Label>
+                            <p className="text-xs text-warm-gray leading-relaxed opacity-80 group-hover:opacity-100">{item.desc}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </section>
+
+                    <section className="p-12 bg-gold/5 border border-gold/10 relative overflow-hidden group">
+                      <div className="absolute -right-10 -bottom-10 text-gold/5 rotate-12 transition-transform duration-1000 group-hover:rotate-0">
+                        <Quote size={200} />
+                      </div>
+                      <div className="relative z-10 space-y-6">
+                        <div className="flex items-center gap-4 text-gold">
+                          <Quote size={24} />
+                          <Label variant="gold" className="text-xs">Nota do Arquiteto</Label>
+                        </div>
+                        <p className="text-xl font-serif italic text-text/80 leading-relaxed">
+                          Muitos lideres tentam resolver problemas de comportamento com treinamento, quando na verdade o problema e o sistema.
+                          Se voce coloca uma pessoa boa em um sistema ruim, o sistema vence todas as vezes.
+                          Nossa tarefa e projetar sistemas onde o comportamento desejado seja o caminho natural.
+                        </p>
+                      </div>
+                    </section>
                   </div>
-                  <div className="relative z-10 space-y-6">
-                    <div className="flex items-center gap-4 text-gold">
-                      <Quote size={24} />
-                      <Label variant="gold" className="text-xs">Nota do Arquiteto</Label>
-                    </div>
-                    <p className="text-xl font-serif italic text-text/80 leading-relaxed">
-                      Muitos líderes tentam resolver problemas de comportamento com treinamento, quando na verdade o problema é o sistema.
-                      Se você coloca uma pessoa boa em um sistema ruim, o sistema vence todas as vezes.
-                      Nossa tarefa é projetar sistemas onde o comportamento desejado seja o caminho natural.
-                    </p>
-                  </div>
-                </section>
-              </div>
-            </div>
+                </div>
+              </>
+            )}
 
             {/* Navigation Footer */}
             <footer className="pt-20 border-t border-line flex justify-between items-center">

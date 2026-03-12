@@ -1,4 +1,5 @@
 import db from "../db/connection";
+import * as lessonBlockRepo from "./lessonBlockRepository";
 
 export function getAllCourses(workspaceId?: number) {
   if (workspaceId) {
@@ -29,7 +30,11 @@ export function getCourseModules(courseId: number) {
          WHERE ml.module_id = ?
          ORDER BY ml.position`
       )
-      .all(mod.id);
+      .all(mod.id) as any[];
+
+    for (const lesson of mod.lessons) {
+      lesson.blocks = lessonBlockRepo.getByLesson(lesson.id);
+    }
   }
 
   return modules;

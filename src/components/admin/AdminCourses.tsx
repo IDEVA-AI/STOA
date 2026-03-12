@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Search, Plus, ChevronDown, ChevronRight, Play, FileText, Trash2, Pencil, X, Check, Loader2 } from 'lucide-react';
+import { Search, Plus, ChevronDown, ChevronRight, Play, FileText, Trash2, Pencil, X, Check, Loader2, LayoutGrid } from 'lucide-react';
 import {
   Card, CardBody, Button, Badge, Input, StatCard,
 } from '../ui';
@@ -12,6 +12,7 @@ import {
   createLesson, updateLesson, deleteLesson,
   type AdminCourse,
 } from '@/src/services/api';
+import LessonBlockEditor from './LessonBlockEditor';
 
 interface ModuleWithLessons {
   id: number;
@@ -79,6 +80,9 @@ export default function AdminCourses() {
   // Lesson form states
   const [addingLessonModuleId, setAddingLessonModuleId] = useState<number | null>(null);
   const [editingLessonId, setEditingLessonId] = useState<number | null>(null);
+
+  // Block editor state
+  const [editingLessonBlocks, setEditingLessonBlocks] = useState<number | null>(null);
 
   // Expanded course modules/lessons cache
   const [courseModules, setCourseModules] = useState<Record<number, ModuleWithLessons[]>>({});
@@ -427,37 +431,54 @@ export default function AdminCourses() {
                                     >
                                       <div className="border-t border-line">
                                         {lessons.map((lesson) => (
-                                          <div
-                                            key={lesson.id}
-                                            className="px-6 py-4 flex items-center justify-between hover:bg-bg/20 transition-colors border-b border-line last:border-b-0"
-                                          >
-                                            {editingLessonId === lesson.id ? (
-                                              <div className="flex-1" onClick={(e) => e.stopPropagation()}>
-                                                <InlineForm
-                                                  initialValue={lesson.title}
-                                                  placeholder="Titulo da aula"
-                                                  onSave={(val) => handleUpdateLesson(lesson.id, val, course.id)}
-                                                  onCancel={() => setEditingLessonId(null)}
-                                                />
-                                              </div>
-                                            ) : (
-                                              <>
-                                                <div className="flex items-center gap-4">
-                                                  <div className="w-3.5 h-3.5 border border-line rounded-full" />
-                                                  <span className="text-sm">{lesson.title}</span>
+                                          <div key={lesson.id} className="border-b border-line last:border-b-0">
+                                            <div className="px-6 py-4 flex items-center justify-between hover:bg-bg/20 transition-colors">
+                                              {editingLessonId === lesson.id ? (
+                                                <div className="flex-1" onClick={(e) => e.stopPropagation()}>
+                                                  <InlineForm
+                                                    initialValue={lesson.title}
+                                                    placeholder="Titulo da aula"
+                                                    onSave={(val) => handleUpdateLesson(lesson.id, val, course.id)}
+                                                    onCancel={() => setEditingLessonId(null)}
+                                                  />
                                                 </div>
-                                                <div className="flex items-center gap-4">
-                                                  {lesson.duration && <Label>{lesson.duration} min</Label>}
-                                                  {lesson.content_type === 'video' ? (
-                                                    <Play size={12} className="text-warm-gray/40" />
-                                                  ) : (
-                                                    <FileText size={12} className="text-warm-gray/40" />
-                                                  )}
-                                                  <Button variant="ghost" size="sm" iconOnly icon={<Pencil size={12} />} onClick={() => setEditingLessonId(lesson.id)} />
-                                                  <Button variant="ghost" size="sm" iconOnly icon={<Trash2 size={12} className="text-red-400" />} onClick={() => handleDeleteLesson(lesson.id, course.id)} />
+                                              ) : (
+                                                <>
+                                                  <div className="flex items-center gap-4">
+                                                    <div className="w-3.5 h-3.5 border border-line rounded-full" />
+                                                    <span className="text-sm">{lesson.title}</span>
+                                                  </div>
+                                                  <div className="flex items-center gap-4">
+                                                    {lesson.duration && <Label>{lesson.duration} min</Label>}
+                                                    {lesson.content_type === 'video' ? (
+                                                      <Play size={12} className="text-warm-gray/40" />
+                                                    ) : (
+                                                      <FileText size={12} className="text-warm-gray/40" />
+                                                    )}
+                                                    <Button
+                                                      variant="ghost" size="sm"
+                                                      icon={<LayoutGrid size={12} />}
+                                                      onClick={() => setEditingLessonBlocks(editingLessonBlocks === lesson.id ? null : lesson.id)}
+                                                      className={editingLessonBlocks === lesson.id ? '!text-gold' : ''}
+                                                    >
+                                                      <span className="text-[10px]">Blocos</span>
+                                                    </Button>
+                                                    <Button variant="ghost" size="sm" iconOnly icon={<Pencil size={12} />} onClick={() => setEditingLessonId(lesson.id)} />
+                                                    <Button variant="ghost" size="sm" iconOnly icon={<Trash2 size={12} className="text-red-400" />} onClick={() => handleDeleteLesson(lesson.id, course.id)} />
+                                                  </div>
+                                                </>
+                                              )}
+                                            </div>
+                                            <AnimatePresence>
+                                              {editingLessonBlocks === lesson.id && (
+                                                <div className="px-6 pb-4">
+                                                  <LessonBlockEditor
+                                                    lessonId={lesson.id}
+                                                    onClose={() => setEditingLessonBlocks(null)}
+                                                  />
                                                 </div>
-                                              </>
-                                            )}
+                                              )}
+                                            </AnimatePresence>
                                           </div>
                                         ))}
                                         {/* Add lesson */}

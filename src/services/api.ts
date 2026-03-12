@@ -1,4 +1,4 @@
-import { Course, Module, Post, Comment, DashboardProgress, CommunitySidebar, SearchResults, Conversation, Message, AuthResponse, AuthUser, Workspace, WorkspaceMember, Product, Purchase, Trail, Community, CommunityCategory } from '../types';
+import { Course, Module, Post, Comment, DashboardProgress, CommunitySidebar, SearchResults, Conversation, Message, AuthResponse, AuthUser, Workspace, WorkspaceMember, Product, Purchase, Trail, Community, CommunityCategory, LessonBlock } from '../types';
 
 // ── Token helpers ──────────────────────────────────────────────────────
 
@@ -825,5 +825,56 @@ export async function createCommunityCategory(communityId: number, name: string,
     body: JSON.stringify({ name, position }),
   });
   if (!res.ok) throw new Error('Falha ao criar categoria.');
+  return res.json();
+}
+
+// ── Lesson Blocks API ─────────────────────────────────────────────
+
+export async function getLessonBlocks(lessonId: number): Promise<LessonBlock[]> {
+  const res = await authFetch(`/api/lesson-blocks/lesson/${lessonId}`);
+  if (!res.ok) throw new Error('Falha ao carregar blocos.');
+  return res.json();
+}
+
+export async function createLessonBlock(data: { lesson_id: number; block_type: string; content: Record<string, any>; position?: number }): Promise<{ id: number }> {
+  const res = await authFetch('/api/lesson-blocks', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Falha ao criar bloco.');
+  return res.json();
+}
+
+export async function updateLessonBlock(id: number, data: Partial<{ block_type: string; content: Record<string, any>; position: number }>): Promise<void> {
+  const res = await authFetch(`/api/lesson-blocks/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Falha ao atualizar bloco.');
+}
+
+export async function deleteLessonBlock(id: number): Promise<void> {
+  const res = await authFetch(`/api/lesson-blocks/${id}`, { method: 'DELETE' });
+  if (!res.ok) throw new Error('Falha ao excluir bloco.');
+}
+
+export async function reorderLessonBlocks(lessonId: number, blockIds: number[]): Promise<void> {
+  const res = await authFetch(`/api/lesson-blocks/lesson/${lessonId}/reorder`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ blockIds }),
+  });
+  if (!res.ok) throw new Error('Falha ao reordenar blocos.');
+}
+
+export async function setLessonBlocks(lessonId: number, blocks: { block_type: string; content: Record<string, any>; position: number }[]): Promise<{ ids: number[] }> {
+  const res = await authFetch(`/api/lesson-blocks/lesson/${lessonId}/batch`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ blocks }),
+  });
+  if (!res.ok) throw new Error('Falha ao salvar blocos.');
   return res.json();
 }
