@@ -8,6 +8,7 @@ import {
   Bold, Italic, Underline as UnderlineIcon, Strikethrough,
   Heading1, Heading2, Heading3, List, ListOrdered,
   Quote, Code, Link as LinkIcon, Undo, Redo, Code2,
+  RemoveFormatting,
 } from 'lucide-react';
 import { cn } from '@/src/lib/utils';
 
@@ -15,6 +16,42 @@ interface RichTextEditorProps {
   value: string;
   onChange: (html: string) => void;
 }
+
+const EDITOR_CLASSES = [
+  // Base
+  'focus:outline-none min-h-[160px] px-4 py-3 text-sm leading-relaxed',
+  // Typography
+  'font-serif',
+  // Headings
+  '[&_h1]:text-2xl [&_h1]:font-bold [&_h1]:font-serif [&_h1]:text-text [&_h1]:mt-6 [&_h1]:mb-3 [&_h1]:tracking-tight [&_h1]:leading-tight',
+  '[&_h2]:text-xl [&_h2]:font-bold [&_h2]:font-serif [&_h2]:text-text [&_h2]:mt-5 [&_h2]:mb-2 [&_h2]:tracking-tight [&_h2]:leading-tight',
+  '[&_h3]:text-lg [&_h3]:font-bold [&_h3]:font-serif [&_h3]:text-text [&_h3]:mt-4 [&_h3]:mb-2 [&_h3]:tracking-tight',
+  // Paragraph
+  '[&_p]:text-text/80 [&_p]:leading-relaxed [&_p]:mb-3 [&_p]:last:mb-0',
+  // Bold / Italic / Underline / Strike
+  '[&_strong]:text-text [&_strong]:font-bold',
+  '[&_em]:italic',
+  '[&_u]:underline [&_u]:decoration-gold/40 [&_u]:underline-offset-2',
+  '[&_s]:line-through [&_s]:text-warm-gray/50',
+  // Links
+  '[&_a]:text-gold [&_a]:underline [&_a]:underline-offset-2 [&_a]:decoration-gold/40 hover:[&_a]:decoration-gold',
+  // Lists
+  '[&_ul]:list-disc [&_ul]:pl-6 [&_ul]:mb-3 [&_ul]:space-y-1',
+  '[&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:mb-3 [&_ol]:space-y-1',
+  '[&_li]:text-text/80 [&_li]:leading-relaxed',
+  '[&_li_p]:mb-0',
+  // Blockquote
+  '[&_blockquote]:border-l-2 [&_blockquote]:border-gold/30 [&_blockquote]:pl-4 [&_blockquote]:py-1 [&_blockquote]:my-4 [&_blockquote]:italic [&_blockquote]:text-text/60',
+  // Inline code
+  '[&_code]:text-gold/80 [&_code]:bg-surface [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-xs [&_code]:font-mono',
+  // Code block
+  '[&_pre]:bg-surface [&_pre]:border [&_pre]:border-line [&_pre]:rounded-sm [&_pre]:px-4 [&_pre]:py-3 [&_pre]:my-4 [&_pre]:overflow-x-auto',
+  '[&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_pre_code]:text-text/70 [&_pre_code]:text-xs [&_pre_code]:font-mono [&_pre_code]:leading-relaxed',
+  // Horizontal rule
+  '[&_hr]:border-line [&_hr]:my-6',
+  // Placeholder
+  '[&_.is-editor-empty:first-child::before]:content-[attr(data-placeholder)] [&_.is-editor-empty:first-child::before]:text-warm-gray/30 [&_.is-editor-empty:first-child::before]:float-left [&_.is-editor-empty:first-child::before]:h-0 [&_.is-editor-empty:first-child::before]:pointer-events-none [&_.is-editor-empty:first-child::before]:italic',
+].join(' ');
 
 export default function RichTextEditor({ value, onChange }: RichTextEditorProps) {
   const [showSource, setShowSource] = useState(false);
@@ -27,7 +64,6 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
       }),
       Link.configure({
         openOnClick: false,
-        HTMLAttributes: { class: 'text-gold underline' },
       }),
       Underline,
       Placeholder.configure({
@@ -42,7 +78,7 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
     },
     editorProps: {
       attributes: {
-        class: 'prose prose-invert max-w-none focus:outline-none min-h-[160px] px-4 py-3 text-sm font-serif leading-relaxed prose-headings:font-serif prose-a:text-gold prose-code:text-gold/80 prose-code:bg-surface prose-code:px-1 prose-code:rounded',
+        class: EDITOR_CLASSES,
       },
     },
   });
@@ -87,6 +123,11 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
     }
   }, [editor]);
 
+  const clearFormatting = useCallback(() => {
+    if (!editor) return;
+    editor.chain().focus().clearNodes().unsetAllMarks().run();
+  }, [editor]);
+
   if (!editor) return null;
 
   return (
@@ -103,7 +144,7 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
         <ToolbarButton
           active={editor.isActive('italic')}
           onClick={() => editor.chain().focus().toggleItalic().run()}
-          title="Itálico (Ctrl+I)"
+          title="Italico (Ctrl+I)"
         >
           <Italic size={14} />
         </ToolbarButton>
@@ -186,20 +227,26 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
         >
           <LinkIcon size={14} />
         </ToolbarButton>
+        <ToolbarButton
+          onClick={clearFormatting}
+          title="Limpar formatacao"
+        >
+          <RemoveFormatting size={14} />
+        </ToolbarButton>
 
         <ToolbarDivider />
 
         <ToolbarButton
           onClick={() => editor.chain().focus().undo().run()}
           disabled={!editor.can().undo()}
-          title="Desfazer"
+          title="Desfazer (Ctrl+Z)"
         >
           <Undo size={14} />
         </ToolbarButton>
         <ToolbarButton
           onClick={() => editor.chain().focus().redo().run()}
           disabled={!editor.can().redo()}
-          title="Refazer"
+          title="Refazer (Ctrl+Shift+Z)"
         >
           <Redo size={14} />
         </ToolbarButton>
@@ -209,7 +256,7 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
           <ToolbarButton
             active={showSource}
             onClick={toggleSource}
-            title={showSource ? 'Visual' : 'Codigo HTML'}
+            title={showSource ? 'Modo visual' : 'Codigo HTML'}
           >
             <Code2 size={14} />
             <span className="text-[10px] ml-1">{showSource ? 'Visual' : 'HTML'}</span>
@@ -222,7 +269,7 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
         <textarea
           value={sourceHtml}
           onChange={(e) => handleSourceChange(e.target.value)}
-          className="w-full min-h-[160px] px-4 py-3 bg-bg text-xs font-mono text-text/80 focus:outline-none resize-y"
+          className="w-full min-h-[160px] px-4 py-3 bg-bg text-xs font-mono text-text/80 focus:outline-none resize-y border-0"
           spellCheck={false}
         />
       ) : (
