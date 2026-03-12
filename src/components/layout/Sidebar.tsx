@@ -201,8 +201,6 @@ export default function Sidebar({
               transition={{ duration: 0.3 }}
               className="space-y-1"
             >
-              <p className="mono-label text-[9px] text-warm-gray px-5 mb-4 uppercase tracking-[0.3em] font-bold">Painel Administrativo</p>
-
               <NavItem
                 icon={<LayoutDashboard size={18} />}
                 label="Visão Geral"
@@ -210,13 +208,9 @@ export default function Sidebar({
                 onClick={() => setAdminSection('dashboard')}
                 layoutId="activeAdminNav"
               />
-              <NavItem
-                icon={<Users size={18} />}
-                label="Comunidades"
-                active={adminSection === 'communities'}
-                onClick={() => setAdminSection('communities')}
-                layoutId="activeAdminNav"
-              />
+
+              {/* ── Conteúdo ── */}
+              <p className="mono-label text-[9px] text-warm-gray/50 px-5 pt-5 pb-1 uppercase tracking-[0.2em] font-bold">Conteúdo</p>
               <NavItem
                 icon={<BookOpen size={18} />}
                 label="Cursos"
@@ -232,6 +226,16 @@ export default function Sidebar({
                 layoutId="activeAdminNav"
               />
               <NavItem
+                icon={<FolderOpen size={18} />}
+                label="Biblioteca"
+                active={adminSection === 'media'}
+                onClick={() => setAdminSection('media')}
+                layoutId="activeAdminNav"
+              />
+
+              {/* ── Comercial ── */}
+              <p className="mono-label text-[9px] text-warm-gray/50 px-5 pt-5 pb-1 uppercase tracking-[0.2em] font-bold">Comercial</p>
+              <NavItem
                 icon={<Package size={18} />}
                 label="Produtos"
                 active={adminSection === 'products'}
@@ -246,10 +250,37 @@ export default function Sidebar({
                 layoutId="activeAdminNav"
               />
               <NavItem
-                icon={<FolderOpen size={18} />}
-                label="Biblioteca de Mídia"
-                active={adminSection === 'media'}
-                onClick={() => setAdminSection('media')}
+                icon={<Lock size={18} />}
+                label="Acessos"
+                active={adminSection === 'unlocks'}
+                onClick={() => setAdminSection('unlocks')}
+                layoutId="activeAdminNav"
+              />
+
+              {/* ── Pessoas ── */}
+              <p className="mono-label text-[9px] text-warm-gray/50 px-5 pt-5 pb-1 uppercase tracking-[0.2em] font-bold">Pessoas</p>
+              <NavItem
+                icon={<Users size={18} />}
+                label="Comunidades"
+                active={adminSection === 'communities'}
+                onClick={() => setAdminSection('communities')}
+                layoutId="activeAdminNav"
+              />
+              <NavItem
+                icon={<Flag size={18} />}
+                label="Moderação"
+                active={adminSection === 'moderation'}
+                onClick={() => setAdminSection('moderation')}
+                layoutId="activeAdminNav"
+              />
+
+              {/* ── Config ── */}
+              <p className="mono-label text-[9px] text-warm-gray/50 px-5 pt-5 pb-1 uppercase tracking-[0.2em] font-bold">Configuração</p>
+              <NavItem
+                icon={<Building2 size={18} />}
+                label="Workspace"
+                active={adminSection === 'workspace'}
+                onClick={() => setAdminSection('workspace')}
                 layoutId="activeAdminNav"
               />
               <NavItem
@@ -260,27 +291,6 @@ export default function Sidebar({
                 layoutId="activeAdminNav"
               />
               <NavItem
-                icon={<Lock size={18} />}
-                label="Acessos"
-                active={adminSection === 'unlocks'}
-                onClick={() => setAdminSection('unlocks')}
-                layoutId="activeAdminNav"
-              />
-              <NavItem
-                icon={<Flag size={18} />}
-                label="Moderação"
-                active={adminSection === 'moderation'}
-                onClick={() => setAdminSection('moderation')}
-                layoutId="activeAdminNav"
-              />
-              <NavItem
-                icon={<Building2 size={18} />}
-                label="Workspace"
-                active={adminSection === 'workspace'}
-                onClick={() => setAdminSection('workspace')}
-                layoutId="activeAdminNav"
-              />
-              <NavItem
                 icon={<Settings size={18} />}
                 label="Configurações"
                 active={adminSection === 'settings'}
@@ -288,7 +298,7 @@ export default function Sidebar({
                 layoutId="activeAdminNav"
               />
 
-              <div className="pt-12">
+              <div className="pt-8">
                 <button
                   onClick={() => setActiveTab('dashboard')}
                   className="w-full flex items-center gap-3 px-5 py-3 text-warm-gray hover:text-gold transition-all duration-300 group"
