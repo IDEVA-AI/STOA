@@ -105,6 +105,37 @@ export function initializeSchema() {
       FOREIGN KEY(conversation_id) REFERENCES conversations(id),
       FOREIGN KEY(sender_id) REFERENCES users(id)
     );
+
+    CREATE TABLE IF NOT EXISTS announcements (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      title TEXT NOT NULL,
+      type TEXT NOT NULL DEFAULT 'info',
+      priority INTEGER NOT NULL DEFAULT 0,
+      frequency TEXT NOT NULL DEFAULT 'once',
+      target TEXT NOT NULL DEFAULT 'all',
+      is_active INTEGER NOT NULL DEFAULT 1,
+      expires_at TEXT,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS announcement_blocks (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      announcement_id INTEGER NOT NULL,
+      block_type TEXT NOT NULL,
+      content TEXT NOT NULL,
+      "order" INTEGER NOT NULL DEFAULT 0,
+      FOREIGN KEY (announcement_id) REFERENCES announcements(id) ON DELETE CASCADE
+    );
+
+    CREATE TABLE IF NOT EXISTS announcement_confirmations (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      announcement_id INTEGER NOT NULL,
+      user_id INTEGER NOT NULL,
+      confirmed_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE(announcement_id, user_id),
+      FOREIGN KEY (announcement_id) REFERENCES announcements(id),
+      FOREIGN KEY (user_id) REFERENCES users(id)
+    );
   `);
 
   // Safely add new columns to existing users table (SQLite has no IF NOT EXISTS for ALTER TABLE)
@@ -113,6 +144,7 @@ export function initializeSchema() {
     { name: "password_hash", definition: "TEXT" },
     { name: "created_at", definition: "TEXT DEFAULT CURRENT_TIMESTAMP" },
     { name: "is_active", definition: "INTEGER DEFAULT 1" },
+    { name: "bio", definition: "TEXT" },
   ];
 
   for (const col of columnsToAdd) {
@@ -136,5 +168,8 @@ export function initializeSchema() {
     CREATE INDEX IF NOT EXISTS idx_post_comments_post_id ON post_comments(post_id);
     CREATE INDEX IF NOT EXISTS idx_conversation_participants_conversation_id ON conversation_participants(conversation_id);
     CREATE INDEX IF NOT EXISTS idx_conversation_participants_user_id ON conversation_participants(user_id);
+    CREATE INDEX IF NOT EXISTS idx_announcement_blocks_announcement_id ON announcement_blocks(announcement_id);
+    CREATE INDEX IF NOT EXISTS idx_announcement_confirmations_announcement_id ON announcement_confirmations(announcement_id);
+    CREATE INDEX IF NOT EXISTS idx_announcement_confirmations_user_id ON announcement_confirmations(user_id);
   `);
 }

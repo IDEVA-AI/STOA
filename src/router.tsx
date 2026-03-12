@@ -17,6 +17,7 @@ import MessagesPage from './pages/MessagesPage';
 import ProfilePage from './pages/ProfilePage';
 import LessonPlayerPage from './pages/LessonPlayerPage';
 import DesignSystemPage from './pages/DesignSystemPage';
+import AnnouncementGate from './components/AnnouncementGate';
 
 function ProtectedRoute() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -85,6 +86,8 @@ function Layout() {
           </AnimatePresence>
         </div>
       </main>
+
+      <AnnouncementGate />
     </div>
   );
 }

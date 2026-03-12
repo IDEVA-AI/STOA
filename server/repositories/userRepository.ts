@@ -9,6 +9,7 @@ export interface User {
   password_hash: string | null;
   created_at: string | null;
   is_active: number;
+  bio: string | null;
 }
 
 export function findByEmail(email: string): User | null {
@@ -36,4 +37,32 @@ export function createUser(
 
 export function updatePassword(userId: number, newHash: string): void {
   db.prepare("UPDATE users SET password_hash = ? WHERE id = ?").run(newHash, userId);
+}
+
+export function updateProfile(
+  userId: number,
+  data: { name?: string; avatar?: string; bio?: string }
+): User | null {
+  const fields: string[] = [];
+  const values: any[] = [];
+
+  if (data.name !== undefined) {
+    fields.push("name = ?");
+    values.push(data.name);
+  }
+  if (data.avatar !== undefined) {
+    fields.push("avatar = ?");
+    values.push(data.avatar);
+  }
+  if (data.bio !== undefined) {
+    fields.push("bio = ?");
+    values.push(data.bio);
+  }
+
+  if (fields.length === 0) return findById(userId);
+
+  values.push(userId);
+  db.prepare(`UPDATE users SET ${fields.join(", ")} WHERE id = ?`).run(...values);
+
+  return findById(userId);
 }

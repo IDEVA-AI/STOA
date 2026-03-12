@@ -96,6 +96,49 @@ export async function getMe(): Promise<AuthUser> {
   return res.json();
 }
 
+// ── Profile API ───────────────────────────────────────────────────────
+
+export interface ProfileData {
+  id: number;
+  name: string;
+  email: string | null;
+  role: string | null;
+  avatar: string | null;
+  bio: string | null;
+}
+
+export async function getProfile(): Promise<ProfileData> {
+  const res = await authFetch('/api/profile');
+  if (!res.ok) throw new Error('Falha ao carregar perfil.');
+  return res.json();
+}
+
+export async function updateProfile(data: { name?: string; avatar?: string; bio?: string }): Promise<ProfileData> {
+  const res = await authFetch('/api/profile', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({ error: 'Falha ao atualizar perfil.' }));
+    throw new Error(body.error || 'Falha ao atualizar perfil.');
+  }
+  return res.json();
+}
+
+export async function changePassword(currentPassword: string, newPassword: string): Promise<{ message: string }> {
+  const res = await authFetch('/api/profile/password', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ currentPassword, newPassword }),
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({ error: 'Falha ao alterar senha.' }));
+    throw new Error(body.error || 'Falha ao alterar senha.');
+  }
+  return res.json();
+}
+
 // ── Courses API ────────────────────────────────────────────────────────
 
 export async function getCourses(): Promise<Course[]> {
@@ -200,6 +243,128 @@ export async function getAdminStats(): Promise<AdminStats> {
   return res.json();
 }
 
+// ── Admin CRUD API ────────────────────────────────────────────────
+
+export interface AdminCourse {
+  id: number;
+  title: string;
+  description: string;
+  thumbnail: string;
+  module_count: number;
+  lesson_count: number;
+}
+
+export interface AdminUser {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+  is_active: number;
+  created_at: string;
+}
+
+// Courses
+export async function getAdminCourses(): Promise<AdminCourse[]> {
+  const res = await authFetch('/api/admin/crud/courses');
+  if (!res.ok) throw new Error('Falha ao carregar cursos.');
+  return res.json();
+}
+
+export async function createCourse(data: { title: string; description?: string; thumbnail?: string }): Promise<{ id: number }> {
+  const res = await authFetch('/api/admin/crud/courses', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Falha ao criar curso.');
+  return res.json();
+}
+
+export async function updateCourse(id: number, data: { title?: string; description?: string; thumbnail?: string }): Promise<void> {
+  const res = await authFetch(`/api/admin/crud/courses/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Falha ao atualizar curso.');
+}
+
+export async function deleteCourse(id: number): Promise<void> {
+  const res = await authFetch(`/api/admin/crud/courses/${id}`, { method: 'DELETE' });
+  if (!res.ok) throw new Error('Falha ao excluir curso.');
+}
+
+// Modules
+export async function createModule(courseId: number, data: { title: string; order?: number }): Promise<{ id: number }> {
+  const res = await authFetch(`/api/admin/crud/courses/${courseId}/modules`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Falha ao criar modulo.');
+  return res.json();
+}
+
+export async function updateModule(id: number, data: { title?: string; order?: number }): Promise<void> {
+  const res = await authFetch(`/api/admin/crud/modules/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Falha ao atualizar modulo.');
+}
+
+export async function deleteModule(id: number): Promise<void> {
+  const res = await authFetch(`/api/admin/crud/modules/${id}`, { method: 'DELETE' });
+  if (!res.ok) throw new Error('Falha ao excluir modulo.');
+}
+
+// Lessons
+export async function createLesson(moduleId: number, data: { title: string; content_url?: string; content_type?: string; duration?: number; order?: number }): Promise<{ id: number }> {
+  const res = await authFetch(`/api/admin/crud/modules/${moduleId}/lessons`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Falha ao criar aula.');
+  return res.json();
+}
+
+export async function updateLesson(id: number, data: { title?: string; content_url?: string; content_type?: string; duration?: number; order?: number }): Promise<void> {
+  const res = await authFetch(`/api/admin/crud/lessons/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Falha ao atualizar aula.');
+}
+
+export async function deleteLesson(id: number): Promise<void> {
+  const res = await authFetch(`/api/admin/crud/lessons/${id}`, { method: 'DELETE' });
+  if (!res.ok) throw new Error('Falha ao excluir aula.');
+}
+
+// Users
+export async function getAdminUsers(): Promise<AdminUser[]> {
+  const res = await authFetch('/api/admin/crud/users');
+  if (!res.ok) throw new Error('Falha ao carregar usuarios.');
+  return res.json();
+}
+
+export async function updateUser(id: number, data: { role?: string; is_active?: number }): Promise<void> {
+  const res = await authFetch(`/api/admin/crud/users/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Falha ao atualizar usuario.');
+}
+
+export async function deleteUser(id: number): Promise<void> {
+  const res = await authFetch(`/api/admin/crud/users/${id}`, { method: 'DELETE' });
+  if (!res.ok) throw new Error('Falha ao desativar usuario.');
+}
+
 // ── Messages API ───────────────────────────────────────────────────────
 
 export async function getConversations(userId: number): Promise<Conversation[]> {
@@ -261,5 +426,145 @@ export async function markConversationRead(conversationId: number, userId: numbe
 export async function getUnreadCount(userId: number): Promise<{ count: number }> {
   const res = await authFetch(`/api/messages/unread-count?userId=${userId}`);
   if (!res.ok) throw new Error('Falha ao carregar contagem de nao lidas.');
+  return res.json();
+}
+
+// ── Upload API ──────────────────────────────────────────────────────────
+
+export interface UploadResult {
+  url: string;
+  filename: string;
+  size: number;
+}
+
+export async function uploadFile(file: File, folder?: string): Promise<UploadResult> {
+  const formData = new FormData();
+  formData.append('file', file);
+  if (folder) formData.append('folder', folder);
+
+  const res = await authFetch('/api/upload', {
+    method: 'POST',
+    body: formData,
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({ error: 'Falha no upload.' }));
+    throw new Error(body.error || 'Falha no upload.');
+  }
+  return res.json();
+}
+
+export async function uploadImage(file: File): Promise<UploadResult> {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const res = await authFetch('/api/upload/image', {
+    method: 'POST',
+    body: formData,
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({ error: 'Falha no upload da imagem.' }));
+    throw new Error(body.error || 'Falha no upload da imagem.');
+  }
+  return res.json();
+}
+
+// ── Announcements API ─────────────────────────────────────────────────
+
+export interface AnnouncementBlock {
+  id: number;
+  announcement_id: number;
+  block_type: 'text' | 'image' | 'video';
+  content: string;
+  order: number;
+}
+
+export interface Announcement {
+  id: number;
+  title: string;
+  type: string;
+  priority: number;
+  frequency: string;
+  target: string;
+  is_active: number;
+  expires_at: string | null;
+  created_at: string;
+  blocks: AnnouncementBlock[];
+}
+
+export interface AnnouncementWithCount {
+  id: number;
+  title: string;
+  type: string;
+  priority: number;
+  frequency: string;
+  target: string;
+  is_active: number;
+  expires_at: string | null;
+  created_at: string;
+  block_count: number;
+}
+
+export interface AnnouncementInput {
+  title: string;
+  type?: string;
+  priority?: number;
+  frequency?: string;
+  target?: string;
+  is_active?: number;
+  expires_at?: string | null;
+  blocks?: { block_type: string; content: string; order: number }[];
+}
+
+export async function getPendingAnnouncements(): Promise<Announcement[]> {
+  const res = await authFetch('/api/announcements/pending');
+  if (!res.ok) throw new Error('Falha ao carregar anuncios pendentes.');
+  return res.json();
+}
+
+export async function confirmAnnouncement(id: number): Promise<{ success: boolean }> {
+  const res = await authFetch(`/api/announcements/${id}/confirm`, {
+    method: 'POST',
+  });
+  if (!res.ok) throw new Error('Falha ao confirmar anuncio.');
+  return res.json();
+}
+
+export async function getAnnouncements(): Promise<AnnouncementWithCount[]> {
+  const res = await authFetch('/api/announcements');
+  if (!res.ok) throw new Error('Falha ao carregar anuncios.');
+  return res.json();
+}
+
+export async function getAnnouncement(id: number): Promise<Announcement> {
+  const res = await authFetch(`/api/announcements/${id}`);
+  if (!res.ok) throw new Error('Falha ao carregar anuncio.');
+  return res.json();
+}
+
+export async function createAnnouncement(data: AnnouncementInput): Promise<Announcement> {
+  const res = await authFetch('/api/announcements', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Falha ao criar anuncio.');
+  return res.json();
+}
+
+export async function updateAnnouncement(id: number, data: AnnouncementInput): Promise<Announcement> {
+  const res = await authFetch(`/api/announcements/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Falha ao atualizar anuncio.');
+  return res.json();
+}
+
+export async function deleteAnnouncement(id: number): Promise<{ success: boolean }> {
+  const res = await authFetch(`/api/announcements/${id}`, {
+    method: 'DELETE',
+  });
+  if (!res.ok) throw new Error('Falha ao excluir anuncio.');
   return res.json();
 }

@@ -11,7 +11,11 @@ import postsRouter from "./routes/posts";
 import progressRouter from "./routes/progress";
 import searchRouter from "./routes/search";
 import adminRouter from "./routes/admin";
+import adminCrudRouter from "./routes/adminCrud";
 import messagesRouter from "./routes/messages";
+import uploadRouter from "./routes/upload";
+import profileRouter from "./routes/profile";
+import announcementsRouter from "./routes/announcements";
 
 initializeSchema();
 seedDatabase();
@@ -32,7 +36,11 @@ async function startServer() {
   app.use("/api/progress", progressRouter);
   app.use("/api/search", searchRouter);
   app.use("/api/admin", adminRouter);
+  app.use("/api/admin/crud", adminCrudRouter);
   app.use("/api/messages", messagesRouter);
+  app.use("/api/upload", uploadRouter);
+  app.use("/api/profile", profileRouter);
+  app.use("/api/announcements", announcementsRouter);
 
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {
