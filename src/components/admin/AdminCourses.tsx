@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { useNavigate } from 'react-router-dom';
 import { Search, Plus, ChevronDown, ChevronRight, Play, FileText, Trash2, Pencil, X, Check, Loader2, LayoutGrid } from 'lucide-react';
 import {
   Card, CardBody, Button, Badge, Input, StatCard,
@@ -12,7 +13,6 @@ import {
   createLesson, updateLesson, deleteLesson,
   type AdminCourse,
 } from '@/src/services/api';
-import LessonBlockEditor from './LessonBlockEditor';
 
 interface ModuleWithLessons {
   id: number;
@@ -59,6 +59,7 @@ function InlineForm({ initialValue, placeholder, onSave, onCancel }: {
 }
 
 export default function AdminCourses() {
+  const navigate = useNavigate();
   const [courses, setCourses] = useState<AdminCourse[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -80,9 +81,6 @@ export default function AdminCourses() {
   // Lesson form states
   const [addingLessonModuleId, setAddingLessonModuleId] = useState<number | null>(null);
   const [editingLessonId, setEditingLessonId] = useState<number | null>(null);
-
-  // Block editor state
-  const [editingLessonBlocks, setEditingLessonBlocks] = useState<number | null>(null);
 
   // Expanded course modules/lessons cache
   const [courseModules, setCourseModules] = useState<Record<number, ModuleWithLessons[]>>({});
@@ -458,8 +456,7 @@ export default function AdminCourses() {
                                                     <Button
                                                       variant="ghost" size="sm"
                                                       icon={<LayoutGrid size={12} />}
-                                                      onClick={() => setEditingLessonBlocks(editingLessonBlocks === lesson.id ? null : lesson.id)}
-                                                      className={editingLessonBlocks === lesson.id ? '!text-gold' : ''}
+                                                      onClick={() => navigate(`/admin/editor/${lesson.id}`, { state: { lessonTitle: lesson.title } })}
                                                     >
                                                       <span className="text-[10px]">Blocos</span>
                                                     </Button>
@@ -469,16 +466,6 @@ export default function AdminCourses() {
                                                 </>
                                               )}
                                             </div>
-                                            <AnimatePresence>
-                                              {editingLessonBlocks === lesson.id && (
-                                                <div className="px-6 pb-4">
-                                                  <LessonBlockEditor
-                                                    lessonId={lesson.id}
-                                                    onClose={() => setEditingLessonBlocks(null)}
-                                                  />
-                                                </div>
-                                              )}
-                                            </AnimatePresence>
                                           </div>
                                         ))}
                                         {/* Add lesson */}

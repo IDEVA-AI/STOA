@@ -20,6 +20,7 @@ import MessagesPage from './pages/MessagesPage';
 import ProfilePage from './pages/ProfilePage';
 import LessonPlayerPage from './pages/LessonPlayerPage';
 import DesignSystemPage from './pages/DesignSystemPage';
+import BlockEditorPage from './pages/BlockEditorPage';
 import AnnouncementGate from './components/AnnouncementGate';
 import ErrorBoundary from './components/ErrorBoundary';
 
@@ -166,6 +167,7 @@ export function AppRoutes() {
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route element={<ProtectedRoute />}>
+        <Route path="/admin/editor/:lessonId" element={<BlockEditorPage />} />
         <Route element={<Layout />}>
           <Route path="/" element={<DashboardRoute />} />
           <Route path="/cursos" element={<CoursesRoute />} />
