@@ -1,7 +1,7 @@
 import { Router, Request, Response } from "express";
 import multer from "multer";
 import { authMiddleware } from "../middleware/auth";
-import { uploadToBunny, deleteFromBunny, uniqueFilename } from "../services/uploadService";
+import { uploadToBunny, deleteFromBunny, listBunnyFiles, uniqueFilename } from "../services/uploadService";
 
 const router = Router();
 
@@ -69,6 +69,35 @@ router.post(
     } catch (err: any) {
       console.error("[upload/image] error:", err.message);
       res.status(500).json({ error: err.message || "Falha no upload." });
+    }
+  }
+);
+
+// GET /library — list all uploaded files across folders
+router.get(
+  "/library",
+  authMiddleware,
+  async (_req: Request, res: Response) => {
+    try {
+      const [images, videos, files] = await Promise.all([
+        listBunnyFiles("images"),
+        listBunnyFiles("videos"),
+        listBunnyFiles("files"),
+      ]);
+
+      const tagType = (items: typeof images, type: string) =>
+        items.map((i) => ({ ...i, type, folder: type === "image" ? "images" : type === "video" ? "videos" : "files" }));
+
+      const all = [
+        ...tagType(images, "image"),
+        ...tagType(videos, "video"),
+        ...tagType(files, "file"),
+      ].sort((a, b) => new Date(b.lastChanged).getTime() - new Date(a.lastChanged).getTime());
+
+      res.json(all);
+    } catch (err: any) {
+      console.error("[upload/library] error:", err.message);
+      res.status(500).json({ error: err.message || "Falha ao listar biblioteca." });
     }
   }
 );

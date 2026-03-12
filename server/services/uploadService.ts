@@ -54,6 +54,43 @@ export async function uploadToBunny(
  * Delete a file from Bunny CDN storage.
  * @param path - e.g. "uploads/myfile-123.jpg"
  */
+/**
+ * List files from a Bunny CDN storage folder.
+ */
+export async function listBunnyFiles(
+  folder: string
+): Promise<Array<{ name: string; url: string; size: number; lastChanged: string }>> {
+  const url = `${STORAGE_BASE}/${folder}/`;
+
+  const res = await fetch(url, {
+    method: "GET",
+    headers: { AccessKey: BUNNY_API_KEY, Accept: "application/json" },
+  });
+
+  if (!res.ok) {
+    if (res.status === 404) return [];
+    const text = await res.text().catch(() => "");
+    throw new Error(`Bunny list failed (${res.status}): ${text}`);
+  }
+
+  const items = (await res.json()) as Array<{
+    ObjectName: string;
+    Length: number;
+    LastChanged: string;
+    IsDirectory: boolean;
+  }>;
+
+  return items
+    .filter((i) => !i.IsDirectory)
+    .map((i) => ({
+      name: i.ObjectName,
+      url: `https://${BUNNY_CDN_HOSTNAME}/${folder}/${i.ObjectName}`,
+      size: i.Length,
+      lastChanged: i.LastChanged,
+    }))
+    .sort((a, b) => new Date(b.lastChanged).getTime() - new Date(a.lastChanged).getTime());
+}
+
 export async function deleteFromBunny(path: string): Promise<void> {
   const url = `${STORAGE_BASE}/${path}`;
 

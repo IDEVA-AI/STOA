@@ -468,6 +468,21 @@ export async function uploadImage(file: File): Promise<UploadResult> {
   return res.json();
 }
 
+export interface LibraryItem {
+  name: string;
+  url: string;
+  size: number;
+  lastChanged: string;
+  type: 'image' | 'video' | 'file';
+  folder: string;
+}
+
+export async function getLibrary(): Promise<LibraryItem[]> {
+  const res = await authFetch('/api/upload/library');
+  if (!res.ok) throw new Error('Falha ao carregar biblioteca.');
+  return res.json();
+}
+
 // ── Announcements API ─────────────────────────────────────────────────
 
 export interface AnnouncementBlock {

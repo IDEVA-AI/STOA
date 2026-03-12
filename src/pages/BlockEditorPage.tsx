@@ -5,7 +5,7 @@ import {
   Play, Type, Image, FileDown, MousePointer, Minus, AlertCircle,
   ChevronUp, ChevronDown, Trash2, Pencil, Check, GripVertical,
   Loader2, Save, ArrowLeft, BookmarkPlus, LayoutTemplate, Eye, PenLine,
-  Upload,
+  Upload, FolderOpen, X, Film, ImageIcon, File,
 } from 'lucide-react';
 import { cn } from '@/src/lib/utils';
 import { Button, Badge, Input, Textarea } from '@/src/components/ui';
@@ -13,8 +13,9 @@ import { Label } from '@/src/components/ui/Typography';
 import {
   getLessonBlocks, setLessonBlocks, createTemplateFromLesson,
   getLessonTemplates, applyTemplateToLesson,
-  uploadFile, uploadImage,
+  uploadFile, uploadImage, getLibrary,
 } from '@/src/services/api';
+import type { LibraryItem } from '@/src/services/api';
 import type { LessonTemplate } from '@/src/services/api';
 import type { LessonBlock } from '@/src/types';
 import { useWorkspace } from '@/src/hooks/useWorkspace';
@@ -90,6 +91,163 @@ function defaultContent(type: BlockType): Record<string, any> {
     case 'callout': return { text: '', type: 'info' };
     default: return {};
   }
+}
+
+/* ─── Library Modal ─── */
+
+function LibraryModal({
+  open,
+  filterType,
+  onSelect,
+  onClose,
+}: {
+  open: boolean;
+  filterType?: 'image' | 'video' | 'file';
+  onSelect: (item: LibraryItem) => void;
+  onClose: () => void;
+}) {
+  const [items, setItems] = useState<LibraryItem[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [activeFilter, setActiveFilter] = useState<'all' | 'image' | 'video' | 'file'>(filterType || 'all');
+
+  useEffect(() => {
+    if (!open) return;
+    setLoading(true);
+    getLibrary()
+      .then(setItems)
+      .catch(() => setItems([]))
+      .finally(() => setLoading(false));
+  }, [open]);
+
+  if (!open) return null;
+
+  const filtered = activeFilter === 'all' ? items : items.filter((i) => i.type === activeFilter);
+
+  const isImage = (item: LibraryItem) =>
+    item.type === 'image' || /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(item.name);
+
+  const isVideo = (item: LibraryItem) =>
+    item.type === 'video' || /\.(mp4|webm|mov)$/i.test(item.name);
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={onClose}>
+      <div
+        className="bg-surface border border-line w-full max-w-3xl max-h-[80vh] flex flex-col"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-line shrink-0">
+          <h2 className="font-serif font-bold text-base">Biblioteca de Midia</h2>
+          <button onClick={onClose} className="text-warm-gray hover:text-text transition-colors">
+            <X size={18} />
+          </button>
+        </div>
+
+        {/* Filter tabs */}
+        <div className="flex items-center gap-1 px-6 py-3 border-b border-line/50 shrink-0">
+          {([
+            { key: 'all' as const, label: 'Todos' },
+            { key: 'image' as const, label: 'Imagens', icon: <ImageIcon size={12} /> },
+            { key: 'video' as const, label: 'Videos', icon: <Film size={12} /> },
+            { key: 'file' as const, label: 'Arquivos', icon: <File size={12} /> },
+          ]).map(({ key, label, icon }) => (
+            <button
+              key={key}
+              onClick={() => setActiveFilter(key)}
+              className={cn(
+                'flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold transition-all',
+                activeFilter === key
+                  ? 'bg-gold/10 text-gold border border-gold/30'
+                  : 'text-warm-gray hover:text-text border border-transparent'
+              )}
+            >
+              {icon}
+              {label}
+            </button>
+          ))}
+          <span className="ml-auto text-[10px] text-warm-gray/40 font-mono">
+            {filtered.length} {filtered.length === 1 ? 'item' : 'itens'}
+          </span>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto p-6">
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 size={20} className="animate-spin text-gold" />
+            </div>
+          ) : filtered.length === 0 ? (
+            <div className="text-center py-12">
+              <FolderOpen size={32} className="mx-auto mb-3 text-warm-gray/20" />
+              <p className="text-sm text-warm-gray/40 font-serif italic">Biblioteca vazia</p>
+              <p className="text-xs text-warm-gray/25 mt-1">Faca upload de arquivos para vê-los aqui</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+              {filtered.map((item) => (
+                <button
+                  key={item.url}
+                  onClick={() => { onSelect(item); onClose(); }}
+                  className="group border border-line hover:border-gold/40 transition-all overflow-hidden bg-bg text-left"
+                >
+                  {/* Thumbnail */}
+                  <div className="aspect-video bg-surface flex items-center justify-center overflow-hidden">
+                    {isImage(item) ? (
+                      <img src={item.url} alt={item.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                    ) : isVideo(item) ? (
+                      <div className="flex flex-col items-center gap-1 text-blue-400">
+                        <Film size={24} />
+                        <span className="text-[9px] font-mono">VIDEO</span>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center gap-1 text-amber-400">
+                        <File size={24} />
+                        <span className="text-[9px] font-mono uppercase">
+                          {item.name.split('.').pop()}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  {/* Info */}
+                  <div className="p-2">
+                    <p className="text-[11px] font-bold text-text truncate group-hover:text-gold transition-colors">
+                      {item.name}
+                    </p>
+                    <p className="text-[10px] text-warm-gray/40 font-mono">
+                      {formatBytes(item.size)}
+                    </p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function LibraryButton({
+  filterType,
+  onSelect,
+}: {
+  filterType?: 'image' | 'video' | 'file';
+  onSelect: (item: LibraryItem) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="flex items-center gap-2 px-4 py-2 text-xs font-bold border border-line text-warm-gray hover:border-gold/30 hover:text-gold transition-all"
+      >
+        <FolderOpen size={14} />
+        Biblioteca
+      </button>
+      <LibraryModal open={open} filterType={filterType} onSelect={onSelect} onClose={() => setOpen(false)} />
+    </>
+  );
 }
 
 /* ─── Upload Button ─── */
@@ -173,6 +331,7 @@ function BlockEditForm({ block, onChange }: { block: LessonBlock; onChange: (con
               label="Upload"
               onUploaded={(r) => update('url', r.url)}
             />
+            <LibraryButton filterType="video" onSelect={(item) => update('url', item.url)} />
           </div>
           {c.url && !c.url.includes('youtube') && !c.url.includes('vimeo') && (
             <p className="text-[10px] text-emerald-400 font-mono truncate">Hospedado: {c.url}</p>
@@ -211,6 +370,7 @@ function BlockEditForm({ block, onChange }: { block: LessonBlock; onChange: (con
               useImageEndpoint
               onUploaded={(r) => update('url', r.url)}
             />
+            <LibraryButton filterType="image" onSelect={(item) => update('url', item.url)} />
           </div>
           {c.url && (
             <div className="border border-line rounded-sm overflow-hidden max-w-xs">
@@ -243,6 +403,12 @@ function BlockEditForm({ block, onChange }: { block: LessonBlock; onChange: (con
               label="Upload"
               onUploaded={(r) => {
                 onChange({ ...c, url: r.url, filename: r.filename, size: formatBytes(r.size) });
+              }}
+            />
+            <LibraryButton
+              filterType="file"
+              onSelect={(item) => {
+                onChange({ ...c, url: item.url, filename: item.name, size: formatBytes(item.size) });
               }}
             />
           </div>
