@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import {
   Play, Type, Image, FileDown, MousePointer, Minus, AlertCircle,
   ChevronUp, ChevronDown, Trash2, Pencil, Check, GripVertical,
-  Loader2, Save, ArrowLeft, BookmarkPlus, LayoutTemplate,
+  Loader2, Save, ArrowLeft, BookmarkPlus, LayoutTemplate, Eye, PenLine,
 } from 'lucide-react';
 import { cn } from '@/src/lib/utils';
 import { Button, Badge, Input, Textarea } from '@/src/components/ui';
@@ -16,6 +16,7 @@ import {
 import type { LessonTemplate } from '@/src/services/api';
 import type { LessonBlock } from '@/src/types';
 import { useWorkspace } from '@/src/hooks/useWorkspace';
+import BlockRenderer from '@/src/components/blocks/BlockRenderer';
 
 /* ─── Block type definitions ─── */
 
@@ -263,6 +264,7 @@ export default function BlockEditorPage() {
   const [saving, setSaving] = useState(false);
   const [editingIdx, setEditingIdx] = useState<number | null>(null);
   const [dirty, setDirty] = useState(false);
+  const [preview, setPreview] = useState(false);
 
   // Templates
   const [templates, setTemplates] = useState<LessonTemplate[]>([]);
@@ -412,7 +414,10 @@ export default function BlockEditorPage() {
   return (
     <div className="flex h-screen overflow-hidden font-sans bg-bg text-text">
       {/* ── Left Sidebar ── */}
-      <aside className="w-64 bg-surface border-r border-line flex flex-col overflow-hidden shrink-0">
+      <aside className={cn(
+        'w-64 bg-surface border-r border-line flex flex-col overflow-hidden shrink-0 transition-all duration-300',
+        preview && 'w-0 border-r-0 opacity-0 pointer-events-none'
+      )}>
         <div className="flex-1 overflow-y-auto py-6 px-4">
           {/* Components Section */}
           <p className="mono-label text-[9px] text-warm-gray/50 tracking-[0.2em] uppercase px-2 mb-3 font-bold">
@@ -512,16 +517,31 @@ export default function BlockEditorPage() {
           </button>
 
           <h1 className="font-serif font-bold text-base truncate max-w-md">
-            Editando: {lessonTitle}
+            {preview ? 'Preview:' : 'Editando:'} {lessonTitle}
           </h1>
 
           <div className="flex items-center gap-3">
-            {dirty && (
+            {dirty && !preview && (
               <span className="text-[9px] mono-label text-amber-400 tracking-widest hidden sm:inline">
                 ALTERACOES NAO SALVAS
               </span>
             )}
-            {workspaceId && blocks.length > 0 && (
+
+            {/* Preview toggle */}
+            <button
+              onClick={() => { setPreview(!preview); setEditingIdx(null); }}
+              className={cn(
+                'flex items-center gap-2 px-3 py-1.5 text-xs font-bold border transition-all duration-200',
+                preview
+                  ? 'border-gold bg-gold/10 text-gold'
+                  : 'border-line text-warm-gray hover:border-gold/30 hover:text-gold'
+              )}
+            >
+              {preview ? <PenLine size={14} /> : <Eye size={14} />}
+              {preview ? 'Editar' : 'Preview'}
+            </button>
+
+            {!preview && workspaceId && blocks.length > 0 && (
               <Button
                 variant="secondary"
                 size="sm"
@@ -531,29 +551,55 @@ export default function BlockEditorPage() {
                 <span className="hidden md:inline">Salvar como Template</span>
               </Button>
             )}
-            <Button
-              size="sm"
-              icon={saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
-              onClick={handleSave}
-              disabled={saving || !dirty}
-              className={cn(
-                'transition-all',
-                dirty && '!bg-gold !text-paper animate-pulse'
-              )}
-            >
-              Salvar
-            </Button>
+            {!preview && (
+              <Button
+                size="sm"
+                icon={saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
+                onClick={handleSave}
+                disabled={saving || !dirty}
+                className={cn(
+                  'transition-all',
+                  dirty && '!bg-gold !text-paper animate-pulse'
+                )}
+              >
+                Salvar
+              </Button>
+            )}
           </div>
         </header>
 
         {/* Canvas */}
         <div className="flex-1 overflow-y-auto p-8 bg-bg">
-          <div className="max-w-3xl mx-auto">
+          <div className={cn('mx-auto', preview ? 'max-w-4xl' : 'max-w-3xl')}>
             {loading ? (
               <div className="flex items-center justify-center py-20">
                 <Loader2 className="animate-spin text-gold" size={24} />
               </div>
+            ) : preview ? (
+              /* ── Preview Mode ── */
+              blocks.length === 0 ? (
+                <div className="text-center py-20">
+                  <Eye size={40} className="mx-auto mb-4 text-warm-gray/15" />
+                  <p className="font-serif italic text-sm text-warm-gray/40">
+                    Nenhum bloco para visualizar
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-8">
+                  {blocks.map((block, idx) => (
+                    <motion.div
+                      key={`preview-${block.id ?? idx}`}
+                      initial={{ opacity: 0, y: 12 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.25, delay: idx * 0.05 }}
+                    >
+                      <BlockRenderer block={block} />
+                    </motion.div>
+                  ))}
+                </div>
+              )
             ) : (
+              /* ── Edit Mode ── */
               <>
                 {/* Block List */}
                 <div className="space-y-4">
