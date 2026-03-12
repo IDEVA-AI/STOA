@@ -108,6 +108,13 @@ export function markAsRead(conversationId: number, userId: number) {
   ).run(conversationId, userId);
 }
 
+export function getConversationParticipants(conversationId: number): number[] {
+  const rows = db.prepare(
+    "SELECT user_id FROM conversation_participants WHERE conversation_id = ?"
+  ).all(conversationId) as { user_id: number }[];
+  return rows.map(r => r.user_id);
+}
+
 export function getTotalUnreadCount(userId: number): number {
   const row = db.prepare(`
     SELECT COALESCE(SUM(unread), 0) as total FROM (

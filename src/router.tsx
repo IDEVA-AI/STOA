@@ -18,6 +18,7 @@ import ProfilePage from './pages/ProfilePage';
 import LessonPlayerPage from './pages/LessonPlayerPage';
 import DesignSystemPage from './pages/DesignSystemPage';
 import AnnouncementGate from './components/AnnouncementGate';
+import ErrorBoundary from './components/ErrorBoundary';
 
 function ProtectedRoute() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -81,9 +82,11 @@ function Layout() {
         <Header />
 
         <div className="p-10 max-w-7xl mx-auto">
-          <AnimatePresence mode="wait">
-            <Outlet />
-          </AnimatePresence>
+          <ErrorBoundary>
+            <AnimatePresence mode="wait">
+              <Outlet />
+            </AnimatePresence>
+          </ErrorBoundary>
         </div>
       </main>
 

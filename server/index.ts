@@ -1,10 +1,13 @@
 import "dotenv/config";
 import express from "express";
 import { createServer as createViteServer } from "vite";
+import { createServer as createHttpServer } from "http";
 import path from "path";
 import { initializeSchema } from "./db/schema";
 import { seedDatabase } from "./db/seed";
 import { setupMiddleware, errorHandler, notFoundHandler, authLimiter } from "./middleware";
+import { initWebSocket } from "./ws";
+import logger from "./lib/logger.js";
 import authRouter from "./routes/auth";
 import coursesRouter from "./routes/courses";
 import postsRouter from "./routes/posts";
@@ -26,6 +29,20 @@ async function startServer() {
 
   // Middleware stack (compression, helmet, cors, json parser, rate limit)
   setupMiddleware(app);
+
+  // Request logging for API routes
+  app.use("/api/", (req, res, next) => {
+    const start = Date.now();
+    res.on("finish", () => {
+      logger.info({
+        method: req.method,
+        url: req.originalUrl,
+        statusCode: res.statusCode,
+        duration: Date.now() - start,
+      });
+    });
+    next();
+  });
 
   // Auth routes (with stricter rate limit)
   app.use("/api/auth", authLimiter, authRouter);
@@ -60,8 +77,11 @@ async function startServer() {
   app.use(notFoundHandler);
   app.use(errorHandler);
 
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`STOA running on http://localhost:${PORT}`);
+  const httpServer = createHttpServer(app);
+  initWebSocket(httpServer);
+
+  httpServer.listen(PORT, "0.0.0.0", () => {
+    logger.info(`STOA running on http://localhost:${PORT}`);
   });
 }
 

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback, type KeyboardEvent } from 'react';
+import { useEffect, useRef, useState, useCallback, type KeyboardEvent, type ChangeEvent } from 'react';
 import { Send, Search, MessageSquare } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '@/src/lib/utils';
@@ -13,6 +13,7 @@ import {
 } from '../components/ui';
 import { Heading, Label } from '../components/ui/Typography';
 import { useMessages } from '../hooks/useMessages';
+import { useAuth } from '../hooks/useAuth';
 
 function formatTime(dateStr: string | null) {
   if (!dateStr) return '';
@@ -37,10 +38,15 @@ export default function MessagesPage() {
     activeConversation,
     messages,
     loading,
+    typingUsers,
     fetchConversations,
     selectConversation,
     sendMessage,
+    sendTyping,
   } = useMessages();
+
+  const { user } = useAuth();
+  const CURRENT_USER_ID = user?.id ?? 1;
 
   const [searchFilter, setSearchFilter] = useState('');
   const [inputValue, setInputValue] = useState('');
@@ -54,10 +60,15 @@ export default function MessagesPage() {
   const activeMessages = activeConversation ? messages[activeConversation] || [] : [];
   const activeConv = conversations.find(c => c.id === activeConversation);
 
-  // Auto-scroll to bottom on new messages
+  // Typing users for the active conversation (excluding self)
+  const activeTyping = activeConversation
+    ? (typingUsers[activeConversation] || []).filter(id => id !== CURRENT_USER_ID)
+    : [];
+
+  // Auto-scroll to bottom on new messages or typing indicator
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [activeMessages.length]);
+  }, [activeMessages.length, activeTyping.length]);
 
   const filteredConversations = conversations.filter(c =>
     c.participant.name.toLowerCase().includes(searchFilter.toLowerCase())
@@ -78,7 +89,12 @@ export default function MessagesPage() {
     }
   }, [handleSend]);
 
-  const CURRENT_USER_ID = 1;
+  const handleInputChange = useCallback((e: ChangeEvent<HTMLTextAreaElement>) => {
+    setInputValue(e.target.value);
+    if (activeConversation && e.target.value.trim()) {
+      sendTyping(activeConversation);
+    }
+  }, [activeConversation, sendTyping]);
 
   return (
     <PageTransition id="messages" className="h-[calc(100vh-200px)] flex gap-12">
@@ -255,6 +271,23 @@ export default function MessagesPage() {
                     );
                   })
                 )}
+                {activeTyping.length > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 8 }}
+                    className="flex items-center gap-3 px-2"
+                  >
+                    <div className="flex gap-1">
+                      <span className="w-2 h-2 rounded-full bg-warm-gray/40 animate-bounce" style={{ animationDelay: '0ms' }} />
+                      <span className="w-2 h-2 rounded-full bg-warm-gray/40 animate-bounce" style={{ animationDelay: '150ms' }} />
+                      <span className="w-2 h-2 rounded-full bg-warm-gray/40 animate-bounce" style={{ animationDelay: '300ms' }} />
+                    </div>
+                    <span className="text-xs text-warm-gray/60 font-light italic">
+                      {activeConv?.participant.name} esta digitando...
+                    </span>
+                  </motion.div>
+                )}
                 <div ref={messagesEndRef} />
               </div>
 
@@ -264,7 +297,7 @@ export default function MessagesPage() {
                   <textarea
                     ref={inputRef}
                     value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)}
+                    onChange={handleInputChange}
                     onKeyDown={handleKeyDown}
                     placeholder="Escreva sua mensagem..."
                     rows={1}

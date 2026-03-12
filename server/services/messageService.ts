@@ -35,6 +35,10 @@ export function markAsRead(conversationId: number, userId: number) {
   return messageRepo.markAsRead(conversationId, userId);
 }
 
+export function getConversationParticipants(conversationId: number) {
+  return messageRepo.getConversationParticipants(conversationId);
+}
+
 export function getTotalUnreadCount(userId: number) {
   return messageRepo.getTotalUnreadCount(userId);
 }
