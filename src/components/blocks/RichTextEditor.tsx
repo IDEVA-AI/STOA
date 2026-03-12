@@ -23,9 +23,9 @@ const EDITOR_CLASSES = [
   // Typography
   'font-serif',
   // Headings
-  '[&_h1]:text-2xl [&_h1]:font-bold [&_h1]:font-serif [&_h1]:text-text [&_h1]:mt-6 [&_h1]:mb-3 [&_h1]:tracking-tight [&_h1]:leading-tight',
-  '[&_h2]:text-xl [&_h2]:font-bold [&_h2]:font-serif [&_h2]:text-text [&_h2]:mt-5 [&_h2]:mb-2 [&_h2]:tracking-tight [&_h2]:leading-tight',
-  '[&_h3]:text-lg [&_h3]:font-bold [&_h3]:font-serif [&_h3]:text-text [&_h3]:mt-4 [&_h3]:mb-2 [&_h3]:tracking-tight',
+  '[&_h1]:text-3xl [&_h1]:font-bold [&_h1]:font-serif [&_h1]:text-text [&_h1]:mt-6 [&_h1]:mb-3 [&_h1]:tracking-tight [&_h1]:leading-tight',
+  '[&_h2]:text-xl [&_h2]:font-bold [&_h2]:font-serif [&_h2]:text-text/90 [&_h2]:mt-5 [&_h2]:mb-2 [&_h2]:tracking-tight [&_h2]:leading-tight [&_h2]:border-b [&_h2]:border-line/30 [&_h2]:pb-2',
+  '[&_h3]:text-base [&_h3]:font-bold [&_h3]:font-serif [&_h3]:text-text/80 [&_h3]:mt-4 [&_h3]:mb-2 [&_h3]:uppercase [&_h3]:tracking-wide',
   // Paragraph
   '[&_p]:text-text/80 [&_p]:leading-relaxed [&_p]:mb-3 [&_p]:last:mb-0',
   // Bold / Italic / Underline / Strike

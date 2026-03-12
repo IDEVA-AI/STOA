@@ -56,9 +56,9 @@ function VideoBlock({ content }: { content: Record<string, any> }) {
 const TEXT_BLOCK_CLASSES = [
   'max-w-none font-serif text-text/80 leading-relaxed',
   // Headings
-  '[&_h1]:text-3xl [&_h1]:font-bold [&_h1]:font-serif [&_h1]:text-text [&_h1]:mt-8 [&_h1]:mb-4 [&_h1]:tracking-tight [&_h1]:leading-tight',
-  '[&_h2]:text-2xl [&_h2]:font-bold [&_h2]:font-serif [&_h2]:text-text [&_h2]:mt-6 [&_h2]:mb-3 [&_h2]:tracking-tight [&_h2]:leading-tight',
-  '[&_h3]:text-xl [&_h3]:font-bold [&_h3]:font-serif [&_h3]:text-text [&_h3]:mt-5 [&_h3]:mb-2 [&_h3]:tracking-tight',
+  '[&_h1]:text-4xl [&_h1]:font-bold [&_h1]:font-serif [&_h1]:text-text [&_h1]:mt-8 [&_h1]:mb-4 [&_h1]:tracking-tight [&_h1]:leading-tight',
+  '[&_h2]:text-2xl [&_h2]:font-bold [&_h2]:font-serif [&_h2]:text-text/90 [&_h2]:mt-6 [&_h2]:mb-3 [&_h2]:tracking-tight [&_h2]:leading-tight [&_h2]:border-b [&_h2]:border-line/30 [&_h2]:pb-2',
+  '[&_h3]:text-lg [&_h3]:font-bold [&_h3]:font-serif [&_h3]:text-text/80 [&_h3]:mt-5 [&_h3]:mb-2 [&_h3]:uppercase [&_h3]:tracking-wide',
   // Paragraph
   '[&_p]:text-lg [&_p]:leading-relaxed [&_p]:mb-4 [&_p]:last:mb-0',
   // Bold / Italic / Underline / Strike
