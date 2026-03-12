@@ -1,11 +1,14 @@
+import bcrypt from "bcryptjs";
 import db from "./connection";
 
 export function seedDatabase() {
   const userCount = db.prepare("SELECT count(*) as count FROM users").get() as { count: number };
   if (userCount.count > 0) return;
 
-  db.prepare("INSERT INTO users (name, avatar, role) VALUES (?, ?, ?)").run("Julio Carvalho", "https://api.dicebear.com/7.x/avataaars/svg?seed=Julio", "Arquiteto de Sistemas");
-  db.prepare("INSERT INTO users (name, avatar, role) VALUES (?, ?, ?)").run("Ana Silva", "https://api.dicebear.com/7.x/avataaars/svg?seed=Ana", "Líder de Operações");
+  const devPasswordHash = bcrypt.hashSync("123456", 10);
+
+  db.prepare("INSERT INTO users (name, avatar, role, email, password_hash) VALUES (?, ?, ?, ?, ?)").run("Julio Carvalho", "https://api.dicebear.com/7.x/avataaars/svg?seed=Julio", "Arquiteto de Sistemas", "julio@stoa.com", devPasswordHash);
+  db.prepare("INSERT INTO users (name, avatar, role, email, password_hash) VALUES (?, ?, ?, ?, ?)").run("Ana Silva", "https://api.dicebear.com/7.x/avataaars/svg?seed=Ana", "Líder de Operações", "ana@stoa.com", devPasswordHash);
 
   db.prepare("INSERT INTO courses (title, description, thumbnail, lessons_count, progress) VALUES (?, ?, ?, ?, ?)").run(
     "Arquitetura de Sistemas Invisíveis",
@@ -38,4 +41,12 @@ export function seedDatabase() {
   db.prepare('INSERT INTO lessons (module_id, title, content_url, content_type, duration, "order") VALUES (?, ?, ?, ?, ?, ?)').run(3, "O Custo da Ineficiência Estrutural", "https://www.youtube.com/embed/dQw4w9WgXcQ", "video", 410, 2);
 
   db.prepare("INSERT INTO posts (user_id, content) VALUES (?, ?)").run(1, "O problema nunca é a peça. É o sistema. Se você precisa estar em toda decisão, você não tem uma empresa, tem um emprego de luxo.");
+
+  // Seed conversations
+  db.prepare("INSERT INTO conversations (id) VALUES (1)").run();
+  db.prepare("INSERT INTO conversation_participants (conversation_id, user_id) VALUES (1, 1)").run();
+  db.prepare("INSERT INTO conversation_participants (conversation_id, user_id) VALUES (1, 2)").run();
+  db.prepare("INSERT INTO messages (conversation_id, sender_id, content) VALUES (1, 2, ?)").run("Ola Julio! Analisei a estrutura que voce propos para o novo modulo.");
+  db.prepare("INSERT INTO messages (conversation_id, sender_id, content) VALUES (1, 1, ?)").run("Otimo! Vou ajustar os diagramas e te envio ainda hoje.");
+  db.prepare("INSERT INTO messages (conversation_id, sender_id, content) VALUES (1, 2, ?)").run("Perfeito. O sistema deve ser invisivel, mas a autoridade deve ser sentida.");
 }

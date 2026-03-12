@@ -1,5 +1,7 @@
+import { useEffect, useState } from 'react';
 import { PlayCircle, ArrowRight } from 'lucide-react';
-import type { Course, Post, TabId } from '../types';
+import type { Course, Post, TabId, DashboardProgress } from '../types';
+import { getDashboardProgress } from '../services/api';
 import {
   PageTransition,
   Button,
@@ -17,6 +19,15 @@ interface DashboardPageProps {
 }
 
 export default function DashboardPage({ courses, posts, onEnterCourse, setActiveTab }: DashboardPageProps) {
+  const [progress, setProgress] = useState<DashboardProgress | null>(null);
+
+  useEffect(() => {
+    getDashboardProgress().then(setProgress).catch(console.error);
+  }, []);
+
+  const percentage = progress?.overall.percentage ?? 0;
+  const lastAccessed = progress?.lastAccessed;
+
   return (
     <PageTransition id="dashboard" className="space-y-16">
       <section className="relative py-10">
@@ -28,7 +39,11 @@ export default function DashboardPage({ courses, posts, onEnterCourse, setActive
           </h1>
           <p className="text-warm-gray max-w-xl text-xl leading-relaxed font-light">
             O problema nunca é a peça. É o sistema. <br />
-            Você completou <span className="text-gold font-bold">45%</span> da sua arquitetura atual.
+            {percentage > 0 ? (
+              <>Você completou <span className="text-gold font-bold">{percentage}%</span> da sua arquitetura atual.</>
+            ) : (
+              <>Comece sua jornada e construa sua arquitetura.</>
+            )}
           </p>
         </div>
       </section>
@@ -40,7 +55,14 @@ export default function DashboardPage({ courses, posts, onEnterCourse, setActive
             <Button variant="link" className="text-[10px] mono-label text-warm-gray hover:text-gold">Ver Histórico</Button>
           </div>
           <div
-            onClick={() => courses[0] && onEnterCourse(courses[0])}
+            onClick={() => {
+              if (lastAccessed) {
+                const course = courses.find(c => c.id === lastAccessed.course_id);
+                if (course) onEnterCourse(course);
+              } else if (courses[0]) {
+                onEnterCourse(courses[0]);
+              }
+            }}
             className="group relative aspect-[21/9] card-editorial overflow-hidden cursor-pointer shadow-2xl shadow-black/10 border-none"
           >
             <img
@@ -53,8 +75,17 @@ export default function DashboardPage({ courses, posts, onEnterCourse, setActive
 
             <div className="absolute bottom-12 left-12 right-12 text-paper space-y-8">
               <div className="space-y-2">
-                <Label className="text-gold-light tracking-[0.4em] opacity-80">Módulo 04 — Sistemas Invisíveis</Label>
-                <h3 className="font-serif text-4xl font-black leading-tight tracking-tight text-paper group-hover:text-gold transition-colors duration-500">Aula 12 — O Segredo da Delegação de Autoridade</h3>
+                {lastAccessed ? (
+                  <>
+                    <Label className="text-gold-light tracking-[0.4em] opacity-80">{lastAccessed.module_title}</Label>
+                    <h3 className="font-serif text-4xl font-black leading-tight tracking-tight text-paper group-hover:text-gold transition-colors duration-500">{lastAccessed.lesson_title}</h3>
+                  </>
+                ) : (
+                  <>
+                    <Label className="text-gold-light tracking-[0.4em] opacity-80">Comece agora</Label>
+                    <h3 className="font-serif text-4xl font-black leading-tight tracking-tight text-paper group-hover:text-gold transition-colors duration-500">Inicie sua primeira aula</h3>
+                  </>
+                )}
               </div>
 
               <div className="flex items-center gap-10">
@@ -66,7 +97,7 @@ export default function DashboardPage({ courses, posts, onEnterCourse, setActive
                   Acessar Aula
                 </Button>
                 <div className="flex-1 space-y-3">
-                  <ProgressBar value={45} size="sm" showLabel glow className="[&_span]:text-paper/40 [&_span:last-child]:text-gold-light" />
+                  <ProgressBar value={percentage} size="sm" showLabel glow className="[&_span]:text-paper/40 [&_span:last-child]:text-gold-light" />
                 </div>
               </div>
             </div>

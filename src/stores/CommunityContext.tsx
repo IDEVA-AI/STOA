@@ -10,6 +10,7 @@ interface CommunityContextType {
   setNewPost: (value: string) => void;
   submitPost: (e: React.FormEvent) => Promise<void>;
   fetchPosts: () => Promise<Post[]>;
+  toggleLike: (postId: number) => void;
 }
 
 export const CommunityContext = createContext<CommunityContextType>(null!);
@@ -37,8 +38,24 @@ export function CommunityProvider({ children }: { children: ReactNode }) {
     }
   }, [newPost, fetchPosts]);
 
+  const toggleLike = useCallback((postId: number) => {
+    setPosts(prev => prev.map(post =>
+      post.id === postId
+        ? { ...post, has_liked: !post.has_liked, likes: post.has_liked ? post.likes - 1 : post.likes + 1 }
+        : post
+    ));
+
+    api.toggleLike(postId).catch(() => {
+      setPosts(prev => prev.map(post =>
+        post.id === postId
+          ? { ...post, has_liked: !post.has_liked, likes: post.has_liked ? post.likes - 1 : post.likes + 1 }
+          : post
+      ));
+    });
+  }, []);
+
   return (
-    <CommunityContext.Provider value={{ posts, setPosts, newPost, setNewPost, submitPost, fetchPosts }}>
+    <CommunityContext.Provider value={{ posts, setPosts, newPost, setNewPost, submitPost, fetchPosts, toggleLike }}>
       {children}
     </CommunityContext.Provider>
   );
