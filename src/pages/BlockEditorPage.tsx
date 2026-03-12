@@ -695,11 +695,15 @@ export default function BlockEditorPage() {
                   <div className="text-center py-20">
                     <LayoutTemplate size={40} className="mx-auto mb-4 text-warm-gray/15" />
                     <p className="font-serif italic text-sm text-warm-gray/40">
-                      Escolha um componente ou template para comecar
+                      Escolha um template na barra lateral ou comece do zero
                     </p>
-                    <p className="text-xs text-warm-gray/25 mt-2">
-                      Use a barra lateral esquerda para adicionar blocos de conteudo
-                    </p>
+                    <button
+                      onClick={() => handleAddBlock('text')}
+                      className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 text-xs font-bold border border-gold/30 text-gold hover:bg-gold/10 transition-all"
+                    >
+                      <PenLine size={14} />
+                      Comecar do zero
+                    </button>
                   </div>
                 )}
 
