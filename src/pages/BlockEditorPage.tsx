@@ -20,6 +20,7 @@ import type { LessonTemplate } from '@/src/services/api';
 import type { LessonBlock } from '@/src/types';
 import { useWorkspace } from '@/src/hooks/useWorkspace';
 import BlockRenderer from '@/src/components/blocks/BlockRenderer';
+import RichTextEditor from '@/src/components/blocks/RichTextEditor';
 
 /* ─── Block type definitions ─── */
 
@@ -341,13 +342,10 @@ function BlockEditForm({ block, onChange }: { block: LessonBlock; onChange: (con
 
     case 'text':
       return (
-        <div className="space-y-3">
-          <Label>Conteudo HTML</Label>
-          <Textarea
-            placeholder="<p>Seu conteudo aqui...</p>"
+        <div className="space-y-2">
+          <RichTextEditor
             value={c.html || ''}
-            onChange={(e) => update('html', e.target.value)}
-            className="h-40 font-mono text-xs"
+            onChange={(html) => update('html', html)}
           />
         </div>
       );
