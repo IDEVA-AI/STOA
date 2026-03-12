@@ -148,6 +148,11 @@ export function upsertDefaultTemplates(workspaceId: number) {
 function getDefaultTemplateDefinitions() {
   return [
     {
+      name: "Em Branco",
+      description: "Pagina vazia para montar do zero e salvar como template",
+      blocks: [],
+    },
+    {
       name: "Aula Classica",
       description: "Video principal + texto explicativo + dica em destaque",
       blocks: [
