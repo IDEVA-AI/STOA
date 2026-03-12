@@ -1,14 +1,26 @@
-import "dotenv/config";
 import crypto from "crypto";
+import fs from "fs";
+import path from "path";
 
-const BUNNY_API_KEY = process.env.BUNNY_API_KEY || "";
-const BUNNY_CDN_HOSTNAME = process.env.BUNNY_CDN_HOSTNAME || "";
-const BUNNY_LIBRARY_ID = process.env.BUNNY_LIBRARY_ID || "";
+const DATA_DIR = process.env.DB_PATH
+  ? path.dirname(process.env.DB_PATH)
+  : process.cwd();
+const UPLOADS_DIR = path.join(DATA_DIR, "uploads");
 
-const STORAGE_BASE = `https://storage.bunnycdn.com/${BUNNY_LIBRARY_ID}`;
+// Ensure upload directories exist
+for (const sub of ["images", "videos", "files"]) {
+  const dir = path.join(UPLOADS_DIR, sub);
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+}
+
+export function getUploadsDir(): string {
+  return UPLOADS_DIR;
+}
 
 /**
- * Generate a unique filename: {timestamp}-{random8hex}.{ext}
+ * Generate a unique filename: {base}-{timestamp}-{random8hex}.{ext}
  */
 export function uniqueFilename(originalName: string): string {
   const ext = originalName.includes(".")
@@ -23,86 +35,54 @@ export function uniqueFilename(originalName: string): string {
 }
 
 /**
- * Upload a file buffer to Bunny CDN storage.
- * Returns the public CDN URL.
+ * Save a file buffer to local disk.
+ * Returns the public URL path (e.g. /uploads/images/foto-123.jpg)
  */
-export async function uploadToBunny(
+export function saveToLocal(
   file: Buffer,
   filename: string,
   folder: string
-): Promise<string> {
-  const url = `${STORAGE_BASE}/${folder}/${filename}`;
-
-  const res = await fetch(url, {
-    method: "PUT",
-    headers: {
-      AccessKey: BUNNY_API_KEY,
-      "Content-Type": "application/octet-stream",
-    },
-    body: file,
-  });
-
-  if (!res.ok) {
-    const text = await res.text().catch(() => "");
-    throw new Error(`Bunny upload failed (${res.status}): ${text}`);
+): string {
+  const dir = path.join(UPLOADS_DIR, folder);
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
   }
-
-  return `https://${BUNNY_CDN_HOSTNAME}/${folder}/${filename}`;
+  const filePath = path.join(dir, filename);
+  fs.writeFileSync(filePath, file);
+  return `/uploads/${folder}/${filename}`;
 }
 
 /**
- * Delete a file from Bunny CDN storage.
- * @param path - e.g. "uploads/myfile-123.jpg"
+ * Delete a file from local disk.
  */
+export function deleteLocal(filePath: string): void {
+  const fullPath = path.join(UPLOADS_DIR, filePath);
+  if (fs.existsSync(fullPath)) {
+    fs.unlinkSync(fullPath);
+  }
+}
+
 /**
- * List files from a Bunny CDN storage folder.
+ * List files from a local upload folder.
  */
-export async function listBunnyFiles(
+export function listLocalFiles(
   folder: string
-): Promise<Array<{ name: string; url: string; size: number; lastChanged: string }>> {
-  const url = `${STORAGE_BASE}/${folder}/`;
+): Array<{ name: string; url: string; size: number; lastChanged: string }> {
+  const dir = path.join(UPLOADS_DIR, folder);
+  if (!fs.existsSync(dir)) return [];
 
-  const res = await fetch(url, {
-    method: "GET",
-    headers: { AccessKey: BUNNY_API_KEY, Accept: "application/json" },
-  });
-
-  if (!res.ok) {
-    if (res.status === 404) return [];
-    const text = await res.text().catch(() => "");
-    throw new Error(`Bunny list failed (${res.status}): ${text}`);
-  }
-
-  const items = (await res.json()) as Array<{
-    ObjectName: string;
-    Length: number;
-    LastChanged: string;
-    IsDirectory: boolean;
-  }>;
-
-  return items
-    .filter((i) => !i.IsDirectory)
-    .map((i) => ({
-      name: i.ObjectName,
-      url: `https://${BUNNY_CDN_HOSTNAME}/${folder}/${i.ObjectName}`,
-      size: i.Length,
-      lastChanged: i.LastChanged,
-    }))
-    .sort((a, b) => new Date(b.lastChanged).getTime() - new Date(a.lastChanged).getTime());
-}
-
-export async function deleteFromBunny(path: string): Promise<void> {
-  const url = `${STORAGE_BASE}/${path}`;
-
-  const res = await fetch(url, {
-    method: "DELETE",
-    headers: {
-      AccessKey: BUNNY_API_KEY,
-    },
-  });
-
-  if (!res.ok && res.status !== 404) {
-    const text = await res.text().catch(() => "");
-    throw new Error(`Bunny delete failed (${res.status}): ${text}`);
-  }
+  const entries = fs.readdirSync(dir);
+  return entries
+    .map((name) => {
+      const filePath = path.join(dir, name);
+      const stat = fs.statSync(filePath);
+      if (stat.isDirectory()) return null;
+      return {
+        name,
+        url: `/uploads/${folder}/${name}`,
+        size: stat.size,
+        lastChanged: stat.mtime.toISOString(),
+      };
+    })
+    .filter(Boolean) as Array<{ name: string; url: string; size: number; lastChanged: string }>;
 }

@@ -1,17 +1,17 @@
 import { Router, Request, Response } from "express";
 import multer from "multer";
 import { authMiddleware } from "../middleware/auth";
-import { uploadToBunny, deleteFromBunny, listBunnyFiles, uniqueFilename } from "../services/uploadService";
+import { saveToLocal, deleteLocal, listLocalFiles, uniqueFilename } from "../services/uploadService";
 
 const router = Router();
 
-// Multer configs — memory storage (no disk writes)
+// Multer configs — memory storage (buffer before saving to disk)
 const uploadAny = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 50 * 1024 * 1024 }, // 50 MB
 });
 
-const uploadImage = multer({
+const uploadImageOnly = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB
   fileFilter: (_req, file, cb) => {
@@ -35,12 +35,11 @@ router.post(
         return;
       }
 
-      const folder = (req.body.folder as string) || "uploads";
+      const folder = (req.body.folder as string) || "files";
       const filename = uniqueFilename(req.file.originalname);
+      const url = saveToLocal(req.file.buffer, filename, folder);
 
-      const url = await uploadToBunny(req.file.buffer, filename, folder);
-
-      res.json({ url, filename, size: req.file.size });
+      res.json({ url, filename: req.file.originalname, size: req.file.size });
     } catch (err: any) {
       console.error("[upload] error:", err.message);
       res.status(500).json({ error: err.message || "Falha no upload." });
@@ -52,7 +51,7 @@ router.post(
 router.post(
   "/image",
   authMiddleware,
-  uploadImage.single("file"),
+  uploadImageOnly.single("file"),
   async (req: Request, res: Response) => {
     try {
       if (!req.file) {
@@ -60,12 +59,10 @@ router.post(
         return;
       }
 
-      const folder = "images";
       const filename = uniqueFilename(req.file.originalname);
+      const url = saveToLocal(req.file.buffer, filename, "images");
 
-      const url = await uploadToBunny(req.file.buffer, filename, folder);
-
-      res.json({ url, filename, size: req.file.size });
+      res.json({ url, filename: req.file.originalname, size: req.file.size });
     } catch (err: any) {
       console.error("[upload/image] error:", err.message);
       res.status(500).json({ error: err.message || "Falha no upload." });
@@ -73,26 +70,18 @@ router.post(
   }
 );
 
-// GET /library — list all uploaded files across folders
+// GET /library — list all uploaded files
 router.get(
   "/library",
   authMiddleware,
   async (_req: Request, res: Response) => {
     try {
-      const [images, videos, files] = await Promise.all([
-        listBunnyFiles("images"),
-        listBunnyFiles("videos"),
-        listBunnyFiles("files"),
-      ]);
+      const images = listLocalFiles("images").map((i) => ({ ...i, type: "image", folder: "images" }));
+      const videos = listLocalFiles("videos").map((i) => ({ ...i, type: "video", folder: "videos" }));
+      const files = listLocalFiles("files").map((i) => ({ ...i, type: "file", folder: "files" }));
 
-      const tagType = (items: typeof images, type: string) =>
-        items.map((i) => ({ ...i, type, folder: type === "image" ? "images" : type === "video" ? "videos" : "files" }));
-
-      const all = [
-        ...tagType(images, "image"),
-        ...tagType(videos, "video"),
-        ...tagType(files, "file"),
-      ].sort((a, b) => new Date(b.lastChanged).getTime() - new Date(a.lastChanged).getTime());
+      const all = [...images, ...videos, ...files]
+        .sort((a, b) => new Date(b.lastChanged).getTime() - new Date(a.lastChanged).getTime());
 
       res.json(all);
     } catch (err: any) {
@@ -102,7 +91,7 @@ router.get(
   }
 );
 
-// DELETE /:path(*) — delete file from CDN (admin only)
+// DELETE /:path(*) — delete file (admin only)
 router.delete(
   "/:path(*)",
   authMiddleware,
@@ -119,7 +108,7 @@ router.delete(
         return;
       }
 
-      await deleteFromBunny(filePath);
+      deleteLocal(filePath);
       res.json({ deleted: true, path: filePath });
     } catch (err: any) {
       console.error("[upload/delete] error:", err.message);

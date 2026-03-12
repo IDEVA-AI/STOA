@@ -30,6 +30,7 @@ import trailsRouter from "./routes/trails";
 import communitiesRouter from "./routes/communities";
 import lessonBlocksRouter from "./routes/lessonBlocks";
 import lessonTemplatesRouter from "./routes/lessonTemplates";
+import { getUploadsDir } from "./services/uploadService";
 
 initializeSchema();
 seedDatabase();
@@ -67,6 +68,12 @@ async function startServer() {
   app.use("/api/admin/crud", adminCrudRouter);
   app.use("/api/messages", messagesRouter);
   app.use("/api/upload", uploadRouter);
+
+  // Serve uploaded files (images, videos, documents) from persistent volume
+  app.use("/uploads", express.static(getUploadsDir(), {
+    maxAge: "7d",
+    immutable: true,
+  }));
   app.use("/api/profile", profileRouter);
   app.use("/api/announcements", announcementsRouter);
   app.use("/api/workspaces", workspacesRouter);
