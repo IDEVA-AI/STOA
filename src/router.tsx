@@ -7,6 +7,8 @@ import { useNavigation } from './hooks/useNavigation';
 import { useCourses } from './hooks/useCourses';
 import { useCommunity } from './hooks/useCommunity';
 import { useTheme } from './hooks/useTheme';
+import { useWorkspace } from './hooks/useWorkspace';
+import WorkspaceOnboarding from './components/workspace/WorkspaceOnboarding';
 import Sidebar from './components/layout/Sidebar';
 import Header from './components/layout/Header';
 import AuthPage from './pages/AuthPage';
@@ -46,12 +48,27 @@ function Layout() {
   const { selectedCourse, courseContent, selectedLesson, courseError, exitCourse, selectLesson, toggleLessonCompletion, fetchCourses } = useCourses();
   const { fetchPosts } = useCommunity();
   const { theme, setTheme } = useTheme();
+  const { workspaces, isLoading: wsLoading } = useWorkspace();
 
   useEffect(() => {
     if (isAuthenticated) {
       Promise.all([fetchCourses(), fetchPosts()]).catch(console.error);
     }
   }, [isAuthenticated, fetchCourses, fetchPosts]);
+
+  // Show loading while workspaces are being fetched
+  if (wsLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-bg">
+        <div className="animate-pulse text-warm-gray text-sm mono-label">Carregando...</div>
+      </div>
+    );
+  }
+
+  // No workspaces: show onboarding
+  if (workspaces.length === 0) {
+    return <WorkspaceOnboarding />;
+  }
 
   if (selectedCourse) {
     return (

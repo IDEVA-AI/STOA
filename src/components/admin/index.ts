@@ -8,3 +8,4 @@ export { default as AdminModeration } from './AdminModeration';
 export { default as AdminSettings } from './AdminSettings';
 export { default as AdminProducts } from './AdminProducts';
 export { default as AdminTrails } from './AdminTrails';
+export { default as AdminWorkspace } from './AdminWorkspace';

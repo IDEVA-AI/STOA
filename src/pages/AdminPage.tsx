@@ -17,6 +17,7 @@ import {
   AdminSettings,
   AdminProducts,
   AdminTrails,
+  AdminWorkspace,
 } from '../components/admin';
 
 interface AdminPageProps {
@@ -34,6 +35,7 @@ const sectionTitles: Record<AdminSection, string> = {
   unlocks: 'Acessos',
   moderation: 'Moderação',
   settings: 'Configurações',
+  workspace: 'Workspace',
 };
 
 const sectionComponents: Record<AdminSection, () => JSX.Element> = {
@@ -47,6 +49,7 @@ const sectionComponents: Record<AdminSection, () => JSX.Element> = {
   unlocks: AdminUnlocks,
   moderation: AdminModeration,
   settings: AdminSettings,
+  workspace: AdminWorkspace,
 };
 
 export default function AdminPage({ adminSection }: AdminPageProps) {

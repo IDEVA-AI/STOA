@@ -1,24 +1,32 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Search, Bell, BookOpen, MessageSquare, Loader2 } from 'lucide-react';
+import { Search, Bell, BookOpen, MessageSquare, Loader2, ChevronDown, Plus } from 'lucide-react';
 import { cn } from '@/src/lib/utils';
 import { popover } from '@/src/lib/motion';
-import { Input, Avatar } from '../ui';
+import { Input, Avatar, Badge } from '../ui';
 import { Label } from '../ui/Typography';
 import { useNavigation } from '@/src/hooks/useNavigation';
 import { useCourses } from '@/src/hooks/useCourses';
+import { useWorkspace } from '@/src/hooks/useWorkspace';
+import CreateWorkspaceModal from '../workspace/CreateWorkspaceModal';
 import * as api from '@/src/services/api';
 import type { SearchResults } from '@/src/types';
 
 export default function Header() {
   const { setActiveTab } = useNavigation();
   const { courses, enterCourse } = useCourses();
+  const { workspaces, activeWorkspace, setActiveWorkspace } = useWorkspace();
 
   const [showNotifications, setShowNotifications] = useState(false);
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResults | null>(null);
   const [isSearching, setIsSearching] = useState(false);
   const [showResults, setShowResults] = useState(false);
+
+  // Workspace selector state
+  const [showWsDropdown, setShowWsDropdown] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const wsRef = useRef<HTMLDivElement>(null);
 
   const searchRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(null);
@@ -82,6 +90,9 @@ export default function Header() {
       if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
         setShowResults(false);
       }
+      if (wsRef.current && !wsRef.current.contains(e.target as Node)) {
+        setShowWsDropdown(false);
+      }
     }
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
@@ -100,6 +111,98 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-10 px-10 py-8 flex items-center justify-between bg-bg/80 backdrop-blur-md border-b border-line transition-colors duration-500">
+      {/* Workspace Selector */}
+      <div ref={wsRef} className="relative mr-6">
+        <button
+          onClick={() => setShowWsDropdown(!showWsDropdown)}
+          className="flex items-center gap-3 px-3 py-2 rounded hover:bg-surface transition-colors"
+        >
+          {activeWorkspace?.logo ? (
+            <img
+              src={activeWorkspace.logo}
+              alt={activeWorkspace.name}
+              className="w-7 h-7 rounded object-cover border border-line"
+            />
+          ) : (
+            <div className="w-7 h-7 rounded bg-gold/20 border border-gold/30 flex items-center justify-center text-gold font-serif font-bold text-sm">
+              {activeWorkspace?.name?.charAt(0).toUpperCase() || 'W'}
+            </div>
+          )}
+          <span className="text-sm font-medium truncate max-w-[140px] hidden sm:block">
+            {activeWorkspace?.name || 'Workspace'}
+          </span>
+          <ChevronDown size={14} className={cn(
+            "text-warm-gray transition-transform duration-200",
+            showWsDropdown && "rotate-180"
+          )} />
+        </button>
+
+        <AnimatePresence>
+          {showWsDropdown && (
+            <motion.div
+              initial={popover.initial}
+              animate={popover.animate}
+              exit={popover.exit}
+              className="absolute left-0 top-full mt-2 w-72 bg-surface border border-line rounded shadow-lg z-50 overflow-hidden"
+            >
+              <div className="px-4 py-3 border-b border-line bg-bg/20">
+                <Label className="text-[9px] uppercase tracking-widest">Workspaces</Label>
+              </div>
+              <div className="max-h-64 overflow-y-auto">
+                {workspaces.map((ws) => (
+                  <button
+                    key={ws.id}
+                    onClick={() => {
+                      setActiveWorkspace(ws);
+                      setShowWsDropdown(false);
+                    }}
+                    className={cn(
+                      "w-full text-left px-4 py-3 flex items-center gap-3 hover:bg-bg/40 transition-colors",
+                      activeWorkspace?.id === ws.id && "bg-bg/30"
+                    )}
+                  >
+                    {ws.logo ? (
+                      <img
+                        src={ws.logo}
+                        alt={ws.name}
+                        className="w-8 h-8 rounded object-cover border border-line flex-shrink-0"
+                      />
+                    ) : (
+                      <div className="w-8 h-8 rounded bg-gold/15 border border-gold/20 flex items-center justify-center text-gold font-serif font-bold text-sm flex-shrink-0">
+                        {ws.name.charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium truncate">{ws.name}</span>
+                        {activeWorkspace?.id === ws.id && (
+                          <div className="w-1.5 h-1.5 rounded-full bg-gold flex-shrink-0" />
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <Badge variant="outline" className="text-[8px] px-1.5 py-0">{ws.plan}</Badge>
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+              <div className="border-t border-line">
+                <button
+                  onClick={() => {
+                    setShowWsDropdown(false);
+                    setShowCreateModal(true);
+                  }}
+                  className="w-full flex items-center gap-3 px-4 py-3 text-gold hover:bg-bg/40 transition-colors"
+                >
+                  <Plus size={16} />
+                  <span className="text-sm font-medium">Criar Workspace</span>
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
       <div ref={searchRef} className="flex items-center gap-4 flex-1 max-w-md relative">
         <Input
           icon={isSearching ? <Loader2 size={16} className="animate-spin text-gold" /> : <Search size={16} />}
@@ -214,6 +317,11 @@ export default function Header() {
           />
         </div>
       </div>
+
+      <CreateWorkspaceModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+      />
     </header>
   );
 }

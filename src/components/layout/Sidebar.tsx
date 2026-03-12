@@ -18,6 +18,7 @@ import {
   Package,
   Route,
   ChevronDown,
+  Building2,
 } from 'lucide-react';
 import { cn } from '@/src/lib/utils';
 import NavItem from '../ui/NavItem';
@@ -262,6 +263,13 @@ export default function Sidebar({
                 label="Moderação"
                 active={adminSection === 'moderation'}
                 onClick={() => setAdminSection('moderation')}
+                layoutId="activeAdminNav"
+              />
+              <NavItem
+                icon={<Building2 size={18} />}
+                label="Workspace"
+                active={adminSection === 'workspace'}
+                onClick={() => setAdminSection('workspace')}
                 layoutId="activeAdminNav"
               />
               <NavItem
