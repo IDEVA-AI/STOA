@@ -117,37 +117,87 @@ function seedLessonTemplates(workspaceId: number) {
   const count = db.prepare("SELECT count(*) as count FROM lesson_templates").get() as { count: number };
   if (count.count > 0) return;
 
+  upsertDefaultTemplates(workspaceId);
+}
+
+/** Idempotent: inserts only templates whose name doesn't already exist for this workspace */
+export function upsertDefaultTemplates(workspaceId: number) {
   const insertTemplate = db.prepare(
     "INSERT INTO lesson_templates (workspace_id, name, description, is_default) VALUES (?, ?, ?, ?)"
   );
   const insertBlock = db.prepare(
     "INSERT INTO lesson_template_blocks (template_id, block_type, content, position) VALUES (?, ?, ?, ?)"
   );
+  const existingNames = (
+    db.prepare("SELECT name FROM lesson_templates WHERE workspace_id = ?").all(workspaceId) as Array<{ name: string }>
+  ).map((r) => r.name);
 
-  // Template 1: Aula com Video
-  const t1 = insertTemplate.run(workspaceId, "Aula com Video", "Layout com video principal e material de apoio", 1);
-  const t1Id = Number(t1.lastInsertRowid);
-  insertBlock.run(t1Id, "video", JSON.stringify({ url: "", provider: "youtube" }), 0);
-  insertBlock.run(t1Id, "text", JSON.stringify({ html: "<h2>Sobre esta aula</h2><p>Descricao do conteudo...</p>" }), 1);
-  insertBlock.run(t1Id, "divider", JSON.stringify({}), 2);
-  insertBlock.run(t1Id, "file", JSON.stringify({ url: "", filename: "Material de apoio", size: "" }), 3);
+  const templates = getDefaultTemplateDefinitions();
 
-  // Template 2: Aula Teorica
-  const t2 = insertTemplate.run(workspaceId, "Aula Teorica", "Layout para conteudo teorico com imagens e destaques", 1);
-  const t2Id = Number(t2.lastInsertRowid);
-  insertBlock.run(t2Id, "text", JSON.stringify({ html: "<h2>Introducao</h2><p>Contexto e objetivos...</p>" }), 0);
-  insertBlock.run(t2Id, "image", JSON.stringify({ url: "", caption: "Diagrama ilustrativo", alt: "" }), 1);
-  insertBlock.run(t2Id, "text", JSON.stringify({ html: "<h2>Desenvolvimento</h2><p>Conteudo principal...</p>" }), 2);
-  insertBlock.run(t2Id, "callout", JSON.stringify({ text: "Ponto-chave para lembrar", type: "tip" }), 3);
-  insertBlock.run(t2Id, "button", JSON.stringify({ label: "Fazer exercicio", url: "", style: "primary" }), 4);
+  for (const tmpl of templates) {
+    if (existingNames.includes(tmpl.name)) continue;
+    const result = insertTemplate.run(workspaceId, tmpl.name, tmpl.description, 1);
+    const templateId = Number(result.lastInsertRowid);
+    for (let i = 0; i < tmpl.blocks.length; i++) {
+      const b = tmpl.blocks[i];
+      insertBlock.run(templateId, b.type, JSON.stringify(b.content), i);
+    }
+  }
+}
 
-  // Template 3: Workshop Pratico
-  const t3 = insertTemplate.run(workspaceId, "Workshop Pratico", "Layout para aulas praticas com passo a passo", 1);
-  const t3Id = Number(t3.lastInsertRowid);
-  insertBlock.run(t3Id, "video", JSON.stringify({ url: "", provider: "youtube" }), 0);
-  insertBlock.run(t3Id, "text", JSON.stringify({ html: "<h2>Passo a passo</h2><ol><li>Primeiro...</li><li>Segundo...</li></ol>" }), 1);
-  insertBlock.run(t3Id, "file", JSON.stringify({ url: "", filename: "Template para download", size: "" }), 2);
-  insertBlock.run(t3Id, "file", JSON.stringify({ url: "", filename: "Checklist", size: "" }), 3);
-  insertBlock.run(t3Id, "callout", JSON.stringify({ text: "Dica: siga o template para melhores resultados", type: "tip" }), 4);
-  insertBlock.run(t3Id, "button", JSON.stringify({ label: "Submeter resultado", url: "", style: "primary" }), 5);
+function getDefaultTemplateDefinitions() {
+  return [
+    {
+      name: "Aula Classica",
+      description: "Video principal + texto explicativo + dica em destaque",
+      blocks: [
+        { type: "video", content: { url: "" } },
+        { type: "text", content: { html: "<h2>Sobre esta aula</h2><p>Descreva o conteudo da aula, os objetivos de aprendizagem e o que o aluno vai dominar ao final.</p>" } },
+        { type: "callout", content: { text: "Dica: anote os pontos principais enquanto assiste ao video!", type: "tip" } },
+      ],
+    },
+    {
+      name: "Aula com Material",
+      description: "Video + texto + arquivo para download + botao de acao",
+      blocks: [
+        { type: "video", content: { url: "" } },
+        { type: "text", content: { html: "<h2>Conteudo da Aula</h2><p>Explicacao detalhada do tema abordado no video.</p>" } },
+        { type: "divider", content: {} },
+        { type: "file", content: { url: "", filename: "Material complementar", size: "" } },
+        { type: "button", content: { label: "Acessar recurso extra", url: "", style: "primary" } },
+      ],
+    },
+    {
+      name: "Conteudo Textual",
+      description: "Artigo longo com imagem ilustrativa e destaque",
+      blocks: [
+        { type: "text", content: { html: "<h2>Introducao</h2><p>Contextualize o tema e apresente os objetivos deste conteudo.</p>" } },
+        { type: "image", content: { url: "", caption: "Imagem ilustrativa" } },
+        { type: "text", content: { html: "<h2>Desenvolvimento</h2><p>Aprofunde o tema com explicacoes, exemplos e referencias. Use subtitulos para organizar as secoes.</p>" } },
+        { type: "callout", content: { text: "Ponto-chave: resuma aqui a informacao mais importante deste conteudo.", type: "info" } },
+      ],
+    },
+    {
+      name: "Landing / Vendas",
+      description: "Pagina de apresentacao com imagem hero, texto persuasivo e CTA",
+      blocks: [
+        { type: "image", content: { url: "", caption: "" } },
+        { type: "text", content: { html: "<h1>Titulo Impactante</h1><p>Apresente a proposta de valor de forma clara e direta. O que o aluno vai conquistar?</p>" } },
+        { type: "divider", content: {} },
+        { type: "text", content: { html: "<h2>O que voce vai aprender</h2><ul><li>Beneficio ou topico 1</li><li>Beneficio ou topico 2</li><li>Beneficio ou topico 3</li></ul>" } },
+        { type: "button", content: { label: "Quero comecar agora", url: "", style: "primary" } },
+        { type: "divider", content: {} },
+        { type: "callout", content: { text: "Garantia: se nao gostar, devolvemos seu investimento em ate 7 dias.", type: "info" } },
+      ],
+    },
+    {
+      name: "Resumo Rapido",
+      description: "Conteudo curto e direto com destaque e botao de acao",
+      blocks: [
+        { type: "callout", content: { text: "Resumo: os pontos essenciais deste modulo em poucas palavras.", type: "info" } },
+        { type: "text", content: { html: "<p>Recapitule os conceitos mais importantes de forma objetiva. Ideal para revisao antes de provas ou proximos modulos.</p>" } },
+        { type: "button", content: { label: "Proximo passo", url: "", style: "primary" } },
+      ],
+    },
+  ];
 }

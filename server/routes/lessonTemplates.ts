@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { authMiddleware } from "../middleware/auth";
 import * as lessonTemplateService from "../services/lessonTemplateService";
+import { upsertDefaultTemplates } from "../db/seed";
 
 const router = Router();
 router.use(authMiddleware);
@@ -111,6 +112,18 @@ router.post("/:id/apply/:lessonId", (req, res) => {
     const lessonId = Number(req.params.lessonId);
     lessonTemplateService.applyToLesson(templateId, lessonId);
     res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Seed default templates for a workspace (idempotent — skips existing names)
+router.post("/seed-defaults/:workspaceId", (req, res) => {
+  try {
+    const workspaceId = Number(req.params.workspaceId);
+    upsertDefaultTemplates(workspaceId);
+    const templates = lessonTemplateService.listByWorkspace(workspaceId);
+    res.json({ success: true, count: templates.length, templates });
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
   }
