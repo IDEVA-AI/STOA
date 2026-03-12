@@ -1,10 +1,11 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   Play, Type, Image, FileDown, MousePointer, Minus, AlertCircle,
   ChevronUp, ChevronDown, Trash2, Pencil, Check, GripVertical,
   Loader2, Save, ArrowLeft, BookmarkPlus, LayoutTemplate, Eye, PenLine,
+  Upload,
 } from 'lucide-react';
 import { cn } from '@/src/lib/utils';
 import { Button, Badge, Input, Textarea } from '@/src/components/ui';
@@ -12,6 +13,7 @@ import { Label } from '@/src/components/ui/Typography';
 import {
   getLessonBlocks, setLessonBlocks, createTemplateFromLesson,
   getLessonTemplates, applyTemplateToLesson,
+  uploadFile, uploadImage,
 } from '@/src/services/api';
 import type { LessonTemplate } from '@/src/services/api';
 import type { LessonBlock } from '@/src/types';
@@ -90,6 +92,63 @@ function defaultContent(type: BlockType): Record<string, any> {
   }
 }
 
+/* ─── Upload Button ─── */
+
+function UploadButton({
+  accept,
+  folder,
+  onUploaded,
+  label = 'Enviar arquivo',
+  useImageEndpoint = false,
+}: {
+  accept: string;
+  folder: string;
+  onUploaded: (result: { url: string; filename: string; size: number }) => void;
+  label?: string;
+  useImageEndpoint?: boolean;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setError('');
+    setUploading(true);
+    try {
+      const result = useImageEndpoint ? await uploadImage(file) : await uploadFile(file, folder);
+      onUploaded(result);
+    } catch (err: any) {
+      setError(err.message || 'Falha no upload');
+    } finally {
+      setUploading(false);
+      if (inputRef.current) inputRef.current.value = '';
+    }
+  };
+
+  return (
+    <div>
+      <input ref={inputRef} type="file" accept={accept} onChange={handleFile} className="hidden" />
+      <button
+        type="button"
+        onClick={() => inputRef.current?.click()}
+        disabled={uploading}
+        className={cn(
+          'flex items-center gap-2 px-4 py-2 text-xs font-bold border transition-all',
+          uploading
+            ? 'border-gold/30 text-gold/60 cursor-wait'
+            : 'border-line text-warm-gray hover:border-gold/30 hover:text-gold'
+        )}
+      >
+        {uploading ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}
+        {uploading ? 'Enviando...' : label}
+      </button>
+      {error && <p className="text-[11px] text-red-400 mt-1">{error}</p>}
+    </div>
+  );
+}
+
 /* ─── Block Edit Form ─── */
 
 function BlockEditForm({ block, onChange }: { block: LessonBlock; onChange: (content: Record<string, any>) => void }) {
@@ -101,11 +160,23 @@ function BlockEditForm({ block, onChange }: { block: LessonBlock; onChange: (con
       return (
         <div className="space-y-3">
           <Label>URL do Video (YouTube, Vimeo ou direto)</Label>
-          <Input
-            placeholder="https://youtube.com/watch?v=..."
-            value={c.url || ''}
-            onChange={(e) => update('url', e.target.value)}
-          />
+          <div className="flex gap-2">
+            <Input
+              placeholder="https://youtube.com/watch?v=..."
+              value={c.url || ''}
+              onChange={(e) => update('url', e.target.value)}
+              className="flex-1"
+            />
+            <UploadButton
+              accept="video/mp4,video/webm,video/mov,video/*"
+              folder="videos"
+              label="Upload"
+              onUploaded={(r) => update('url', r.url)}
+            />
+          </div>
+          {c.url && !c.url.includes('youtube') && !c.url.includes('vimeo') && (
+            <p className="text-[10px] text-emerald-400 font-mono truncate">Hospedado: {c.url}</p>
+          )}
         </div>
       );
 
@@ -125,12 +196,27 @@ function BlockEditForm({ block, onChange }: { block: LessonBlock; onChange: (con
     case 'image':
       return (
         <div className="space-y-3">
-          <Label>URL da Imagem</Label>
-          <Input
-            placeholder="https://..."
-            value={c.url || ''}
-            onChange={(e) => update('url', e.target.value)}
-          />
+          <Label>Imagem</Label>
+          <div className="flex gap-2">
+            <Input
+              placeholder="https://..."
+              value={c.url || ''}
+              onChange={(e) => update('url', e.target.value)}
+              className="flex-1"
+            />
+            <UploadButton
+              accept="image/jpeg,image/png,image/gif,image/webp,image/*"
+              folder="images"
+              label="Upload"
+              useImageEndpoint
+              onUploaded={(r) => update('url', r.url)}
+            />
+          </div>
+          {c.url && (
+            <div className="border border-line rounded-sm overflow-hidden max-w-xs">
+              <img src={c.url} alt="Preview" className="w-full h-auto max-h-40 object-cover" />
+            </div>
+          )}
           <Label>Legenda (opcional)</Label>
           <Input
             placeholder="Descricao da imagem"
@@ -143,19 +229,30 @@ function BlockEditForm({ block, onChange }: { block: LessonBlock; onChange: (con
     case 'file':
       return (
         <div className="space-y-3">
-          <Label>URL do Arquivo</Label>
-          <Input
-            placeholder="https://..."
-            value={c.url || ''}
-            onChange={(e) => update('url', e.target.value)}
-          />
+          <Label>Arquivo</Label>
+          <div className="flex gap-2">
+            <Input
+              placeholder="https://..."
+              value={c.url || ''}
+              onChange={(e) => update('url', e.target.value)}
+              className="flex-1"
+            />
+            <UploadButton
+              accept="*/*"
+              folder="files"
+              label="Upload"
+              onUploaded={(r) => {
+                onChange({ ...c, url: r.url, filename: r.filename, size: formatBytes(r.size) });
+              }}
+            />
+          </div>
           <Label>Nome do Arquivo</Label>
           <Input
             placeholder="material.pdf"
             value={c.filename || ''}
             onChange={(e) => update('filename', e.target.value)}
           />
-          <Label>Tamanho (opcional)</Label>
+          <Label>Tamanho</Label>
           <Input
             placeholder="2.4 MB"
             value={c.size || ''}
@@ -245,6 +342,12 @@ function BlockEditForm({ block, onChange }: { block: LessonBlock; onChange: (con
     default:
       return null;
   }
+}
+
+function formatBytes(bytes: number): string {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
 }
 
 /* ─── Main Page ─── */
