@@ -3,6 +3,10 @@ import express from "express";
 import { createServer as createViteServer } from "vite";
 import { createServer as createHttpServer } from "http";
 import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 import { initializeSchema } from "./db/schema";
 import { seedDatabase } from "./db/seed";
 import { setupMiddleware, errorHandler, notFoundHandler, authLimiter } from "./middleware";
