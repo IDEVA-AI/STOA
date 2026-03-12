@@ -541,6 +541,21 @@ export default function BlockEditorPage() {
               {preview ? 'Editar' : 'Preview'}
             </button>
 
+            {!preview && blocks.length > 0 && (
+              <button
+                onClick={() => {
+                  if (!confirm('Limpar todos os blocos e comecar do zero?')) return;
+                  setBlocks([]);
+                  setEditingIdx(null);
+                  setDirty(true);
+                }}
+                className="flex items-center gap-2 px-3 py-1.5 text-xs font-bold border border-line text-warm-gray hover:border-red-400/30 hover:text-red-400 transition-all duration-200"
+              >
+                <Trash2 size={14} />
+                <span className="hidden md:inline">Limpar</span>
+              </button>
+            )}
+
             {!preview && workspaceId && blocks.length > 0 && (
               <Button
                 variant="secondary"
