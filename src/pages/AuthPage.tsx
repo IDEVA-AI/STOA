@@ -11,8 +11,8 @@ interface AuthPageProps {
 
 export default function AuthPage({ authMode, setAuthMode, onLogin, onRegister }: AuthPageProps) {
   const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('gestao@ideva.ai');
+  const [password, setPassword] = useState('123456');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
