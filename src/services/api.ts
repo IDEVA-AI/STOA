@@ -1,4 +1,4 @@
-import { Course, Module, Post, Comment, DashboardProgress, CommunitySidebar, SearchResults, Conversation, Message, AuthResponse, AuthUser, InviteInfo, Workspace, WorkspaceMember, Product, Purchase, Trail, Community, CommunityCategory, LessonBlock } from '../types';
+import { Course, Module, Post, Comment, DashboardProgress, CommunitySidebar, SearchResults, Conversation, Message, AuthResponse, AuthUser, InviteInfo, Workspace, WorkspaceMember, Product, Purchase, Trail, Community, CommunityCategory, LessonBlock, AvailabilityConfig, TimeSlot, Booking } from '../types';
 
 // ── Token helpers ──────────────────────────────────────────────────────
 
@@ -1005,4 +1005,98 @@ export async function getInviteRedemptions(id: number): Promise<any[]> {
   const res = await authFetch(`/api/invites/${id}/redemptions`);
   if (!res.ok) throw new Error('Falha ao carregar resgates.');
   return res.json();
+}
+
+// ── Scheduling API ──────────────────────────────────────────────────
+
+export async function getSchedulingConfigs(workspaceId: number): Promise<AvailabilityConfig[]> {
+  const res = await authFetch(`/api/scheduling/configs/workspace/${workspaceId}`);
+  if (!res.ok) throw new Error('Falha ao carregar agendas.');
+  return res.json();
+}
+
+export async function getSchedulingConfig(configId: number): Promise<AvailabilityConfig> {
+  const res = await authFetch(`/api/scheduling/configs/${configId}`);
+  if (!res.ok) throw new Error('Falha ao carregar agenda.');
+  return res.json();
+}
+
+export async function createSchedulingConfig(data: Partial<AvailabilityConfig>): Promise<AvailabilityConfig> {
+  const res = await authFetch('/api/scheduling/configs', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Falha ao criar agenda.');
+  return res.json();
+}
+
+export async function updateSchedulingConfig(id: number, data: Partial<AvailabilityConfig>): Promise<AvailabilityConfig> {
+  const res = await authFetch(`/api/scheduling/configs/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Falha ao atualizar agenda.');
+  return res.json();
+}
+
+export async function deleteSchedulingConfig(id: number): Promise<void> {
+  const res = await authFetch(`/api/scheduling/configs/${id}`, { method: 'DELETE' });
+  if (!res.ok) throw new Error('Falha ao deletar agenda.');
+}
+
+export async function setSchedulingSlots(configId: number, slots: Array<{ day_of_week: number; start_time: string; end_time: string }>): Promise<AvailabilityConfig> {
+  const res = await authFetch(`/api/scheduling/configs/${configId}/slots`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ slots }),
+  });
+  if (!res.ok) throw new Error('Falha ao salvar horarios.');
+  return res.json();
+}
+
+export async function getAvailableTimes(configId: number, date: string): Promise<TimeSlot[]> {
+  const res = await authFetch(`/api/scheduling/available/${configId}/${date}`);
+  if (!res.ok) throw new Error('Falha ao carregar horarios.');
+  return res.json();
+}
+
+export async function bookSlot(data: { config_id: number; date: string; start_time: string }): Promise<Booking> {
+  const res = await authFetch('/api/scheduling/book', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({ error: 'Falha ao agendar.' }));
+    throw new Error(body.error || 'Falha ao agendar.');
+  }
+  return res.json();
+}
+
+export async function getMyBookings(): Promise<Booking[]> {
+  const res = await authFetch('/api/scheduling/my-bookings');
+  if (!res.ok) throw new Error('Falha ao carregar agendamentos.');
+  return res.json();
+}
+
+export async function cancelBooking(id: number): Promise<void> {
+  const res = await authFetch(`/api/scheduling/bookings/${id}/cancel`, { method: 'PUT' });
+  if (!res.ok) throw new Error('Falha ao cancelar agendamento.');
+}
+
+export async function getConfigBookings(configId: number): Promise<Booking[]> {
+  const res = await authFetch(`/api/scheduling/configs/${configId}/bookings`);
+  if (!res.ok) throw new Error('Falha ao carregar agendamentos.');
+  return res.json();
+}
+
+export async function updateBookingNotes(id: number, notes: string): Promise<void> {
+  const res = await authFetch(`/api/scheduling/bookings/${id}/notes`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ notes }),
+  });
+  if (!res.ok) throw new Error('Falha ao salvar notas.');
 }

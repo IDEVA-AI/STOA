@@ -143,9 +143,9 @@ export interface ApiError {
 
 export type AuthMode = 'login' | 'register';
 
-export type TabId = 'dashboard' | 'courses' | 'community' | 'admin' | 'profile' | 'messages' | 'design-system';
+export type TabId = 'dashboard' | 'courses' | 'community' | 'admin' | 'profile' | 'messages' | 'design-system' | 'scheduling';
 
-export type AdminSection = 'dashboard' | 'communities' | 'courses' | 'templates' | 'media' | 'integrations' | 'unlocks' | 'moderation' | 'settings' | 'products' | 'trails' | 'workspace' | 'invites';
+export type AdminSection = 'dashboard' | 'communities' | 'courses' | 'templates' | 'media' | 'integrations' | 'unlocks' | 'moderation' | 'settings' | 'products' | 'trails' | 'workspace' | 'invites' | 'scheduling';
 
 export type Theme = 'light' | 'dark' | 'rust';
 
@@ -242,4 +242,47 @@ export interface CommunityCategory {
   community_id: number;
   name: string;
   position: number;
+}
+
+// ── Scheduling Types ────────────────────────────────────────────────
+
+export interface AvailabilityConfig {
+  id: number;
+  workspace_id: number;
+  title: string;
+  duration_minutes: number;
+  buffer_minutes: number;
+  max_advance_days: number;
+  is_active: number;
+  slots?: AvailabilitySlot[];
+}
+
+export interface AvailabilitySlot {
+  id: number;
+  config_id: number;
+  day_of_week: number;
+  start_time: string;
+  end_time: string;
+}
+
+export interface TimeSlot {
+  start: string;
+  end: string;
+}
+
+export interface Booking {
+  id: number;
+  config_id: number;
+  user_id: number;
+  date: string;
+  start_time: string;
+  end_time: string;
+  status: string;
+  meet_link: string | null;
+  notes: string | null;
+  created_at: string;
+  config_title?: string;
+  user_name?: string;
+  user_email?: string;
+  user_phone?: string;
 }
