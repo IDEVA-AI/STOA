@@ -1,5 +1,5 @@
-import type { JSX } from 'react';
-import { ShieldCheck, ChevronRight } from 'lucide-react';
+import { useRef, useEffect, type JSX } from 'react';
+import { ShieldCheck, ChevronRight, LayoutDashboard, BookOpen, LayoutTemplate, FolderOpen, Package, Route, Lock, Users, Ticket, Calendar, Flag, Building2, ShoppingCart, Settings } from 'lucide-react';
 import {
   PageTransition,
   Button,
@@ -25,7 +25,25 @@ import {
 
 interface AdminPageProps {
   adminSection: AdminSection;
+  setAdminSection?: (section: AdminSection) => void;
 }
+
+const adminNav: { id: AdminSection; icon: typeof LayoutDashboard; label: string }[] = [
+  { id: 'dashboard', icon: LayoutDashboard, label: 'Geral' },
+  { id: 'courses', icon: BookOpen, label: 'Cursos' },
+  { id: 'templates', icon: LayoutTemplate, label: 'Templates' },
+  { id: 'media', icon: FolderOpen, label: 'Biblioteca' },
+  { id: 'products', icon: Package, label: 'Produtos' },
+  { id: 'trails', icon: Route, label: 'Trilhas' },
+  { id: 'unlocks', icon: Lock, label: 'Acessos' },
+  { id: 'communities', icon: Users, label: 'Comunidades' },
+  { id: 'invites', icon: Ticket, label: 'Convites' },
+  { id: 'scheduling', icon: Calendar, label: 'Agenda' },
+  { id: 'moderation', icon: Flag, label: 'Moderação' },
+  { id: 'workspace', icon: Building2, label: 'Workspace' },
+  { id: 'integrations', icon: ShoppingCart, label: 'Integrações' },
+  { id: 'settings', icon: Settings, label: 'Config' },
+];
 
 const sectionTitles: Record<AdminSection, string> = {
   dashboard: 'Painel de Administração',
@@ -61,11 +79,39 @@ const sectionComponents: Record<AdminSection, () => JSX.Element> = {
   scheduling: AdminScheduling,
 };
 
-export default function AdminPage({ adminSection }: AdminPageProps) {
+export default function AdminPage({ adminSection, setAdminSection }: AdminPageProps) {
   const SectionComponent = sectionComponents[adminSection];
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = scrollRef.current?.querySelector('[data-active="true"]');
+    if (el) el.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
+  }, [adminSection]);
 
   return (
     <PageTransition id="admin" className="space-y-8 sm:space-y-16">
+      {/* Mobile admin section nav */}
+      {setAdminSection && (
+        <div ref={scrollRef} className="lg:hidden -mx-4 px-4 overflow-x-auto no-scrollbar">
+          <div className="flex gap-1 min-w-max pb-2">
+            {adminNav.map(({ id, icon: Icon, label }) => (
+              <button
+                key={id}
+                data-active={adminSection === id}
+                onClick={() => setAdminSection(id)}
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-[11px] font-medium tracking-tight whitespace-nowrap transition-colors ${
+                  adminSection === id
+                    ? 'bg-gold/10 text-gold'
+                    : 'text-warm-gray hover:text-text hover:bg-bg'
+                }`}
+              >
+                <Icon size={14} />
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4 border-b border-line pb-12">
         <div className="space-y-4">
           <div className="flex items-center gap-4 mb-2">

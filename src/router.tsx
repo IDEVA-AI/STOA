@@ -184,9 +184,9 @@ function CommunityByIdRoute() {
 }
 
 function AdminRoute() {
-  const { adminSection } = useNavigation();
+  const { adminSection, setAdminSection } = useNavigation();
 
-  return <AdminPage adminSection={adminSection} />;
+  return <AdminPage adminSection={adminSection} setAdminSection={setAdminSection} />;
 }
 
 export function AppRoutes() {
