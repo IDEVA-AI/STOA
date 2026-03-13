@@ -203,7 +203,7 @@ export default function AdminTrails() {
   }
 
   return (
-    <div className="space-y-16">
+    <div className="space-y-8 sm:space-y-16">
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <StatCard label="Total de Trilhas" value={String(trails.length)} />

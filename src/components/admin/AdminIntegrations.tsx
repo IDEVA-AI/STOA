@@ -79,7 +79,7 @@ export default function AdminIntegrations() {
   };
 
   return (
-    <div className="space-y-16">
+    <div className="space-y-8 sm:space-y-16">
       {/* Description */}
       <Text muted>
         Gerencie as conexões com serviços externos. Ative ou desative integrações conforme necessário.

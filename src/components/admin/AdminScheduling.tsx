@@ -239,7 +239,7 @@ export default function AdminScheduling() {
   }
 
   return (
-    <div className="space-y-16">
+    <div className="space-y-8 sm:space-y-16">
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <StatCard label="Agendas" value={String(configs.length)} trend="" />
