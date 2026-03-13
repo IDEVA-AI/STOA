@@ -117,6 +117,11 @@ export interface ProfileData {
   role: string | null;
   avatar: string | null;
   bio: string | null;
+  website: string | null;
+  is_public: number;
+  show_progress: number;
+  courseCount: number;
+  followerCount: number;
 }
 
 export async function getProfile(): Promise<ProfileData> {
@@ -125,7 +130,7 @@ export async function getProfile(): Promise<ProfileData> {
   return res.json();
 }
 
-export async function updateProfile(data: { name?: string; avatar?: string; bio?: string }): Promise<ProfileData> {
+export async function updateProfile(data: { name?: string; avatar?: string; bio?: string; website?: string; is_public?: number; show_progress?: number }): Promise<ProfileData> {
   const res = await authFetch('/api/profile', {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
@@ -149,6 +154,16 @@ export async function changePassword(currentPassword: string, newPassword: strin
     throw new Error(body.error || 'Falha ao alterar senha.');
   }
   return res.json();
+}
+
+// ── Follow API ────────────────────────────────────────────────────────
+
+export async function followUser(userId: number): Promise<void> {
+  await authFetch(`/api/follows/${userId}`, { method: 'POST' });
+}
+
+export async function unfollowUser(userId: number): Promise<void> {
+  await authFetch(`/api/follows/${userId}`, { method: 'DELETE' });
 }
 
 // ── Courses API ────────────────────────────────────────────────────────

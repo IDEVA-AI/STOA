@@ -11,6 +11,9 @@ export interface User {
   is_active: number;
   bio: string | null;
   phone: string | null;
+  website: string | null;
+  is_public: number;
+  show_progress: number;
 }
 
 export function findByEmail(email: string): User | null {
@@ -43,7 +46,7 @@ export function updatePassword(userId: number, newHash: string): void {
 
 export function updateProfile(
   userId: number,
-  data: { name?: string; avatar?: string; bio?: string }
+  data: { name?: string; avatar?: string; bio?: string; website?: string; is_public?: number; show_progress?: number }
 ): User | null {
   const fields: string[] = [];
   const values: any[] = [];
@@ -59,6 +62,18 @@ export function updateProfile(
   if (data.bio !== undefined) {
     fields.push("bio = ?");
     values.push(data.bio);
+  }
+  if (data.website !== undefined) {
+    fields.push("website = ?");
+    values.push(data.website);
+  }
+  if (data.is_public !== undefined) {
+    fields.push("is_public = ?");
+    values.push(data.is_public);
+  }
+  if (data.show_progress !== undefined) {
+    fields.push("show_progress = ?");
+    values.push(data.show_progress);
   }
 
   if (fields.length === 0) return findById(userId);

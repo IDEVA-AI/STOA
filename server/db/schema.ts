@@ -343,6 +343,16 @@ export function initializeSchema() {
       FOREIGN KEY(config_id) REFERENCES availability_configs(id),
       FOREIGN KEY(user_id) REFERENCES users(id)
     );
+
+    CREATE TABLE IF NOT EXISTS user_follows (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      follower_id INTEGER NOT NULL,
+      following_id INTEGER NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY(follower_id) REFERENCES users(id),
+      FOREIGN KEY(following_id) REFERENCES users(id),
+      UNIQUE(follower_id, following_id)
+    );
   `);
 
   // Safely add new columns to existing users table (SQLite has no IF NOT EXISTS for ALTER TABLE)
@@ -353,6 +363,9 @@ export function initializeSchema() {
     { name: "is_active", definition: "INTEGER DEFAULT 1" },
     { name: "bio", definition: "TEXT" },
     { name: "phone", definition: "TEXT" },
+    { name: "website", definition: "TEXT" },
+    { name: "is_public", definition: "INTEGER DEFAULT 1" },
+    { name: "show_progress", definition: "INTEGER DEFAULT 1" },
   ];
 
   const coursesColumnsToAdd = [
@@ -440,6 +453,8 @@ export function initializeSchema() {
     CREATE INDEX IF NOT EXISTS idx_bookings_user_id ON bookings(user_id);
     CREATE INDEX IF NOT EXISTS idx_bookings_date ON bookings(date);
     CREATE INDEX IF NOT EXISTS idx_bookings_status ON bookings(status);
+    CREATE INDEX IF NOT EXISTS idx_user_follows_follower ON user_follows(follower_id);
+    CREATE INDEX IF NOT EXISTS idx_user_follows_following ON user_follows(following_id);
   `);
 
   // Migrate existing relationships to junction tables

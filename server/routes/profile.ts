@@ -18,8 +18,8 @@ router.get("/", (req: Request, res: Response) => {
 
 router.put("/", (req: Request, res: Response) => {
   try {
-    const { name, avatar, bio } = req.body;
-    const profile = profileService.updateProfile(req.userId!, { name, avatar, bio });
+    const { name, avatar, bio, website, is_public, show_progress } = req.body;
+    const profile = profileService.updateProfile(req.userId!, { name, avatar, bio, website, is_public, show_progress });
     res.status(200).json(profile);
   } catch (err: any) {
     const status = err.status || 500;

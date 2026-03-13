@@ -28,6 +28,11 @@ export default function ProfilePage() {
   const [name, setName] = useState('');
   const [role, setRole] = useState('');
   const [bio, setBio] = useState('');
+  const [website, setWebsite] = useState('');
+  const [isPublic, setIsPublic] = useState(true);
+  const [showProgress, setShowProgress] = useState(true);
+  const [courseCount, setCourseCount] = useState(0);
+  const [followerCount, setFollowerCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [feedback, setFeedback] = useState<FeedbackState>(null);
@@ -47,6 +52,11 @@ export default function ProfilePage() {
         setName(profile.name || '');
         setRole(profile.role || '');
         setBio(profile.bio || '');
+        setWebsite(profile.website || '');
+        setIsPublic(!!profile.is_public);
+        setShowProgress(!!profile.show_progress);
+        setCourseCount(profile.courseCount || 0);
+        setFollowerCount(profile.followerCount || 0);
       })
       .catch(() => {
         // Fallback to auth context user
@@ -62,7 +72,11 @@ export default function ProfilePage() {
     setSaving(true);
     setFeedback(null);
     try {
-      const updated = await api.updateProfile({ name, bio });
+      const updated = await api.updateProfile({
+        name, bio, website,
+        is_public: isPublic ? 1 : 0,
+        show_progress: showProgress ? 1 : 0,
+      });
       updateUser({ name: updated.name, avatar: updated.avatar || '' });
       setFeedback({ type: 'success', message: 'Perfil atualizado com sucesso!' });
       setTimeout(() => setFeedback(null), 3000);
@@ -71,7 +85,7 @@ export default function ProfilePage() {
     } finally {
       setSaving(false);
     }
-  }, [name, bio, updateUser]);
+  }, [name, bio, website, isPublic, showProgress, updateUser]);
 
   const handleChangePassword = useCallback(async () => {
     setPasswordFeedback(null);
@@ -140,11 +154,11 @@ export default function ProfilePage() {
             <Label className="mt-1">{role || user?.role || ''}</Label>
             <div className="mt-8 pt-8 border-t border-line grid grid-cols-2 gap-4">
               <div className="text-center">
-                <p className="font-serif text-xl font-bold">12</p>
+                <p className="font-serif text-xl font-bold">{courseCount}</p>
                 <Label className="text-[8px]">Cursos</Label>
               </div>
               <div className="text-center">
-                <p className="font-serif text-xl font-bold">1.2k</p>
+                <p className="font-serif text-xl font-bold">{followerCount >= 1000 ? `${(followerCount / 1000).toFixed(1)}k` : followerCount}</p>
                 <Label className="text-[8px]">Seguidores</Label>
               </div>
             </div>
@@ -152,8 +166,8 @@ export default function ProfilePage() {
 
           <Card variant="default" padding="sm" className="space-y-4">
             <Label variant="gold">Privacidade</Label>
-            <Toggle label="Perfil Público" checked onChange={() => {}} />
-            <Toggle label="Mostrar Progresso" checked={false} onChange={() => {}} />
+            <Toggle label="Perfil Público" checked={isPublic} onChange={setIsPublic} />
+            <Toggle label="Mostrar Progresso" checked={showProgress} onChange={setShowProgress} />
           </Card>
 
           <Card variant="default" padding="sm" className="space-y-4">
@@ -233,7 +247,14 @@ export default function ProfilePage() {
             <FormGroup label="Website / Portfólio">
               <div className="flex">
                 <div className="bg-surface px-4 py-3 border border-r-0 border-line text-warm-gray text-sm flex items-center">https://</div>
-                <Input type="text" defaultValue="" className="flex-1" disabled />
+                <Input
+                  type="text"
+                  value={website}
+                  onChange={(e) => setWebsite(e.target.value)}
+                  placeholder="meusite.com.br"
+                  className="flex-1"
+                  disabled={loading}
+                />
               </div>
             </FormGroup>
           </Card>
@@ -312,7 +333,7 @@ export default function ProfilePage() {
                 <p className="text-sm font-bold">Autenticação em Duas Etapas</p>
                 <p className="text-xs text-warm-gray">Aumente a segurança da sua conta</p>
               </div>
-              <Button variant="link" className="text-xs">Ativar</Button>
+              <Button variant="link" className="text-xs opacity-50" disabled>Em breve</Button>
             </div>
           </Card>
         </div>

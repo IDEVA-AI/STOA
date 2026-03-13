@@ -32,6 +32,7 @@ import communitiesRouter from "./routes/communities";
 import lessonBlocksRouter from "./routes/lessonBlocks";
 import lessonTemplatesRouter from "./routes/lessonTemplates";
 import schedulingRouter from "./routes/scheduling";
+import followRouter from "./routes/follows";
 import { getUploadsDir } from "./services/uploadService";
 
 initializeSchema();
@@ -87,6 +88,7 @@ async function startServer() {
   app.use("/api/lesson-blocks", lessonBlocksRouter);
   app.use("/api/lesson-templates", lessonTemplatesRouter);
   app.use("/api/scheduling", schedulingRouter);
+  app.use("/api/follows", followRouter);
 
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {

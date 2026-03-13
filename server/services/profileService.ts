@@ -1,5 +1,7 @@
 import bcrypt from "bcryptjs";
 import * as userRepo from "../repositories/userRepository";
+import * as followRepo from "../repositories/followRepository";
+import * as purchaseRepo from "../repositories/purchaseRepository";
 
 const SALT_ROUNDS = 10;
 
@@ -11,6 +13,9 @@ function sanitizeUser(user: userRepo.User) {
     role: user.role,
     avatar: user.avatar,
     bio: user.bio,
+    website: user.website,
+    is_public: user.is_public,
+    show_progress: user.show_progress,
   };
 }
 
@@ -19,12 +24,14 @@ export function getProfile(userId: number) {
   if (!user) {
     throw { status: 404, message: "User not found" };
   }
-  return sanitizeUser(user);
+  const courseCount = purchaseRepo.getUserCourseIds(userId).length;
+  const followerCount = followRepo.getFollowerCount(userId);
+  return { ...sanitizeUser(user), courseCount, followerCount };
 }
 
 export function updateProfile(
   userId: number,
-  data: { name?: string; avatar?: string; bio?: string }
+  data: { name?: string; avatar?: string; bio?: string; website?: string; is_public?: number; show_progress?: number }
 ) {
   const user = userRepo.findById(userId);
   if (!user) {
