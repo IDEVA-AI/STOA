@@ -28,6 +28,7 @@ import NavItem from '../ui/NavItem';
 import type { TabId, AdminSection, Theme, Community, StyleSpec, ColorPalette } from '@/src/types';
 import { SPEC_LABELS, PALETTE_SWATCHES } from '@/src/types';
 import { useWorkspace } from '@/src/hooks/useWorkspace';
+import { useAuth } from '@/src/hooks/useAuth';
 import * as api from '@/src/services/api';
 
 interface SidebarProps {
@@ -59,6 +60,8 @@ export default function Sidebar({
 }: SidebarProps) {
   const navigate = useNavigate();
   const { activeWorkspace } = useWorkspace();
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin' || user?.role === 'owner';
   const [communities, setCommunities] = useState<Community[]>([]);
   const [communityOpen, setCommunityOpen] = useState(false);
 
@@ -200,13 +203,15 @@ export default function Sidebar({
                   onClick={() => setActiveTab('admin')}
                   className="text-gold/80 hover:text-gold"
                 />
-                <NavItem
-                  icon={<Palette size={18} />}
-                  label="Design System"
-                  active={activeTab === 'design-system'}
-                  onClick={() => setActiveTab('design-system')}
-                  className="text-warm-gray/60 hover:text-warm-gray"
-                />
+                {isAdmin && (
+                  <NavItem
+                    icon={<Palette size={18} />}
+                    label="Design System"
+                    active={activeTab === 'design-system'}
+                    onClick={() => setActiveTab('design-system')}
+                    className="text-warm-gray/60 hover:text-warm-gray"
+                  />
+                )}
               </div>
             </motion.div>
           ) : (

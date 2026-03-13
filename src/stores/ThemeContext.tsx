@@ -33,7 +33,7 @@ function loadFromStorage(): { spec: StyleSpec; palette: ColorPalette } {
       }
     }
   } catch {}
-  return { spec: 'artesanal', palette: 'light' };
+  return { spec: 'minimal', palette: 'light' };
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
