@@ -52,10 +52,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   // Apply CSS classes to body
   useEffect(() => {
     const cl = document.body.classList;
-    cl.remove('spec-minimal', 'palette-dark', 'palette-rust');
+    cl.remove('spec-minimal', 'palette-dark');
     if (spec === 'minimal') cl.add('spec-minimal');
     if (palette === 'dark') cl.add('palette-dark');
-    if (palette === 'rust') cl.add('palette-rust');
   }, [spec, palette]);
 
   const setSpec = useCallback((newSpec: StyleSpec) => {

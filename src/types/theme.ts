@@ -1,5 +1,5 @@
 export type StyleSpec = 'artesanal' | 'minimal';
-export type ColorPalette = 'light' | 'dark' | 'rust';
+export type ColorPalette = 'light' | 'dark';
 
 export interface ThemeConfig {
   spec: StyleSpec;
@@ -7,7 +7,7 @@ export interface ThemeConfig {
 }
 
 export const VALID_PALETTES: Record<StyleSpec, readonly ColorPalette[]> = {
-  artesanal: ['light', 'dark', 'rust'],
+  artesanal: ['light', 'dark'],
   minimal: ['light', 'dark'],
 };
 
@@ -20,7 +20,6 @@ export const PALETTE_SWATCHES: Record<StyleSpec, { palette: ColorPalette; color:
   artesanal: [
     { palette: 'light', color: '#f4f0e8', label: 'Paper' },
     { palette: 'dark', color: '#0e0c0a', label: 'Ink' },
-    { palette: 'rust', color: '#5c2418', label: 'Rust' },
   ],
   minimal: [
     { palette: 'light', color: '#fafafa', label: 'White' },

@@ -147,7 +147,7 @@ export type TabId = 'dashboard' | 'courses' | 'community' | 'admin' | 'profile' 
 
 export type AdminSection = 'dashboard' | 'communities' | 'courses' | 'templates' | 'media' | 'integrations' | 'unlocks' | 'moderation' | 'settings' | 'products' | 'trails' | 'workspace' | 'invites' | 'scheduling';
 
-export type Theme = 'light' | 'dark' | 'rust';
+export type Theme = 'light' | 'dark';
 
 export type { StyleSpec, ColorPalette, ThemeConfig } from './theme';
 export { VALID_PALETTES, SPEC_LABELS, PALETTE_SWATCHES } from './theme';
