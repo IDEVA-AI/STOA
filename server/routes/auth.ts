@@ -6,8 +6,8 @@ const router = Router();
 
 router.post("/register", async (req: Request, res: Response) => {
   try {
-    const { name, email, password } = req.body;
-    const result = await authService.register(name, email, password);
+    const { name, email, password, phone, inviteCode } = req.body;
+    const result = await authService.register(name, email, password, phone, inviteCode);
     res.status(201).json(result);
   } catch (err: any) {
     const status = err.status || 500;

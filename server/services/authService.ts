@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import * as userRepo from "../repositories/userRepository";
 import { generateToken, generateRefreshToken, verifyRefreshToken } from "../middleware/auth";
+import * as inviteService from "./inviteService";
 
 const SALT_ROUNDS = 10;
 
@@ -20,7 +21,13 @@ function sanitizeUser(user: userRepo.User) {
   };
 }
 
-export async function register(name: string, email: string, password: string): Promise<AuthResult> {
+export async function register(
+  name: string,
+  email: string,
+  password: string,
+  phone?: string,
+  inviteCode?: string
+): Promise<AuthResult> {
   if (!name || !email || !password) {
     throw { status: 400, message: "Name, email, and password are required" };
   }
@@ -29,13 +36,24 @@ export async function register(name: string, email: string, password: string): P
     throw { status: 400, message: "Password must be at least 6 characters" };
   }
 
+  if (inviteCode) {
+    const validation = inviteService.validateInvite(inviteCode);
+    if (!validation.valid) {
+      throw { status: 400, message: validation.reason || "Convite invalido" };
+    }
+  }
+
   const existing = userRepo.findByEmail(email);
   if (existing) {
     throw { status: 409, message: "Email already registered" };
   }
 
   const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
-  const user = userRepo.createUser(name, email, passwordHash);
+  const user = userRepo.createUser(name, email, passwordHash, "Membro", phone);
+
+  if (inviteCode) {
+    inviteService.redeemInvite(inviteCode, user.id);
+  }
 
   const accessToken = generateToken(user.id, user.role || undefined);
   const refreshToken = generateRefreshToken(user.id);
