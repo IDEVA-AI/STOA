@@ -149,8 +149,8 @@ export type AdminSection = 'dashboard' | 'communities' | 'courses' | 'templates'
 
 export type Theme = 'light' | 'dark';
 
-export type { StyleSpec, ColorPalette, ThemeConfig } from './theme';
-export { VALID_PALETTES, SPEC_LABELS, PALETTE_SWATCHES } from './theme';
+export type { StyleSpec, ColorPalette, ThemeConfig, AccentPreset } from './theme';
+export { VALID_PALETTES, SPEC_LABELS, PALETTE_SWATCHES, ACCENT_PRESETS } from './theme';
 
 export interface Conversation {
   id: number;
