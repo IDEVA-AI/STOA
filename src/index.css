@@ -2,9 +2,9 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: var(--spec-font-sans);
-  --font-serif: var(--spec-font-serif);
-  --font-mono: var(--spec-font-mono);
+  --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Fraunces", serif;
+  --font-mono: "DM Mono", monospace;
 
   --color-gold: var(--theme-gold);
   --color-gold-light: var(--theme-gold-light);
@@ -26,9 +26,6 @@
 @layer base {
   /* ── Artesanal Light (default) ── */
   :root {
-    --spec-font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
-    --spec-font-serif: "Fraunces", serif;
-    --spec-font-mono: "DM Mono", monospace;
     --spec-display-weight: 900;
 
     --theme-bg: #f4f0e8;
@@ -74,44 +71,45 @@
     --theme-danger: #f87171;
   }
 
-  /* ── Minimal Light ── */
-  .spec-minimal {
-    --spec-font-sans: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
-    --spec-font-serif: "Space Grotesk", sans-serif;
-    --spec-font-mono: "JetBrains Mono", monospace;
-    --spec-display-weight: 700;
-
-    --theme-bg: #fafafa;
-    --theme-text: #111111;
-    --theme-surface: #ffffff;
-    --theme-surface-elevated: #ffffff;
-    --theme-line: #e5e5e5;
-    --theme-warm-gray: #737373;
-    --theme-gold: #2563eb;
-    --theme-gold-light: #dbeafe;
-    --theme-overlay: rgba(0, 0, 0, 0.5);
-    --theme-success: #059669;
-    --theme-danger: #dc2626;
-  }
-
-  /* ── Minimal Dark ── */
-  .spec-minimal.palette-dark {
-    --theme-bg: #0a0a0a;
-    --theme-text: #fafafa;
-    --theme-surface: #171717;
-    --theme-surface-elevated: #1c1c1c;
-    --theme-line: rgba(255, 255, 255, 0.1);
-    --theme-warm-gray: #a3a3a3;
-    --theme-gold: #3b82f6;
-    --theme-gold-light: #1e3a5f;
-    --theme-overlay: rgba(0, 0, 0, 0.7);
-    --theme-success: #34d399;
-    --theme-danger: #f87171;
-  }
-
   body {
     @apply bg-bg text-text antialiased font-sans font-light transition-colors duration-500;
   }
+}
+
+/* ── Minimal Light ── */
+/* Outside @layer so it overrides @theme variables with higher cascade priority */
+.spec-minimal {
+  --font-sans: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Space Grotesk", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+  --spec-display-weight: 700;
+
+  --theme-bg: #fafafa;
+  --theme-text: #111111;
+  --theme-surface: #ffffff;
+  --theme-surface-elevated: #ffffff;
+  --theme-line: #e5e5e5;
+  --theme-warm-gray: #737373;
+  --theme-gold: #2563eb;
+  --theme-gold-light: #dbeafe;
+  --theme-overlay: rgba(0, 0, 0, 0.5);
+  --theme-success: #059669;
+  --theme-danger: #dc2626;
+}
+
+/* ── Minimal Dark ── */
+.spec-minimal.palette-dark {
+  --theme-bg: #0a0a0a;
+  --theme-text: #fafafa;
+  --theme-surface: #171717;
+  --theme-surface-elevated: #1c1c1c;
+  --theme-line: rgba(255, 255, 255, 0.1);
+  --theme-warm-gray: #a3a3a3;
+  --theme-gold: #3b82f6;
+  --theme-gold-light: #1e3a5f;
+  --theme-overlay: rgba(0, 0, 0, 0.7);
+  --theme-success: #34d399;
+  --theme-danger: #f87171;
 }
 
 .serif-display {
