@@ -82,7 +82,7 @@ export default function Sidebar({
   };
 
   return (
-    <aside className="w-20 lg:w-72 border-r border-line flex flex-col items-center lg:items-stretch py-10 px-6 bg-surface transition-all duration-500 relative overflow-y-auto overflow-x-hidden">
+    <aside className="hidden lg:flex w-72 border-r border-line flex-col items-stretch py-10 px-6 bg-surface transition-all duration-500 relative overflow-y-auto overflow-x-hidden">
       <div className="flex flex-col gap-1 px-4 mb-16 relative z-10">
         <div className="flex items-center justify-between mb-1">
           <span className="font-serif font-black text-2xl tracking-tight">{user?.name || 'STOA'}</span>

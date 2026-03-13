@@ -2,6 +2,7 @@ import { Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import { AnimatePresence } from 'motion/react';
 import { useParams } from 'react-router-dom';
+import { LayoutDashboard, BookOpen, Users, MessageSquare, ShieldCheck } from 'lucide-react';
 import { useAuth } from './hooks/useAuth';
 import { useNavigation } from './hooks/useNavigation';
 import { useCourses } from './hooks/useCourses';
@@ -104,7 +105,7 @@ function Layout() {
       <main className="flex-1 overflow-y-auto relative bg-bg transition-colors duration-500">
         <Header />
 
-        <div className="p-10 max-w-7xl mx-auto">
+        <div className="p-4 sm:p-6 lg:p-10 max-w-7xl mx-auto pb-24 lg:pb-10">
           <ErrorBoundary>
             <AnimatePresence mode="wait">
               <Outlet />
@@ -112,6 +113,28 @@ function Layout() {
           </ErrorBoundary>
         </div>
       </main>
+
+      {/* Mobile Bottom Navigation */}
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-surface border-t border-line flex items-center justify-around px-2 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
+        {[
+          { id: 'dashboard' as const, icon: LayoutDashboard, label: 'Painel' },
+          { id: 'courses' as const, icon: BookOpen, label: 'Cursos' },
+          { id: 'community' as const, icon: Users, label: 'Social' },
+          { id: 'messages' as const, icon: MessageSquare, label: 'Chat' },
+          { id: 'admin' as const, icon: ShieldCheck, label: 'Admin' },
+        ].map(({ id, icon: Icon, label }) => (
+          <button
+            key={id}
+            onClick={() => setActiveTab(id)}
+            className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-colors ${
+              activeTab === id ? 'text-gold' : 'text-warm-gray hover:text-text'
+            }`}
+          >
+            <Icon size={20} />
+            <span className="text-[10px] font-medium tracking-tight">{label}</span>
+          </button>
+        ))}
+      </nav>
 
       <AnnouncementGate />
     </div>
