@@ -1,74 +1,32 @@
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,700;0,9..144,900;1,9..144,300;1,9..144,400&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap');
 @import "tailwindcss";
 
+/* Artesanal Light defaults — static values, no var() indirection */
 @theme {
   --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
   --font-serif: "Fraunces", serif;
   --font-mono: "DM Mono", monospace;
 
-  --color-gold: var(--theme-gold);
-  --color-gold-light: var(--theme-gold-light);
+  --color-gold: #b8873a;
+  --color-gold-light: #e8d5b0;
   --color-ink: #0e0c0a;
   --color-paper: #f4f0e8;
-  --color-warm-gray: var(--theme-warm-gray);
+  --color-warm-gray: #7a7268;
   --color-rust: #5c2418;
-  --color-line: var(--theme-line);
+  --color-line: #ddd8cc;
 
-  --color-bg: var(--theme-bg);
-  --color-text: var(--theme-text);
-  --color-surface: var(--theme-surface);
-  --color-surface-elevated: var(--theme-surface-elevated);
-  --color-overlay: var(--theme-overlay);
-  --color-success: var(--theme-success);
-  --color-danger: var(--theme-danger);
+  --color-bg: #f4f0e8;
+  --color-text: #0e0c0a;
+  --color-surface: #ffffff;
+  --color-surface-elevated: #ffffff;
+  --color-overlay: rgba(14, 12, 10, 0.6);
+  --color-success: #059669;
+  --color-danger: #dc2626;
 }
 
 @layer base {
-  /* ── Artesanal Light (default) ── */
   :root {
     --spec-display-weight: 900;
-
-    --theme-bg: #f4f0e8;
-    --theme-text: #0e0c0a;
-    --theme-surface: #ffffff;
-    --theme-surface-elevated: #ffffff;
-    --theme-line: #ddd8cc;
-    --theme-warm-gray: #7a7268;
-    --theme-gold: #b8873a;
-    --theme-gold-light: #e8d5b0;
-    --theme-overlay: rgba(14, 12, 10, 0.6);
-    --theme-success: #059669;
-    --theme-danger: #dc2626;
-  }
-
-  /* ── Artesanal Dark ── */
-  .palette-dark {
-    --theme-bg: #0e0c0a;
-    --theme-text: #f4f0e8;
-    --theme-surface: #1a1714;
-    --theme-surface-elevated: #1e1b18;
-    --theme-line: rgba(244, 240, 232, 0.1);
-    --theme-warm-gray: #a69d94;
-    --theme-gold: #d4a04a;
-    --theme-gold-light: #c4a572;
-    --theme-overlay: rgba(0, 0, 0, 0.7);
-    --theme-success: #34d399;
-    --theme-danger: #f87171;
-  }
-
-  /* ── Artesanal Rust ── */
-  .palette-rust {
-    --theme-bg: #5c2418;
-    --theme-text: #f4f0e8;
-    --theme-surface: #6d2b1d;
-    --theme-surface-elevated: #7a3022;
-    --theme-line: rgba(244, 240, 232, 0.15);
-    --theme-warm-gray: #c4a898;
-    --theme-gold: #d4a04a;
-    --theme-gold-light: #c4a572;
-    --theme-overlay: rgba(52, 16, 8, 0.7);
-    --theme-success: #34d399;
-    --theme-danger: #f87171;
   }
 
   body {
@@ -76,40 +34,71 @@
   }
 }
 
-/* ── Minimal Light ── */
-/* Outside @layer so it overrides @theme variables with higher cascade priority */
+/* ── All theme overrides outside @layer for max cascade priority ── */
+
+/* Artesanal Dark */
+.palette-dark {
+  --color-bg: #0e0c0a;
+  --color-text: #f4f0e8;
+  --color-surface: #1a1714;
+  --color-surface-elevated: #1e1b18;
+  --color-line: rgba(244, 240, 232, 0.1);
+  --color-warm-gray: #a69d94;
+  --color-gold: #d4a04a;
+  --color-gold-light: #c4a572;
+  --color-overlay: rgba(0, 0, 0, 0.7);
+  --color-success: #34d399;
+  --color-danger: #f87171;
+}
+
+/* Artesanal Rust */
+.palette-rust {
+  --color-bg: #5c2418;
+  --color-text: #f4f0e8;
+  --color-surface: #6d2b1d;
+  --color-surface-elevated: #7a3022;
+  --color-line: rgba(244, 240, 232, 0.15);
+  --color-warm-gray: #c4a898;
+  --color-gold: #d4a04a;
+  --color-gold-light: #c4a572;
+  --color-overlay: rgba(52, 16, 8, 0.7);
+  --color-success: #34d399;
+  --color-danger: #f87171;
+}
+
+/* Minimal Light */
 .spec-minimal {
   --font-sans: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
   --font-serif: "Space Grotesk", sans-serif;
   --font-mono: "JetBrains Mono", monospace;
   --spec-display-weight: 700;
 
-  --theme-bg: #fafafa;
-  --theme-text: #111111;
-  --theme-surface: #ffffff;
-  --theme-surface-elevated: #ffffff;
-  --theme-line: #e5e5e5;
-  --theme-warm-gray: #737373;
-  --theme-gold: #2563eb;
-  --theme-gold-light: #dbeafe;
-  --theme-overlay: rgba(0, 0, 0, 0.5);
-  --theme-success: #059669;
-  --theme-danger: #dc2626;
+  --color-bg: #fafafa;
+  --color-text: #111111;
+  --color-surface: #ffffff;
+  --color-surface-elevated: #ffffff;
+  --color-line: #e5e5e5;
+  --color-warm-gray: #737373;
+  --color-gold: #2563eb;
+  --color-gold-light: #dbeafe;
+  --color-overlay: rgba(0, 0, 0, 0.5);
+  --color-success: #059669;
+  --color-danger: #dc2626;
 }
 
-/* ── Minimal Dark ── */
+/* Minimal Dark */
 .spec-minimal.palette-dark {
-  --theme-bg: #0a0a0a;
-  --theme-text: #fafafa;
-  --theme-surface: #171717;
-  --theme-surface-elevated: #1c1c1c;
-  --theme-line: rgba(255, 255, 255, 0.1);
-  --theme-warm-gray: #a3a3a3;
-  --theme-gold: #3b82f6;
-  --theme-gold-light: #1e3a5f;
-  --theme-overlay: rgba(0, 0, 0, 0.7);
-  --theme-success: #34d399;
-  --theme-danger: #f87171;
+  --color-bg: #0a0a0a;
+  --color-text: #fafafa;
+  --color-surface: #171717;
+  --color-surface-elevated: #1c1c1c;
+  --color-line: rgba(255, 255, 255, 0.1);
+  --color-warm-gray: #a3a3a3;
+  --color-gold: #3b82f6;
+  --color-gold-light: #1e3a5f;
+  --color-overlay: rgba(0, 0, 0, 0.7);
+  --color-success: #34d399;
+  --color-danger: #f87171;
 }
 
 .serif-display {
