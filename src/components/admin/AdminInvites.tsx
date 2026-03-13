@@ -250,7 +250,7 @@ export default function AdminInvites() {
                           <Badge variant="default">{product.title}</Badge>
                         )}
                       </div>
-                      <div className="flex items-center gap-6">
+                      <div className="flex flex-wrap items-center gap-3 sm:gap-6">
                         <Label>
                           {invite.used_count}{invite.max_uses ? `/${invite.max_uses}` : ''} usos
                         </Label>

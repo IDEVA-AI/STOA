@@ -78,7 +78,7 @@ const TEXT_BLOCK_CLASSES = [
   // Inline code
   '[&_code]:text-gold/80 [&_code]:bg-surface [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-sm [&_code]:font-mono',
   // Code block
-  '[&_pre]:bg-surface [&_pre]:border [&_pre]:border-line [&_pre]:rounded-sm [&_pre]:px-5 [&_pre]:py-4 [&_pre]:my-6 [&_pre]:overflow-x-auto',
+  '[&_pre]:bg-surface [&_pre]:border [&_pre]:border-line [&_pre]:rounded-sm [&_pre]:px-5 [&_pre]:py-4 [&_pre]:my-6 [&_pre]:max-w-full [&_pre]:overflow-x-auto',
   '[&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_pre_code]:text-text/70 [&_pre_code]:text-sm [&_pre_code]:font-mono [&_pre_code]:leading-relaxed',
   // Horizontal rule
   '[&_hr]:border-line [&_hr]:my-8',

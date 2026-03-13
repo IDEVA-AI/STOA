@@ -175,8 +175,8 @@ export default function AdminProducts() {
       </div>
 
       {/* Toolbar */}
-      <div className="flex items-center gap-6">
-        <div className="flex-1">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-6">
+        <div className="flex-1 w-full sm:w-auto">
           <Input
             icon={<Search size={16} />}
             placeholder="Buscar produtos..."
@@ -184,7 +184,7 @@ export default function AdminProducts() {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        <Button icon={<Plus size={16} />} onClick={() => setShowNewProduct(true)}>Novo Produto</Button>
+        <Button className="w-full sm:w-auto" icon={<Plus size={16} />} onClick={() => setShowNewProduct(true)}>Novo Produto</Button>
       </div>
 
       {/* New Product Form */}
@@ -210,8 +210,9 @@ export default function AdminProducts() {
                   value={newDesc}
                   onChange={(e) => setNewDesc(e.target.value)}
                 />
-                <div className="flex items-center gap-4">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
                   <Input
+                    className="w-full sm:w-auto"
                     placeholder="Preco (ex: 97.00)"
                     value={newPrice}
                     onChange={(e) => setNewPrice(e.target.value)}
@@ -220,7 +221,7 @@ export default function AdminProducts() {
                   <select
                     value={newType}
                     onChange={(e) => setNewType(e.target.value as 'course' | 'bundle')}
-                    className="h-10 px-4 bg-surface border border-line text-sm focus:outline-none focus:border-gold transition-colors"
+                    className="w-full sm:w-auto h-10 px-4 bg-surface border border-line text-sm focus:outline-none focus:border-gold transition-colors"
                   >
                     <option value="course">Curso</option>
                     <option value="bundle">Bundle</option>
@@ -280,8 +281,9 @@ export default function AdminProducts() {
                         value={editDesc}
                         onChange={(e) => setEditDesc(e.target.value)}
                       />
-                      <div className="flex items-center gap-4">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
                         <Input
+                          className="w-full sm:w-auto"
                           placeholder="Preco"
                           value={editPrice}
                           onChange={(e) => setEditPrice(e.target.value)}
@@ -290,7 +292,7 @@ export default function AdminProducts() {
                         <select
                           value={editType}
                           onChange={(e) => setEditType(e.target.value as 'course' | 'bundle')}
-                          className="h-10 px-4 bg-surface border border-line text-sm focus:outline-none focus:border-gold transition-colors"
+                          className="w-full sm:w-auto h-10 px-4 bg-surface border border-line text-sm focus:outline-none focus:border-gold transition-colors"
                         >
                           <option value="course">Curso</option>
                           <option value="bundle">Bundle</option>
@@ -335,7 +337,7 @@ export default function AdminProducts() {
                               <Label>{product.is_published ? 'Publicado' : 'Rascunho'}</Label>
                             </div>
                           </div>
-                          <div className="flex items-center gap-6">
+                          <div className="flex flex-wrap items-center gap-3 sm:gap-6">
                             <Label variant="gold" className="text-lg font-bold">{formatPrice(product.price)}</Label>
                             <Label>{product.course_count ?? product.courses?.length ?? 0} cursos</Label>
                             <Label className="text-warm-gray/60">{formatDate(product.created_at)}</Label>

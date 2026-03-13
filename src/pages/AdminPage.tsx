@@ -79,7 +79,7 @@ export default function AdminPage({ adminSection }: AdminPageProps) {
             <ChevronRight size={10} className="text-warm-gray/20" />
             <span className="text-gold text-[10px] font-mono tracking-widest uppercase font-bold">{adminSection}</span>
           </div>
-          <h1 className="font-serif text-7xl font-black tracking-tighter leading-none">
+          <h1 className="font-serif text-4xl sm:text-5xl lg:text-7xl font-black tracking-tighter leading-none">
             {sectionTitles[adminSection]}
           </h1>
         </div>

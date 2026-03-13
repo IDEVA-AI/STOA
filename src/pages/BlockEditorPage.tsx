@@ -5,7 +5,7 @@ import {
   Play, Type, Image, FileDown, MousePointer, Minus, AlertCircle,
   ChevronUp, ChevronDown, Trash2, Pencil, Check, GripVertical,
   Loader2, Save, ArrowLeft, BookmarkPlus, LayoutTemplate, Eye, PenLine,
-  Upload, FolderOpen, X, Film, ImageIcon, File,
+  Upload, FolderOpen, X, Film, ImageIcon, File, Menu,
 } from 'lucide-react';
 import { cn } from '@/src/lib/utils';
 import { Button, Badge, Input, Textarea } from '@/src/components/ui';
@@ -532,6 +532,7 @@ export default function BlockEditorPage() {
   const [editingIdx, setEditingIdx] = useState<number | null>(null);
   const [dirty, setDirty] = useState(false);
   const [preview, setPreview] = useState(false);
+  const [showMobileSidebar, setShowMobileSidebar] = useState(false);
 
   // Templates
   const [templates, setTemplates] = useState<LessonTemplate[]>([]);
@@ -680,11 +681,30 @@ export default function BlockEditorPage() {
   /* ── Render ── */
   return (
     <div className="flex h-screen overflow-hidden font-sans bg-bg text-text">
+      {/* ── Left Sidebar — Mobile backdrop ── */}
+      {showMobileSidebar && (
+        <div className="sm:hidden fixed inset-0 z-40 bg-black/50" onClick={() => setShowMobileSidebar(false)} />
+      )}
+
       {/* ── Left Sidebar ── */}
       <aside className={cn(
         'w-64 bg-surface border-r border-line flex flex-col overflow-hidden shrink-0 transition-all duration-300',
-        preview && 'w-0 border-r-0 opacity-0 pointer-events-none'
+        preview && 'w-0 border-r-0 opacity-0 pointer-events-none',
+        !preview && 'hidden sm:flex',
+        !preview && showMobileSidebar && '!flex fixed inset-y-0 left-0 z-50'
       )}>
+        {/* Mobile close button */}
+        <div className="sm:hidden flex items-center justify-between px-4 py-3 border-b border-line shrink-0">
+          <span className="text-xs font-bold text-text">Componentes</span>
+          <button
+            onClick={() => setShowMobileSidebar(false)}
+            className="w-8 h-8 rounded-full flex items-center justify-center text-warm-gray hover:text-gold transition-colors"
+            aria-label="Fechar sidebar"
+          >
+            <X size={16} />
+          </button>
+        </div>
+
         <div className="flex-1 overflow-y-auto py-6 px-4">
           {/* Components Section */}
           <p className="mono-label text-[9px] text-warm-gray/50 tracking-[0.2em] uppercase px-2 mb-3 font-bold">
@@ -775,13 +795,24 @@ export default function BlockEditorPage() {
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Top Bar */}
         <header className="h-16 bg-surface border-b border-line flex items-center justify-between px-6 shrink-0">
-          <button
-            onClick={handleBack}
-            className="flex items-center gap-2 text-warm-gray hover:text-gold transition-colors text-sm font-bold"
-          >
-            <ArrowLeft size={16} />
-            <span>Voltar</span>
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleBack}
+              className="flex items-center gap-2 text-warm-gray hover:text-gold transition-colors text-sm font-bold"
+            >
+              <ArrowLeft size={16} />
+              <span>Voltar</span>
+            </button>
+            {!preview && (
+              <button
+                onClick={() => setShowMobileSidebar(true)}
+                className="sm:hidden w-8 h-8 rounded-full flex items-center justify-center text-warm-gray hover:text-gold border border-line transition-colors"
+                aria-label="Abrir componentes"
+              >
+                <Menu size={16} />
+              </button>
+            )}
+          </div>
 
           <h1 className="font-serif font-bold text-base truncate max-w-md">
             {preview ? 'Preview:' : 'Editando:'} {lessonTitle}

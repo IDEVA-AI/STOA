@@ -130,7 +130,7 @@ export default function CoursesPage({ courses, onEnterCourse }: CoursesPageProps
         title="Conhecimento"
         subtitle="Arquitetura, Estrategia e Sistemas Organizacionais."
         actions={
-          <div className="flex gap-10">
+          <div className="flex flex-wrap gap-4 sm:gap-10">
             {filterTabs.map((tab) => (
               <button
                 key={tab.key}

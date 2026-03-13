@@ -110,7 +110,7 @@ export default function Header() {
   const isEmpty = results && results.courses.length === 0 && results.posts.length === 0;
 
   return (
-    <header className="sticky top-0 z-10 px-10 py-8 flex items-center justify-between bg-bg/80 backdrop-blur-md border-b border-line transition-colors duration-500">
+    <header className="sticky top-0 z-10 px-4 py-4 sm:px-10 sm:py-8 flex items-center justify-between bg-bg/80 backdrop-blur-md border-b border-line transition-colors duration-500">
       {/* Workspace Selector */}
       <div ref={wsRef} className="relative mr-6">
         <button
@@ -143,7 +143,7 @@ export default function Header() {
               initial={popover.initial}
               animate={popover.animate}
               exit={popover.exit}
-              className="absolute left-0 top-full mt-2 w-72 bg-surface border border-line rounded shadow-lg z-50 overflow-hidden"
+              className="absolute left-0 top-full mt-2 w-[calc(100vw-2rem)] sm:w-72 bg-surface border border-line rounded shadow-lg z-50 overflow-hidden"
             >
               <div className="px-4 py-3 border-b border-line bg-bg/20">
                 <Label className="text-[9px] uppercase tracking-widest">Workspaces</Label>
@@ -292,7 +292,7 @@ export default function Header() {
                 initial={popover.initial}
                 animate={popover.animate}
                 exit={popover.exit}
-                className="absolute right-0 mt-6 w-80 card-editorial bg-surface shadow-2xl z-50 overflow-hidden transition-colors duration-500"
+                className="absolute right-0 mt-6 w-[calc(100vw-2rem)] sm:w-80 card-editorial bg-surface shadow-2xl z-50 overflow-hidden transition-colors duration-500"
               >
                 <div className="p-5 border-b border-line flex justify-between items-center bg-bg/20">
                   <Label variant="gold">Notificacoes</Label>

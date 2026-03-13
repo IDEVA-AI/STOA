@@ -241,8 +241,8 @@ function TeamMembers() {
               className="overflow-hidden"
               onSubmit={handleAddMember}
             >
-              <div className="flex items-end gap-3 p-4 border border-line rounded bg-bg/30">
-                <FormGroup label="User ID" className="flex-1">
+              <div className="flex flex-col sm:flex-row items-start sm:items-end gap-3 p-4 border border-line rounded bg-bg/30">
+                <FormGroup label="User ID" className="flex-1 w-full sm:w-auto">
                   <Input
                     type="number"
                     placeholder="ID do usuario"
@@ -251,17 +251,20 @@ function TeamMembers() {
                     disabled={addingMember}
                   />
                 </FormGroup>
-                <Button type="submit" disabled={addingMember || !newUserId.trim()} size="sm">
-                  {addingMember ? 'Adicionando...' : 'Adicionar'}
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowAddForm(false)}
-                >
-                  Cancelar
-                </Button>
+                <div className="flex items-center gap-3 w-full sm:w-auto">
+                  <Button className="w-full sm:w-auto" type="submit" disabled={addingMember || !newUserId.trim()} size="sm">
+                    {addingMember ? 'Adicionando...' : 'Adicionar'}
+                  </Button>
+                  <Button
+                    className="w-full sm:w-auto"
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowAddForm(false)}
+                  >
+                    Cancelar
+                  </Button>
+                </div>
               </div>
             </motion.form>
           )}
@@ -359,7 +362,7 @@ function TeamMembers() {
                     </td>
                     <td className="py-3">
                       {confirmDeleteId === member.user_id ? (
-                        <div className="flex items-center gap-1">
+                        <div className="flex flex-col sm:flex-row items-center gap-1">
                           <Button
                             variant="ghost"
                             size="sm"

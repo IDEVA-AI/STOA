@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback, type KeyboardEvent, type ChangeEvent } from 'react';
-import { Send, Search, MessageSquare } from 'lucide-react';
+import { Send, Search, MessageSquare, ChevronLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '@/src/lib/utils';
 import {
@@ -97,9 +97,12 @@ export default function MessagesPage() {
   }, [activeConversation, sendTyping]);
 
   return (
-    <PageTransition id="messages" className="h-[calc(100vh-200px)] flex gap-12">
+    <PageTransition id="messages" className="h-[calc(100vh-200px)] flex gap-0 sm:gap-12">
       {/* Conversations List */}
-      <div className="w-96 flex flex-col gap-8">
+      <div className={cn(
+        "w-full sm:w-96 flex flex-col gap-8 shrink-0",
+        activeConversation && "hidden sm:flex"
+      )}>
         <div className="flex justify-between items-end">
           <Heading level={1} className="text-5xl">Caixa de Entrada</Heading>
         </div>
@@ -175,7 +178,10 @@ export default function MessagesPage() {
       </div>
 
       {/* Chat Window */}
-      <Card variant="elevated" className="flex-1 flex flex-col overflow-hidden shadow-2xl">
+      <Card variant="elevated" className={cn(
+        "flex-1 flex flex-col overflow-hidden shadow-2xl",
+        !activeConversation && "hidden sm:flex"
+      )}>
         <AnimatePresence mode="wait">
           {!activeConversation ? (
             <motion.div
@@ -203,6 +209,13 @@ export default function MessagesPage() {
               {activeConv && (
                 <div className="p-8 border-b border-line flex justify-between items-center bg-bg/30 backdrop-blur-md">
                   <div className="flex items-center gap-6">
+                    <button
+                      onClick={() => selectConversation(0)}
+                      className="sm:hidden w-8 h-8 rounded-full flex items-center justify-center text-warm-gray hover:text-gold transition-colors shrink-0"
+                      aria-label="Voltar"
+                    >
+                      <ChevronLeft size={20} />
+                    </button>
                     <Avatar
                       name={activeConv.participant.name}
                       src={activeConv.participant.avatar || undefined}

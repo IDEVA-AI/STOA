@@ -137,7 +137,7 @@ export default function AdminModeration() {
                   <Text size="sm">{item.reason}</Text>
                   <Badge variant="gold">{item.reports} reports</Badge>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-3">
                   <Button variant="secondary" size="sm" icon={<Check size={12} />}>Aprovar</Button>
                   <Button variant="danger" size="sm" icon={<X size={12} />}>Remover</Button>
                   <Button variant="ghost" size="sm" icon={<VolumeX size={12} />}>Silenciar</Button>

@@ -148,7 +148,7 @@ export default function AdminIntegrations() {
 
         {/* Ghost card */}
         <motion.div {...listItem(integrations.length)}>
-          <button className="h-full min-h-[280px] w-full border-2 border-dashed border-line hover:border-gold/50 flex flex-col items-center justify-center gap-4 transition-colors duration-300 cursor-pointer group">
+          <button className="h-full min-h-[200px] sm:min-h-[280px] w-full border-2 border-dashed border-line hover:border-gold/50 flex flex-col items-center justify-center gap-4 transition-colors duration-300 cursor-pointer group">
             <div className="w-12 h-12 rounded-full bg-surface flex items-center justify-center group-hover:bg-gold/10 transition-colors">
               <Plus size={20} className="text-warm-gray group-hover:text-gold transition-colors" />
             </div>

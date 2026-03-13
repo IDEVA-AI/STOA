@@ -126,7 +126,7 @@ export default function DesignSystemPage() {
               <Label variant="gold">STOA DESIGN SYSTEM</Label>
               <Badge variant="gold">{SPEC_LABELS[spec]}</Badge>
             </div>
-            <h1 className="serif-display text-6xl md:text-7xl text-text leading-[0.95]">
+            <h1 className="serif-display text-3xl sm:text-5xl md:text-6xl lg:text-7xl text-text leading-[0.95]">
               Cada pixel{' '}
               <span className="text-gold">com propósito</span>
             </h1>

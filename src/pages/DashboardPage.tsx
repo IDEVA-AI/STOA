@@ -40,7 +40,7 @@ export default function DashboardPage({ courses, posts, onEnterCourse, setActive
     <PageTransition id="dashboard" className="space-y-16">
       <section className="relative py-10">
         <div className="relative z-10 space-y-6">
-          <h1 className="serif-display text-7xl tracking-tighter leading-[0.9]">
+          <h1 className="serif-display text-4xl sm:text-5xl lg:text-7xl tracking-tighter leading-[0.9]">
             Bem-vindo, <br />
             <span className="text-gold">{firstName}.</span>
           </h1>

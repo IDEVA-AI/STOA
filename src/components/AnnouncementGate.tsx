@@ -152,7 +152,7 @@ function AnnouncementCard({
     >
       <div className="card-editorial rounded-xl overflow-hidden shadow-elevated">
         {/* Header */}
-        <div className="px-8 pt-8 pb-4">
+        <div className="px-4 sm:px-8 pt-4 sm:pt-8 pb-4">
           {total > 1 && (
             <div className="flex items-center justify-between mb-6">
               <span className="mono-label text-warm-gray">
@@ -185,7 +185,7 @@ function AnnouncementCard({
 
         {/* Blocks */}
         {announcement.blocks.length > 0 && (
-          <div className="px-8 pb-4 max-h-[50vh] overflow-y-auto custom-scrollbar">
+          <div className="px-4 sm:px-8 pb-4 max-h-[50vh] overflow-y-auto custom-scrollbar">
             {announcement.blocks.map((block) => (
               <BlockRenderer key={block.id} block={block} />
             ))}
@@ -193,10 +193,10 @@ function AnnouncementCard({
         )}
 
         {/* Divider */}
-        <div className="mx-8 border-t border-line" />
+        <div className="mx-4 sm:mx-8 border-t border-line" />
 
         {/* Footer */}
-        <div className="px-8 py-6">
+        <div className="px-4 sm:px-8 py-6">
           <button
             onClick={onConfirm}
             disabled={isConfirming}

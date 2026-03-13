@@ -147,9 +147,9 @@ export default function AuthPage({ authMode, setAuthMode, onLogin, onRegister }:
         </div>
 
         {/* Right Side: Form */}
-        <div className="p-12 lg:p-20 flex flex-col justify-center">
+        <div className="p-6 sm:p-12 lg:p-20 flex flex-col justify-center">
           <div className="mb-12">
-            <h2 className="font-serif text-4xl font-black mb-2">
+            <h2 className="font-serif text-2xl sm:text-4xl font-black mb-2">
               {authMode === 'login' ? 'Bem-vindo de volta' : 'Crie sua conta'}
             </h2>
             <p className="text-warm-gray text-sm">

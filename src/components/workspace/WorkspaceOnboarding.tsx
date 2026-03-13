@@ -89,7 +89,7 @@ export default function WorkspaceOnboarding() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-          className="p-12 lg:p-20 flex flex-col justify-center"
+          className="p-4 sm:p-8 lg:p-20 flex flex-col justify-center"
         >
           <div className="mb-10">
             <h2 className="font-serif text-4xl font-black mb-2">

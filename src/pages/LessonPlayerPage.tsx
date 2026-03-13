@@ -13,7 +13,10 @@ import {
   PenTool,
   Maximize2,
   CheckCheck,
-  AlertCircle
+  AlertCircle,
+  Menu,
+  PanelRight,
+  X,
 } from 'lucide-react';
 import { cn } from '@/src/lib/utils';
 import type { Course, Module, Lesson } from '../types';
@@ -50,6 +53,8 @@ export default function LessonPlayerPage({
   const [notes, setNotes] = useState('');
   const [bookmarks, setBookmarks] = useState<number[]>([]);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [showModules, setShowModules] = useState(false);
+  const [showSidebar, setShowSidebar] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const sendYTCommand = useCallback((func: string) => {
@@ -103,16 +108,50 @@ export default function LessonPlayerPage({
 
   return (
     <div className="flex h-screen overflow-hidden font-sans transition-colors duration-500 bg-bg text-text">
+      {/* Mobile toggle buttons */}
+      <button
+        onClick={() => setShowModules(true)}
+        className="lg:hidden fixed top-4 left-4 z-40 w-10 h-10 rounded-full bg-surface border border-line flex items-center justify-center text-warm-gray hover:text-gold shadow-lg transition-colors"
+        aria-label="Abrir modulos"
+      >
+        <Menu size={18} />
+      </button>
+      <button
+        onClick={() => setShowSidebar(true)}
+        className="lg:hidden fixed top-4 right-4 z-40 w-10 h-10 rounded-full bg-surface border border-line flex items-center justify-center text-warm-gray hover:text-gold shadow-lg transition-colors"
+        aria-label="Abrir ferramentas"
+      >
+        <PanelRight size={18} />
+      </button>
+
+      {/* LEFT SIDEBAR — Mobile backdrop */}
+      {showModules && (
+        <div className="lg:hidden fixed inset-0 z-40 bg-black/50" onClick={() => setShowModules(false)} />
+      )}
+
       {/* LEFT SIDEBAR — LESSON NAVIGATION */}
-      <aside className="w-80 border-r border-line flex flex-col bg-surface transition-colors duration-500 z-20 shadow-xl shadow-black/10">
+      <aside className={cn(
+        "w-80 border-r border-line flex flex-col bg-surface transition-colors duration-500 z-50 shadow-xl shadow-black/10",
+        "hidden lg:flex",
+        showModules && "!flex fixed inset-y-0 left-0"
+      )}>
         <div className="p-10 border-b border-line">
-          <button
-            onClick={onBack}
-            className="flex items-center gap-2 text-[10px] mono-label text-warm-gray hover:text-gold transition-all mb-10 group"
-          >
+          <div className="flex items-center justify-between mb-10">
+            <button
+              onClick={onBack}
+              className="flex items-center gap-2 text-[10px] mono-label text-warm-gray hover:text-gold transition-all group"
+            >
             <ArrowRight size={12} className="rotate-180 group-hover:-translate-x-1 transition-transform" />
             <span className="opacity-60 group-hover:opacity-100">Voltar ao Catálogo</span>
-          </button>
+            </button>
+            <button
+              onClick={() => setShowModules(false)}
+              className="lg:hidden w-8 h-8 rounded-full flex items-center justify-center text-warm-gray hover:text-gold transition-colors"
+              aria-label="Fechar modulos"
+            >
+              <X size={16} />
+            </button>
+          </div>
           <div className="space-y-1 mb-8">
             <Label variant="gold" className="text-[9px]">Arquitetura de Sistemas</Label>
             <h2 className="font-serif text-2xl font-black leading-tight tracking-tight">{selectedCourse.title}</h2>
@@ -188,7 +227,7 @@ export default function LessonPlayerPage({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            className="max-w-5xl mx-auto px-16 py-20 space-y-16"
+            className="max-w-5xl mx-auto px-4 sm:px-8 lg:px-16 py-8 sm:py-12 lg:py-20 space-y-16"
           >
             {/* Header */}
             <header className="space-y-8">
@@ -198,7 +237,7 @@ export default function LessonPlayerPage({
                 <Label className="text-warm-gray/60 tracking-widest">{Math.floor(selectedLesson.duration! / 60)} minutos de imersão</Label>
               </div>
               <div className="space-y-4">
-                <h1 className="serif-display text-7xl leading-[0.9] tracking-tighter">{selectedLesson.title}</h1>
+                <h1 className="serif-display text-4xl sm:text-5xl lg:text-7xl leading-[0.9] tracking-tighter">{selectedLesson.title}</h1>
                 <p className="text-2xl text-warm-gray font-light leading-relaxed max-w-3xl italic font-serif">
                   Uma exploração profunda sobre como os sistemas invisíveis moldam o comportamento e a escalabilidade das organizações modernas.
                 </p>
@@ -350,11 +389,27 @@ export default function LessonPlayerPage({
         </AnimatePresence>
       </main>
 
+      {/* RIGHT PANEL — Mobile backdrop */}
+      {showSidebar && (
+        <div className="lg:hidden fixed inset-0 z-40 bg-black/50" onClick={() => setShowSidebar(false)} />
+      )}
+
       {/* RIGHT PANEL — LEARNING TOOLS */}
-      <aside className="w-80 border-l border-line bg-surface flex flex-col transition-colors duration-500 z-20 shadow-[-20px_0_40px_rgba(0,0,0,0.1)]">
+      <aside className={cn(
+        "w-80 border-l border-line bg-surface flex flex-col transition-colors duration-500 z-50 shadow-[-20px_0_40px_rgba(0,0,0,0.1)]",
+        "hidden lg:flex",
+        showSidebar && "!flex fixed inset-y-0 right-0"
+      )}>
         <div className="p-10 border-b border-line space-y-10">
           <div className="flex justify-between items-center">
             <Label variant="gold" className="tracking-widest">Ferramentas</Label>
+            <button
+              onClick={() => setShowSidebar(false)}
+              className="lg:hidden w-8 h-8 rounded-full flex items-center justify-center text-warm-gray hover:text-gold transition-colors"
+              aria-label="Fechar ferramentas"
+            >
+              <X size={16} />
+            </button>
             <Button
               variant="ghost"
               iconOnly

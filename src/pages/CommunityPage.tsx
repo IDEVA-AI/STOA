@@ -351,7 +351,7 @@ export default function CommunityPage({ communityId }: CommunityPageProps) {
           {/* Post creation form */}
           <Card variant="elevated" padding="lg" className="border-none">
             <form onSubmit={handlePostSubmit}>
-              <div className="flex gap-8">
+              <div className="flex flex-col sm:flex-row gap-4 sm:gap-8">
                 <Avatar name="Julio" size="xl" interactive />
                 <div className="flex-1 space-y-8">
                   <Textarea
