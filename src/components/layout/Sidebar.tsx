@@ -61,7 +61,7 @@ export default function Sidebar({
   const navigate = useNavigate();
   const { activeWorkspace } = useWorkspace();
   const { user } = useAuth();
-  const isAdmin = user?.role === 'admin' || user?.role === 'owner';
+  const isAdmin = user?.role === 'admin';
   const [communities, setCommunities] = useState<Community[]>([]);
   const [communityOpen, setCommunityOpen] = useState(false);
 
