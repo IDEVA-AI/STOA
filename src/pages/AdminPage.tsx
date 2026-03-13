@@ -65,8 +65,8 @@ export default function AdminPage({ adminSection }: AdminPageProps) {
   const SectionComponent = sectionComponents[adminSection];
 
   return (
-    <PageTransition id="admin" className="space-y-8 sm:space-y-16">
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4 border-b border-line pb-12">
+    <PageTransition id="admin" className="space-y-16">
+      <div className="flex justify-between items-end border-b border-line pb-12">
         <div className="space-y-4">
           <div className="flex items-center gap-4 mb-2">
             <div className="w-10 h-10 rounded-full bg-gold flex items-center justify-center shadow-lg shadow-gold/20">
@@ -83,14 +83,14 @@ export default function AdminPage({ adminSection }: AdminPageProps) {
             {sectionTitles[adminSection]}
           </h1>
         </div>
-        <div className="w-full sm:w-auto flex gap-6">
-          <Button size="lg" className="w-full sm:w-auto text-sm">
+        <div className="flex gap-6">
+          <Button size="lg">
             Exportar Relatórios Estratégicos
           </Button>
         </div>
       </div>
 
-      <div className="space-y-8 sm:space-y-16">
+      <div className="space-y-16">
         <SectionComponent />
       </div>
     </PageTransition>

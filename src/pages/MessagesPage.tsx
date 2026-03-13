@@ -104,7 +104,7 @@ export default function MessagesPage() {
         activeConversation && "hidden sm:flex"
       )}>
         <div className="flex justify-between items-end">
-          <Heading level={1} className="text-3xl sm:text-5xl">Caixa de Entrada</Heading>
+          <Heading level={1} className="text-5xl">Caixa de Entrada</Heading>
         </div>
 
         <div className="relative group">
@@ -229,7 +229,7 @@ export default function MessagesPage() {
               )}
 
               {/* Messages Area */}
-              <div className="flex-1 overflow-y-auto p-4 sm:p-12 space-y-8 custom-scrollbar bg-bg/5">
+              <div className="flex-1 overflow-y-auto p-12 space-y-8 custom-scrollbar bg-bg/5">
                 {loading ? (
                   <div className="flex items-center justify-center py-20 opacity-40">
                     <p className="font-serif text-lg">Carregando...</p>
@@ -251,7 +251,7 @@ export default function MessagesPage() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.25 }}
                         className={cn(
-                          "flex gap-4 max-w-[85%] sm:max-w-[70%]",
+                          "flex gap-4 max-w-[70%]",
                           isOwn ? "ml-auto flex-row-reverse" : ""
                         )}
                       >
@@ -305,7 +305,7 @@ export default function MessagesPage() {
               </div>
 
               {/* Chat Input */}
-              <div className="p-3 sm:p-8 border-t border-line bg-bg/30 backdrop-blur-md">
+              <div className="p-8 border-t border-line bg-bg/30 backdrop-blur-md">
                 <div className="flex items-end gap-4 bg-bg border border-line p-3 pl-6 shadow-inner group focus-within:border-gold transition-all">
                   <textarea
                     ref={inputRef}

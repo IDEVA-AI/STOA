@@ -227,7 +227,7 @@ export default function LessonPlayerPage({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            className="max-w-5xl mx-auto px-4 sm:px-8 lg:px-16 py-8 sm:py-12 lg:py-20 space-y-8 sm:space-y-16"
+            className="max-w-5xl mx-auto px-4 sm:px-8 lg:px-16 py-8 sm:py-12 lg:py-20 space-y-16"
           >
             {/* Header */}
             <header className="space-y-8">

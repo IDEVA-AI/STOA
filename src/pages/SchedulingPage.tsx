@@ -254,7 +254,7 @@ export default function SchedulingPage() {
   });
 
   return (
-    <PageTransition id="scheduling" className="space-y-8 sm:space-y-16">
+    <PageTransition id="scheduling" className="space-y-16">
       <h1 className="font-serif text-3xl font-black">Agenda</h1>
 
       {/* Config selector if multiple */}
@@ -290,7 +290,7 @@ export default function SchedulingPage() {
           </div>
 
           {/* Calendar + Slots */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
             {/* Calendar */}
             <Card variant="elevated">
               <CardBody className="p-6">
@@ -490,8 +490,8 @@ export default function SchedulingPage() {
                     <motion.div key={b.id} {...listItem(i)}>
                       <Card variant="elevated">
                         <CardBody>
-                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                            <div className="flex flex-wrap items-center gap-3 sm:gap-6">
+                          <div className="flex items-center justify-between gap-4">
+                            <div className="flex items-center gap-6">
                               <div>
                                 <Text className="font-medium">
                                   {bDate.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })}
@@ -532,7 +532,7 @@ export default function SchedulingPage() {
                     <motion.div key={b.id} {...listItem(i)}>
                       <Card>
                         <CardBody>
-                          <div className="flex flex-wrap items-center gap-3 sm:gap-6 opacity-60">
+                          <div className="flex items-center gap-6 opacity-60">
                             <div>
                               <Text className="font-medium">
                                 {bDate.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })}

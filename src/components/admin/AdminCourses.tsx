@@ -246,7 +246,7 @@ export default function AdminCourses() {
   }
 
   return (
-    <div className="space-y-8 sm:space-y-16">
+    <div className="space-y-16">
       {/* Toolbar */}
       <div className="flex items-center gap-6">
         <div className="flex-1">

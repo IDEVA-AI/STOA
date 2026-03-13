@@ -72,7 +72,7 @@ export default function WorkspaceOnboarding() {
           </div>
 
           <div className="relative z-10">
-            <h1 className="font-serif text-3xl sm:text-5xl font-black leading-[0.9] mb-8">
+            <h1 className="font-serif text-5xl font-black leading-[0.9] mb-8">
               Bem-vindo ao STOA!
             </h1>
             <p className="text-paper/60 text-lg font-light max-w-sm">

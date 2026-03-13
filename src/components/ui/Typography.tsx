@@ -10,7 +10,7 @@ export interface HeadingProps extends ComponentPropsWithoutRef<'h1'> {
 }
 
 const headingStyles: Record<HeadingLevel, string> = {
-  1: 'serif-display text-3xl sm:text-5xl lg:text-6xl',
+  1: 'serif-display text-6xl',
   2: 'font-serif text-3xl font-black tracking-tighter',
   3: 'font-serif text-2xl font-black tracking-tight',
   4: 'font-serif text-xl font-bold',

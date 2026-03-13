@@ -37,7 +37,7 @@ export default function DashboardPage({ courses, posts, onEnterCourse, setActive
     : courses[0]?.thumbnail;
 
   return (
-    <PageTransition id="dashboard" className="space-y-8 sm:space-y-16">
+    <PageTransition id="dashboard" className="space-y-16">
       <section className="relative py-10">
         <div className="relative z-10 space-y-6">
           <h1 className="serif-display text-4xl sm:text-5xl lg:text-7xl tracking-tighter leading-[0.9]">
@@ -54,7 +54,7 @@ export default function DashboardPage({ courses, posts, onEnterCourse, setActive
         </div>
       </section>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-16">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-16">
         <div className="lg:col-span-2 space-y-12">
           <div className="flex items-center justify-between">
             <Label variant="gold" className="tracking-[0.3em]">Continuar Aprendendo</Label>
@@ -79,22 +79,22 @@ export default function DashboardPage({ courses, posts, onEnterCourse, setActive
             <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/40 to-transparent opacity-90" />
             <div className="absolute inset-0 bg-gold/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
 
-            <div className="absolute bottom-6 left-6 right-6 sm:bottom-12 sm:left-12 sm:right-12 text-paper space-y-8">
+            <div className="absolute bottom-12 left-12 right-12 text-paper space-y-8">
               <div className="space-y-2">
                 {lastAccessed ? (
                   <>
                     <Label className="text-gold-light tracking-[0.4em] opacity-80">{lastAccessed.module_title}</Label>
-                    <h3 className="font-serif text-2xl sm:text-4xl font-black leading-tight tracking-tight text-paper group-hover:text-gold transition-colors duration-500">{lastAccessed.lesson_title}</h3>
+                    <h3 className="font-serif text-4xl font-black leading-tight tracking-tight text-paper group-hover:text-gold transition-colors duration-500">{lastAccessed.lesson_title}</h3>
                   </>
                 ) : (
                   <>
                     <Label className="text-gold-light tracking-[0.4em] opacity-80">Comece agora</Label>
-                    <h3 className="font-serif text-2xl sm:text-4xl font-black leading-tight tracking-tight text-paper group-hover:text-gold transition-colors duration-500">Inicie sua primeira aula</h3>
+                    <h3 className="font-serif text-4xl font-black leading-tight tracking-tight text-paper group-hover:text-gold transition-colors duration-500">Inicie sua primeira aula</h3>
                   </>
                 )}
               </div>
 
-              <div className="flex items-center gap-4 sm:gap-10">
+              <div className="flex items-center gap-10">
                 <Button
                   icon={<PlayCircle size={24} />}
                   size="lg"

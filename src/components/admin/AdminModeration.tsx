@@ -81,7 +81,7 @@ export default function AdminModeration() {
   );
 
   return (
-    <div className="space-y-8 sm:space-y-16">
+    <div className="space-y-16">
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {stats.map((stat, i) => (
