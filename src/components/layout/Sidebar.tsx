@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -26,8 +26,7 @@ import {
 import { cn } from '@/src/lib/utils';
 import NavItem from '../ui/NavItem';
 import type { TabId, AdminSection, Theme, Community, StyleSpec, ColorPalette } from '@/src/types';
-import { SPEC_LABELS, PALETTE_SWATCHES, ACCENT_PRESETS } from '@/src/types';
-import { ThemeContext } from '@/src/stores/ThemeContext';
+import { SPEC_LABELS, PALETTE_SWATCHES } from '@/src/types';
 import { useWorkspace } from '@/src/hooks/useWorkspace';
 import { useAuth } from '@/src/hooks/useAuth';
 import * as api from '@/src/services/api';
@@ -62,7 +61,6 @@ export default function Sidebar({
   const navigate = useNavigate();
   const { activeWorkspace } = useWorkspace();
   const { user } = useAuth();
-  const { accent, setAccent } = useContext(ThemeContext);
   const isAdmin = user?.role === 'admin';
   const [communities, setCommunities] = useState<Community[]>([]);
   const [communityOpen, setCommunityOpen] = useState(false);
@@ -384,26 +382,6 @@ export default function Sidebar({
                 )}
                 style={{ backgroundColor: swatch.color }}
                 title={swatch.label}
-              />
-            ))}
-          </div>
-        </div>
-        <div>
-          <p className="mono-label text-[9px] text-warm-gray mb-2">Cor de Destaque</p>
-          <div className="flex flex-wrap gap-2">
-            {ACCENT_PRESETS.map((preset) => (
-              <button
-                key={preset.id}
-                onClick={() => setAccent(preset.id)}
-                className={cn(
-                  "w-6 h-6 rounded-full border border-line transition-all duration-300",
-                  accent === preset.id && "ring-2 ring-offset-2 ring-offset-surface"
-                )}
-                style={{
-                  backgroundColor: preset.color,
-                  ...(accent === preset.id ? { '--tw-ring-color': preset.color } as React.CSSProperties : {}),
-                }}
-                title={preset.label}
               />
             ))}
           </div>

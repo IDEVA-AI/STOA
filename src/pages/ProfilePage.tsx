@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useContext } from 'react';
 import { Share2, Check, X } from 'lucide-react';
 import {
   PageTransition,
@@ -13,12 +13,16 @@ import {
 } from '../components/ui';
 import { Heading, Label } from '../components/ui/Typography';
 import { useAuth } from '../hooks/useAuth';
+import { ThemeContext } from '../stores/ThemeContext';
+import { ACCENT_PRESETS } from '../types';
+import { cn } from '../lib/utils';
 import * as api from '../services/api';
 
 type FeedbackState = { type: 'success' | 'error'; message: string } | null;
 
 export default function ProfilePage() {
   const { user, updateUser } = useAuth();
+  const { accent, setAccent } = useContext(ThemeContext);
 
   // Profile form state
   const [name, setName] = useState('');
@@ -150,6 +154,30 @@ export default function ProfilePage() {
             <Label variant="gold">Privacidade</Label>
             <Toggle label="Perfil Público" checked onChange={() => {}} />
             <Toggle label="Mostrar Progresso" checked={false} onChange={() => {}} />
+          </Card>
+
+          <Card variant="default" padding="sm" className="space-y-4">
+            <Label variant="gold">Cor de Destaque</Label>
+            <p className="text-[11px] text-warm-gray leading-relaxed">Escolha a cor principal da sua interface</p>
+            <div className="flex flex-wrap gap-3 pt-1">
+              {ACCENT_PRESETS.map((preset) => (
+                <button
+                  key={preset.id}
+                  onClick={() => setAccent(preset.id)}
+                  className={cn(
+                    "w-8 h-8 rounded-full border-2 transition-all duration-300 hover:scale-110",
+                    accent === preset.id
+                      ? "border-text scale-110 shadow-lg"
+                      : "border-transparent opacity-70 hover:opacity-100"
+                  )}
+                  style={{
+                    backgroundColor: preset.color,
+                    ...(accent === preset.id ? { boxShadow: `0 0 12px ${preset.color}40` } : {}),
+                  }}
+                  title={preset.label}
+                />
+              ))}
+            </div>
           </Card>
         </div>
 
