@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { PlayCircle, ArrowRight } from 'lucide-react';
 import type { Course, Post, TabId, DashboardProgress } from '../types';
 import { getDashboardProgress } from '../services/api';
+import { useAuth } from '../hooks/useAuth';
 import {
   PageTransition,
   Button,
@@ -19,6 +20,7 @@ interface DashboardPageProps {
 }
 
 export default function DashboardPage({ courses, posts, onEnterCourse, setActiveTab }: DashboardPageProps) {
+  const { user } = useAuth();
   const [progress, setProgress] = useState<DashboardProgress | null>(null);
 
   useEffect(() => {
@@ -27,22 +29,26 @@ export default function DashboardPage({ courses, posts, onEnterCourse, setActive
 
   const percentage = progress?.overall.percentage ?? 0;
   const lastAccessed = progress?.lastAccessed;
+  const firstName = user?.name?.split(' ')[0] || '';
+
+  // Use course thumbnail if available, fallback to placeholder
+  const heroImage = lastAccessed
+    ? courses.find(c => c.id === lastAccessed.course_id)?.thumbnail
+    : courses[0]?.thumbnail;
 
   return (
     <PageTransition id="dashboard" className="space-y-16">
       <section className="relative py-10">
-        <div className="absolute -top-10 -left-16 text-[180px] font-serif font-black text-gold-light/10 pointer-events-none select-none leading-none">01</div>
         <div className="relative z-10 space-y-6">
-          <h1 className="serif-display text-8xl tracking-tighter leading-[0.85]">
-            A marca que você <br />
-            <em className="font-light italic text-warm-gray/60">é.</em>
+          <h1 className="serif-display text-7xl tracking-tighter leading-[0.9]">
+            Bem-vindo, <br />
+            <span className="text-gold">{firstName}.</span>
           </h1>
-          <p className="text-warm-gray max-w-xl text-xl leading-relaxed font-light">
-            O problema nunca é a peça. É o sistema. <br />
+          <p className="text-warm-gray max-w-xl text-lg leading-relaxed font-light">
             {percentage > 0 ? (
-              <>Você completou <span className="text-gold font-bold">{percentage}%</span> da sua arquitetura atual.</>
+              <>Você completou <span className="text-gold font-medium">{percentage}%</span> da sua formação. Continue de onde parou.</>
             ) : (
-              <>Comece sua jornada e construa sua arquitetura.</>
+              <>Sua jornada de aprendizado começa aqui.</>
             )}
           </p>
         </div>
@@ -51,7 +57,7 @@ export default function DashboardPage({ courses, posts, onEnterCourse, setActive
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-16">
         <div className="lg:col-span-2 space-y-12">
           <div className="flex items-center justify-between">
-            <Label variant="gold" className="tracking-[0.3em]">Continuar Construindo</Label>
+            <Label variant="gold" className="tracking-[0.3em]">Continuar Aprendendo</Label>
             <Button variant="link" className="text-[10px] mono-label text-warm-gray hover:text-gold">Ver Histórico</Button>
           </div>
           <div
@@ -66,7 +72,7 @@ export default function DashboardPage({ courses, posts, onEnterCourse, setActive
             className="group relative aspect-[21/9] card-editorial overflow-hidden cursor-pointer shadow-2xl shadow-black/10 border-none"
           >
             <img
-              src="https://picsum.photos/seed/system/1600/900"
+              src={heroImage || 'https://picsum.photos/seed/learn/1600/900'}
               className="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-[2000ms] ease-out"
               referrerPolicy="no-referrer"
             />
