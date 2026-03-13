@@ -56,11 +56,11 @@ function VideoBlock({ content }: { content: Record<string, any> }) {
 const TEXT_BLOCK_CLASSES = [
   'max-w-none font-serif text-text/80 leading-relaxed',
   // Headings
-  '[&_h1]:text-4xl [&_h1]:font-bold [&_h1]:font-serif [&_h1]:text-text [&_h1]:mt-8 [&_h1]:mb-4 [&_h1]:tracking-tight [&_h1]:leading-tight',
-  '[&_h2]:text-2xl [&_h2]:font-bold [&_h2]:font-serif [&_h2]:text-text/90 [&_h2]:mt-6 [&_h2]:mb-3 [&_h2]:tracking-tight [&_h2]:leading-tight [&_h2]:border-b [&_h2]:border-line/30 [&_h2]:pb-2',
-  '[&_h3]:text-lg [&_h3]:font-bold [&_h3]:font-serif [&_h3]:text-text/80 [&_h3]:mt-5 [&_h3]:mb-2 [&_h3]:uppercase [&_h3]:tracking-wide',
+  '[&_h1]:text-2xl sm:[&_h1]:text-4xl [&_h1]:font-bold [&_h1]:font-serif [&_h1]:text-text [&_h1]:mt-6 sm:[&_h1]:mt-8 [&_h1]:mb-3 sm:[&_h1]:mb-4 [&_h1]:tracking-tight [&_h1]:leading-tight',
+  '[&_h2]:text-xl sm:[&_h2]:text-2xl [&_h2]:font-bold [&_h2]:font-serif [&_h2]:text-text/90 [&_h2]:mt-5 sm:[&_h2]:mt-6 [&_h2]:mb-2 sm:[&_h2]:mb-3 [&_h2]:tracking-tight [&_h2]:leading-tight [&_h2]:border-b [&_h2]:border-line/30 [&_h2]:pb-2',
+  '[&_h3]:text-base sm:[&_h3]:text-lg [&_h3]:font-bold [&_h3]:font-serif [&_h3]:text-text/80 [&_h3]:mt-4 sm:[&_h3]:mt-5 [&_h3]:mb-2 [&_h3]:uppercase [&_h3]:tracking-wide',
   // Paragraph
-  '[&_p]:text-lg [&_p]:leading-relaxed [&_p]:mb-4 [&_p]:last:mb-0',
+  '[&_p]:text-base sm:[&_p]:text-lg [&_p]:leading-relaxed [&_p]:mb-3 sm:[&_p]:mb-4 [&_p]:last:mb-0',
   // Bold / Italic / Underline / Strike
   '[&_strong]:text-text [&_strong]:font-bold',
   '[&_em]:italic',
@@ -71,7 +71,7 @@ const TEXT_BLOCK_CLASSES = [
   // Lists
   '[&_ul]:list-disc [&_ul]:pl-6 [&_ul]:mb-4 [&_ul]:space-y-2',
   '[&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:mb-4 [&_ol]:space-y-2',
-  '[&_li]:text-text/80 [&_li]:text-lg [&_li]:leading-relaxed',
+  '[&_li]:text-text/80 [&_li]:text-base sm:[&_li]:text-lg [&_li]:leading-relaxed',
   '[&_li_p]:mb-0',
   // Blockquote
   '[&_blockquote]:border-l-2 [&_blockquote]:border-gold/30 [&_blockquote]:pl-6 [&_blockquote]:py-2 [&_blockquote]:my-6 [&_blockquote]:italic [&_blockquote]:text-text/60',
@@ -134,7 +134,7 @@ function FileBlock({ content }: { content: Record<string, any> }) {
       href={url}
       target="_blank"
       rel="noopener noreferrer"
-      className="flex items-center gap-6 p-6 border border-line bg-surface/50 hover:bg-surface hover:border-gold/20 transition-all group"
+      className="flex items-center gap-4 sm:gap-6 p-4 sm:p-6 border border-line bg-surface/50 hover:bg-surface hover:border-gold/20 transition-all group"
     >
       <div className="w-12 h-12 rounded-sm bg-gold/10 flex items-center justify-center text-gold group-hover:bg-gold/20 transition-colors">
         <FileDown size={24} />
@@ -190,7 +190,7 @@ function CalloutBlock({ content }: { content: Record<string, any> }) {
   const s = styles[type as keyof typeof styles] || styles.info;
 
   return (
-    <div className={cn('p-8 border', s.bg, s.border)}>
+    <div className={cn('p-4 sm:p-8 border', s.bg, s.border)}>
       <div className="flex items-start gap-5">
         <div className={cn('mt-0.5 flex-shrink-0', s.iconColor)}>{s.icon}</div>
         <div className="flex-1 space-y-2">

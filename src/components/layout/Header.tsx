@@ -143,10 +143,10 @@ export default function Header() {
               initial={popover.initial}
               animate={popover.animate}
               exit={popover.exit}
-              className="absolute left-0 top-full mt-2 w-[calc(100vw-2rem)] sm:w-72 bg-surface border border-line rounded shadow-lg z-50 overflow-hidden"
+              className="absolute left-0 right-0 top-full mt-2 sm:right-auto sm:w-72 bg-surface border border-line rounded shadow-lg z-50 overflow-hidden"
             >
               <div className="px-4 py-3 border-b border-line bg-bg/20">
-                <Label className="text-[9px] uppercase tracking-widest">Workspaces</Label>
+                <Label className="text-[10px] uppercase tracking-widest">Workspaces</Label>
               </div>
               <div className="max-h-64 overflow-y-auto">
                 {workspaces.map((ws) => (
@@ -180,7 +180,7 @@ export default function Header() {
                         )}
                       </div>
                       <div className="flex items-center gap-2 mt-0.5">
-                        <Badge variant="outline" className="text-[8px] px-1.5 py-0">{ws.plan}</Badge>
+                        <Badge variant="outline" className="text-[10px] px-1.5 py-0">{ws.plan}</Badge>
                       </div>
                     </div>
                   </button>
@@ -234,7 +234,7 @@ export default function Header() {
                     <div>
                       <div className="px-5 py-3 border-b border-line bg-bg/20 flex items-center gap-2">
                         <BookOpen size={12} className="text-gold" />
-                        <Label variant="gold" className="text-[9px]">Cursos</Label>
+                        <Label variant="gold" className="text-[10px]">Cursos</Label>
                       </div>
                       {results!.courses.map(course => (
                         <button
@@ -253,7 +253,7 @@ export default function Header() {
                     <div>
                       <div className="px-5 py-3 border-b border-line bg-bg/20 flex items-center gap-2">
                         <MessageSquare size={12} className="text-gold" />
-                        <Label variant="gold" className="text-[9px]">Posts</Label>
+                        <Label variant="gold" className="text-[10px]">Posts</Label>
                       </div>
                       {results!.posts.map(post => (
                         <button
@@ -292,7 +292,7 @@ export default function Header() {
                 initial={popover.initial}
                 animate={popover.animate}
                 exit={popover.exit}
-                className="absolute right-0 mt-6 w-[calc(100vw-2rem)] sm:w-80 card-editorial bg-surface shadow-2xl z-50 overflow-hidden transition-colors duration-500"
+                className="absolute right-0 left-0 mt-6 sm:left-auto sm:w-80 card-editorial bg-surface shadow-2xl z-50 overflow-hidden transition-colors duration-500"
               >
                 <div className="p-5 border-b border-line flex justify-between items-center bg-bg/20">
                   <Label variant="gold">Notificacoes</Label>
@@ -307,7 +307,7 @@ export default function Header() {
         <div className="flex items-center gap-2 sm:gap-4 pl-3 sm:pl-8 border-l border-line">
           <div className="text-right hidden sm:block">
             <p className="text-sm font-medium">Julio Carvalho</p>
-            <Label className="text-[9px]">Membro Fundador</Label>
+            <Label className="text-[10px]">Membro Fundador</Label>
           </div>
           <Avatar
             name="Julio"

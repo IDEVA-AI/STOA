@@ -222,7 +222,7 @@ export default function CoursesPage({ courses, onEnterCourse }: CoursesPageProps
                     {/* Center overlay */}
                     {accessible ? (
                       <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                        <div className="w-16 h-16 rounded-full bg-bg/20 backdrop-blur-xl border border-text/20 flex items-center justify-center text-paper scale-90 group-hover:scale-100 transition-transform duration-500">
+                        <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-bg/20 backdrop-blur-xl border border-text/20 flex items-center justify-center text-paper scale-90 group-hover:scale-100 transition-transform duration-500">
                           <PlayCircle size={32} />
                         </div>
                       </div>
@@ -232,7 +232,7 @@ export default function CoursesPage({ courses, onEnterCourse }: CoursesPageProps
                           initial={{ scale: 0.8, opacity: 0 }}
                           animate={{ scale: 1, opacity: 1 }}
                           transition={{ delay: 0.1 }}
-                          className="w-16 h-16 rounded-full bg-bg/30 backdrop-blur-xl border border-warm-gray/20 flex items-center justify-center text-warm-gray/60"
+                          className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-bg/30 backdrop-blur-xl border border-warm-gray/20 flex items-center justify-center text-warm-gray/60"
                         >
                           <Lock size={28} />
                         </motion.div>
@@ -241,10 +241,10 @@ export default function CoursesPage({ courses, onEnterCourse }: CoursesPageProps
                   </div>
 
                   {/* Content */}
-                  <div className="p-5 sm:p-10 flex flex-col flex-1 space-y-5 sm:space-y-8">
+                  <div className="p-4 sm:p-6 lg:p-10 flex flex-col flex-1 space-y-4 sm:space-y-6 lg:space-y-8">
                     <div className="space-y-4">
                       <h3
-                        className={`font-serif text-2xl sm:text-3xl font-bold leading-tight tracking-tight transition-colors duration-500 ${
+                        className={`font-serif text-lg sm:text-2xl lg:text-3xl font-bold leading-tight tracking-tight transition-colors duration-500 ${
                           accessible
                             ? 'group-hover:text-gold'
                             : 'text-text/60'

@@ -44,7 +44,7 @@ export default function DashboardPage({ courses, posts, onEnterCourse, setActive
             Bem-vindo, <br />
             <span className="text-gold">{firstName}.</span>
           </h1>
-          <p className="text-warm-gray max-w-xl text-lg leading-relaxed font-light">
+          <p className="text-warm-gray max-w-xl text-base sm:text-lg leading-relaxed font-light">
             {percentage > 0 ? (
               <>Você completou <span className="text-gold font-medium">{percentage}%</span> da sua formação. Continue de onde parou.</>
             ) : (
@@ -69,7 +69,7 @@ export default function DashboardPage({ courses, posts, onEnterCourse, setActive
                 onEnterCourse(courses[0]);
               }
             }}
-            className="group relative aspect-[21/9] card-editorial overflow-hidden cursor-pointer shadow-2xl shadow-black/10 border-none"
+            className="group relative aspect-[3/2] sm:aspect-[16/9] lg:aspect-[21/9] card-editorial overflow-hidden cursor-pointer shadow-2xl shadow-black/10 border-none"
           >
             <img
               src={heroImage || 'https://picsum.photos/seed/learn/1600/900'}

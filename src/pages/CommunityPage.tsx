@@ -213,7 +213,7 @@ export default function CommunityPage({ communityId }: CommunityPageProps) {
           <h1 className="font-serif text-3xl sm:text-5xl font-black tracking-tight">
             Comunidades
           </h1>
-          <p className="text-warm-gray text-lg font-light max-w-2xl">
+          <p className="text-warm-gray text-base sm:text-lg font-light max-w-2xl">
             Conecte-se com outros membros, compartilhe insights e evolua junto.
           </p>
         </div>
@@ -235,7 +235,7 @@ export default function CommunityPage({ communityId }: CommunityPageProps) {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-12">
             {communities.map((comm) => {
               const hasAccess =
                 !comm.course_id || accessibleIds.has(comm.course_id);
@@ -248,7 +248,7 @@ export default function CommunityPage({ communityId }: CommunityPageProps) {
                   onClick={() =>
                     hasAccess && navigate(`/comunidade/${comm.id}`)
                   }
-                  className={`card-editorial bg-surface-elevated hover:border-gold/50 transition-all duration-700 shadow-xl shadow-black/5 hover:shadow-gold/10 p-5 sm:p-10 space-y-6 ${
+                  className={`card-editorial bg-surface-elevated hover:border-gold/50 transition-all duration-700 shadow-xl shadow-black/5 hover:shadow-gold/10 p-4 sm:p-5 lg:p-10 space-y-4 sm:space-y-6 ${
                     hasAccess ? 'cursor-pointer' : 'cursor-default opacity-50'
                   }`}
                 >
@@ -293,7 +293,7 @@ export default function CommunityPage({ communityId }: CommunityPageProps) {
     <PageTransition id="community" className="space-y-6 sm:space-y-12">
       {/* Community header */}
       {community && (
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           <div className="flex items-center gap-4">
             <button
               onClick={() => navigate('/comunidade')}
@@ -310,7 +310,7 @@ export default function CommunityPage({ communityId }: CommunityPageProps) {
             {community.name}
           </h1>
           {community.description && (
-            <p className="text-warm-gray text-lg font-light max-w-2xl">
+            <p className="text-warm-gray text-base sm:text-lg font-light max-w-2xl">
               {community.description}
             </p>
           )}
@@ -346,14 +346,14 @@ export default function CommunityPage({ communityId }: CommunityPageProps) {
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-16">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-16">
         <div className="lg:col-span-2 space-y-6 sm:space-y-12">
           {/* Post creation form */}
           <Card variant="elevated" padding="lg" className="border-none">
             <form onSubmit={handlePostSubmit}>
               <div className="flex flex-col sm:flex-row gap-4 sm:gap-8">
-                <Avatar name="Julio" size="xl" interactive />
-                <div className="flex-1 space-y-5 sm:space-y-8">
+                <Avatar name="Julio" size="lg" interactive />
+                <div className="flex-1 space-y-4 sm:space-y-8">
                   <Textarea
                     variant="editorial"
                     value={newPost}
@@ -362,11 +362,11 @@ export default function CommunityPage({ communityId }: CommunityPageProps) {
                     rows={3}
                     className="text-text"
                   />
-                  <div className="flex justify-between items-center pt-4 sm:pt-8 border-t border-line">
-                    <div className="flex gap-4 sm:gap-8 text-warm-gray/40">
-                      <Button variant="ghost" iconOnly icon={<Share2 size={20} />} size="sm" />
-                      <Button variant="ghost" iconOnly icon={<BarChart3 size={20} />} size="sm" />
-                      <Button variant="ghost" iconOnly icon={<Image size={20} />} size="sm" />
+                  <div className="flex justify-between items-center pt-3 sm:pt-8 border-t border-line">
+                    <div className="flex gap-3 sm:gap-8 text-warm-gray/40">
+                      <Button variant="ghost" iconOnly icon={<Share2 size={16} />} size="sm" />
+                      <Button variant="ghost" iconOnly icon={<BarChart3 size={16} />} size="sm" />
+                      <Button variant="ghost" iconOnly icon={<Image size={16} />} size="sm" />
                     </div>
                     <Button
                       type="submit"
@@ -403,13 +403,13 @@ export default function CommunityPage({ communityId }: CommunityPageProps) {
                   key={post.id}
                   variant="elevated"
                   padding="lg"
-                  className={`space-y-6 sm:space-y-10 border-none group ${
+                  className={`space-y-4 sm:space-y-10 border-none group ${
                     post.pinned ? 'ring-1 ring-gold/20' : ''
                   }`}
                 >
                   <div className="flex justify-between items-start">
-                    <div className="flex gap-4 sm:gap-6">
-                      <Avatar name={post.user_name} size="xl" interactive />
+                    <div className="flex gap-3 sm:gap-6">
+                      <Avatar name={post.user_name} size="lg" interactive />
                       <div className="space-y-1">
                         <div className="flex items-center gap-3">
                           <h4 className="font-black text-base sm:text-xl tracking-tighter group-hover:text-gold transition-colors">
@@ -435,13 +435,13 @@ export default function CommunityPage({ communityId }: CommunityPageProps) {
                     />
                   </div>
 
-                  <p className="text-text/80 leading-relaxed text-xl sm:text-2xl font-light whitespace-pre-line font-serif italic">
+                  <p className="text-text/80 leading-relaxed text-base sm:text-2xl font-light whitespace-pre-line font-serif italic">
                     {post.content}
                   </p>
 
                   {/* Poll section (kept from original) */}
                   {post.content.includes('sistema') && (
-                    <div className="p-5 sm:p-10 border border-line bg-bg/30 space-y-8 relative overflow-hidden">
+                    <div className="p-3 sm:p-5 lg:p-10 border border-line bg-bg/30 space-y-4 sm:space-y-8 relative overflow-hidden">
                       <div className="absolute top-0 right-0 p-4 opacity-10">
                         <BarChart3 size={80} />
                       </div>
@@ -453,7 +453,7 @@ export default function CommunityPage({ communityId }: CommunityPageProps) {
                           Enquete do Arquiteto
                         </Label>
                         <div className="space-y-4">
-                          <div className="relative h-14 bg-bg border border-line flex items-center px-6 cursor-pointer group/poll overflow-hidden transition-all hover:border-gold/50">
+                          <div className="relative h-10 sm:h-14 bg-bg border border-line flex items-center px-6 cursor-pointer group/poll overflow-hidden transition-all hover:border-gold/50">
                             <motion.div
                               initial={{ width: 0 }}
                               animate={{ width: '75%' }}
@@ -467,7 +467,7 @@ export default function CommunityPage({ communityId }: CommunityPageProps) {
                               75%
                             </span>
                           </div>
-                          <div className="relative h-14 bg-bg border border-line flex items-center px-6 cursor-pointer group/poll overflow-hidden transition-all hover:border-gold/50">
+                          <div className="relative h-10 sm:h-14 bg-bg border border-line flex items-center px-6 cursor-pointer group/poll overflow-hidden transition-all hover:border-gold/50">
                             <motion.div
                               initial={{ width: 0 }}
                               animate={{ width: '25%' }}
@@ -487,7 +487,7 @@ export default function CommunityPage({ communityId }: CommunityPageProps) {
                   )}
 
                   {/* Actions */}
-                  <div className="flex flex-wrap gap-4 sm:gap-12 pt-6 sm:pt-10 border-t border-line">
+                  <div className="flex flex-wrap gap-3 sm:gap-12 pt-4 sm:pt-10 border-t border-line">
                     <button
                       onClick={() => handleToggleLike(post.id)}
                       className={`flex items-center gap-3 text-[11px] mono-label transition-all group/btn ${
@@ -497,7 +497,7 @@ export default function CommunityPage({ communityId }: CommunityPageProps) {
                       }`}
                     >
                       <Heart
-                        size={20}
+                        size={16}
                         className={`group-hover/btn:scale-125 transition-transform ${
                           post.has_liked ? 'fill-gold' : ''
                         }`}
@@ -515,7 +515,7 @@ export default function CommunityPage({ communityId }: CommunityPageProps) {
                       }`}
                     >
                       <MessageSquare
-                        size={20}
+                        size={16}
                         className={`group-hover/btn:scale-125 transition-transform ${
                           expandedComments[post.id] ? 'fill-gold/20' : ''
                         }`}
@@ -530,7 +530,7 @@ export default function CommunityPage({ communityId }: CommunityPageProps) {
                     </button>
                     <button className="flex items-center gap-3 text-[11px] mono-label text-warm-gray hover:text-gold transition-all ml-auto group/btn">
                       <Share2
-                        size={20}
+                        size={16}
                         className="group-hover/btn:scale-125 transition-transform"
                       />
                     </button>
@@ -546,7 +546,7 @@ export default function CommunityPage({ communityId }: CommunityPageProps) {
                         transition={{ duration: 0.3, ease: 'easeInOut' }}
                         className="overflow-hidden"
                       >
-                        <div className="pt-6 border-t border-line space-y-6">
+                        <div className="pt-4 sm:pt-6 border-t border-line space-y-4 sm:space-y-6">
                           {loadingComments[post.id] && (
                             <div className="flex justify-center py-4">
                               <Label className="text-warm-gray/40 tracking-widest animate-pulse">
@@ -566,7 +566,7 @@ export default function CommunityPage({ communityId }: CommunityPageProps) {
                                   <span className="text-sm font-black tracking-tight group-hover/comment:text-gold transition-colors">
                                     {comment.user_name}
                                   </span>
-                                  <Label className="text-[9px] text-warm-gray/40 tracking-widest">
+                                  <Label className="text-[10px] text-warm-gray/40 tracking-widest">
                                     {relativeTime(comment.created_at)}
                                   </Label>
                                 </div>

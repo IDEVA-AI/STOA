@@ -293,7 +293,7 @@ export default function SchedulingPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10">
             {/* Calendar */}
             <Card variant="elevated">
-              <CardBody className="p-6">
+              <CardBody className="p-3 sm:p-6">
                 {/* Month header */}
                 <div className="flex items-center justify-between mb-6">
                   <button onClick={prevMonth} className="p-2 hover:text-gold transition-colors">
@@ -310,7 +310,7 @@ export default function SchedulingPage() {
                 {/* Day headers */}
                 <div className="grid grid-cols-7 gap-1 mb-2">
                   {DAY_NAMES_SHORT.map((d) => (
-                    <div key={d} className="text-center mono-label text-[9px] text-warm-gray py-1">
+                    <div key={d} className="text-center mono-label text-[10px] text-warm-gray py-1">
                       {d}
                     </div>
                   ))}
@@ -360,7 +360,7 @@ export default function SchedulingPage() {
                     transition={{ duration: 0.2 }}
                   >
                     <Card variant="elevated">
-                      <CardBody className="p-6 space-y-6">
+                      <CardBody className="p-3 sm:p-6 space-y-4 sm:space-y-6">
                         <div>
                           <Label variant="gold" className="tracking-widest mb-1">
                             HORARIOS DISPONIVEIS
@@ -427,7 +427,7 @@ export default function SchedulingPage() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-surface border border-line p-5 sm:p-8 max-w-md w-full mx-4 shadow-2xl"
+              className="bg-surface border border-line p-4 sm:p-8 max-w-md w-full mx-4 shadow-2xl"
             >
               <div className="flex items-center justify-between mb-6">
                 <Heading level={3}>Confirmar agendamento?</Heading>

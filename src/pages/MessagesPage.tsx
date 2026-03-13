@@ -153,7 +153,7 @@ export default function MessagesPage() {
                   <Avatar
                     name={conv.participant.name}
                     src={conv.participant.avatar || undefined}
-                    size="xl"
+                    size="lg"
                     interactive
                   />
                   <div className="flex-1 min-w-0 space-y-1">
@@ -161,7 +161,7 @@ export default function MessagesPage() {
                       <h4 className="text-base font-black tracking-tight group-hover:text-gold transition-colors">
                         {conv.participant.name}
                       </h4>
-                      <Label className="text-[9px] text-warm-gray/60">
+                      <Label className="text-[10px] text-warm-gray/60">
                         {formatTime(conv.last_message_time)}
                       </Label>
                     </div>
@@ -219,7 +219,7 @@ export default function MessagesPage() {
                     <Avatar
                       name={activeConv.participant.name}
                       src={activeConv.participant.avatar || undefined}
-                      size="xl"
+                      size="lg"
                     />
                     <div className="space-y-0.5">
                       <Heading level={3}>{activeConv.participant.name}</Heading>
@@ -229,7 +229,7 @@ export default function MessagesPage() {
               )}
 
               {/* Messages Area */}
-              <div className="flex-1 overflow-y-auto p-4 sm:p-12 space-y-4 sm:space-y-8 custom-scrollbar bg-bg/5">
+              <div className="flex-1 overflow-y-auto p-3 sm:p-6 lg:p-12 space-y-4 sm:space-y-8 custom-scrollbar bg-bg/5">
                 {loading ? (
                   <div className="flex items-center justify-center py-20 opacity-40">
                     <p className="font-serif text-lg">Carregando...</p>
@@ -305,7 +305,7 @@ export default function MessagesPage() {
               </div>
 
               {/* Chat Input */}
-              <div className="p-3 sm:p-8 border-t border-line bg-bg/30 backdrop-blur-md">
+              <div className="p-3 sm:p-4 lg:p-8 border-t border-line bg-bg/30 backdrop-blur-md">
                 <div className="flex items-end gap-4 bg-bg border border-line p-3 pl-6 shadow-inner group focus-within:border-gold transition-all">
                   <textarea
                     ref={inputRef}
@@ -314,7 +314,7 @@ export default function MessagesPage() {
                     onKeyDown={handleKeyDown}
                     placeholder="Escreva sua mensagem..."
                     rows={1}
-                    className="flex-1 bg-transparent border-none focus:ring-0 focus:outline-none text-lg py-3 placeholder:text-warm-gray/20 font-light resize-none"
+                    className="flex-1 bg-transparent border-none focus:ring-0 focus:outline-none text-base py-3 placeholder:text-warm-gray/20 font-light resize-none"
                   />
                   <Button
                     icon={<Send size={20} />}

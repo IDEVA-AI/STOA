@@ -104,7 +104,7 @@ export default function AuthPage({ authMode, setAuthMode, onLogin, onRegister }:
   if (inviteCode && inviteInfo && !inviteInfo.valid) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-bg p-6">
-        <div className="card-editorial max-w-md w-full p-6 sm:p-12 bg-surface text-center space-y-6">
+        <div className="card-editorial max-w-md w-full p-6 sm:p-8 lg:p-12 bg-surface text-center space-y-6">
           <div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center mx-auto">
             <AlertTriangle size={28} className="text-red-500" />
           </div>
@@ -147,7 +147,7 @@ export default function AuthPage({ authMode, setAuthMode, onLogin, onRegister }:
         </div>
 
         {/* Right Side: Form */}
-        <div className="p-6 sm:p-12 lg:p-20 flex flex-col justify-center">
+        <div className="p-6 sm:p-8 lg:p-20 flex flex-col justify-center">
           <div className="mb-6 sm:mb-12">
             <h2 className="font-serif text-2xl sm:text-4xl font-black mb-2">
               {authMode === 'login' ? 'Bem-vindo de volta' : 'Crie sua conta'}

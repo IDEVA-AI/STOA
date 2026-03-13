@@ -155,11 +155,11 @@ export default function ProfilePage() {
             <div className="mt-4 pt-4 sm:mt-8 sm:pt-8 border-t border-line grid grid-cols-2 gap-4">
               <div className="text-center">
                 <p className="font-serif text-xl font-bold">{courseCount}</p>
-                <Label className="text-[8px]">Cursos</Label>
+                <Label className="text-[10px]">Cursos</Label>
               </div>
               <div className="text-center">
                 <p className="font-serif text-xl font-bold">{followerCount >= 1000 ? `${(followerCount / 1000).toFixed(1)}k` : followerCount}</p>
-                <Label className="text-[8px]">Seguidores</Label>
+                <Label className="text-[10px]">Seguidores</Label>
               </div>
             </div>
           </Card>

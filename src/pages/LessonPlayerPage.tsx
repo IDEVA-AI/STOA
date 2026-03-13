@@ -133,10 +133,10 @@ export default function LessonPlayerPage({
       <aside className={cn(
         "w-80 border-r border-line flex flex-col bg-surface transition-colors duration-500 z-50 shadow-xl shadow-black/10",
         "hidden lg:flex",
-        showModules && "!flex fixed inset-y-0 left-0"
+        showModules && "!flex fixed inset-y-0 left-0 max-w-[85vw]"
       )}>
-        <div className="p-5 sm:p-10 border-b border-line">
-          <div className="flex items-center justify-between mb-5 sm:mb-10">
+        <div className="p-4 sm:p-5 lg:p-10 border-b border-line">
+          <div className="flex items-center justify-between mb-4 sm:mb-5 lg:mb-10">
             <button
               onClick={onBack}
               className="flex items-center gap-2 text-[10px] mono-label text-warm-gray hover:text-gold transition-all group"
@@ -152,8 +152,8 @@ export default function LessonPlayerPage({
               <X size={16} />
             </button>
           </div>
-          <div className="space-y-1 mb-4 sm:mb-8">
-            <Label variant="gold" className="text-[9px]">Arquitetura de Sistemas</Label>
+          <div className="space-y-1 mb-3 sm:mb-4 lg:mb-8">
+            <Label variant="gold" className="text-[10px]">Arquitetura de Sistemas</Label>
             <h2 className="font-serif text-xl sm:text-2xl font-black leading-tight tracking-tight">{selectedCourse.title}</h2>
           </div>
 
@@ -163,7 +163,7 @@ export default function LessonPlayerPage({
         <div className="flex-1 overflow-y-auto py-8 custom-scrollbar">
           {courseContent.map((module, mIdx) => (
             <div key={module.id} className="mb-10">
-              <div className="px-5 sm:px-10 mb-4">
+              <div className="px-4 sm:px-5 lg:px-10 mb-4">
                 <h3 className="text-[9px] mono-label text-warm-gray/40 mb-1">Módulo {String(mIdx + 1).padStart(2, '0')}</h3>
                 <p className="text-[11px] font-bold uppercase tracking-widest text-text/80">{module.title}</p>
               </div>
@@ -173,7 +173,7 @@ export default function LessonPlayerPage({
                     key={lesson.id}
                     onClick={() => onSelectLesson(lesson)}
                     className={cn(
-                      "w-full flex items-center gap-4 px-5 sm:px-10 py-3.5 text-left transition-all group relative",
+                      "w-full flex items-center gap-4 px-4 sm:px-5 lg:px-10 py-3.5 text-left transition-all group relative",
                       selectedLesson.id === lesson.id
                         ? "bg-gold/5 text-gold"
                         : "text-warm-gray hover:text-text hover:bg-bg/40"
@@ -207,7 +207,7 @@ export default function LessonPlayerPage({
                       </p>
                       <div className="flex items-center gap-2 mt-1 opacity-40">
                         <PlayCircle size={10} />
-                        <span className="text-[9px] mono-label tracking-tighter">{Math.floor(lesson.duration! / 60)}m</span>
+                        <span className="text-[10px] mono-label tracking-tighter">{Math.floor(lesson.duration! / 60)}m</span>
                       </div>
                     </div>
                   </button>
@@ -237,8 +237,8 @@ export default function LessonPlayerPage({
                 <Label className="text-warm-gray/60 tracking-widest">{Math.floor(selectedLesson.duration! / 60)} minutos de imersão</Label>
               </div>
               <div className="space-y-4">
-                <h1 className="serif-display text-4xl sm:text-5xl lg:text-7xl leading-[0.9] tracking-tighter">{selectedLesson.title}</h1>
-                <p className="text-xl sm:text-2xl text-warm-gray font-light leading-relaxed max-w-3xl italic font-serif">
+                <h1 className="serif-display text-2xl sm:text-4xl lg:text-7xl leading-[0.9] tracking-tighter">{selectedLesson.title}</h1>
+                <p className="text-base sm:text-xl lg:text-2xl text-warm-gray font-light leading-relaxed max-w-3xl italic font-serif">
                   Uma exploração profunda sobre como os sistemas invisíveis moldam o comportamento e a escalabilidade das organizações modernas.
                 </p>
               </div>
@@ -282,7 +282,7 @@ export default function LessonPlayerPage({
                           aria-label={isPlaying ? 'Pausar video' : 'Reproduzir video'}
                         >
                           <div className={cn(
-                            'w-20 h-20 rounded-full flex items-center justify-center transition-all duration-500',
+                            'w-14 h-14 sm:w-20 sm:h-20 rounded-full flex items-center justify-center transition-all duration-500',
                             isPlaying
                               ? 'bg-paper/0 opacity-0 group-hover/play:opacity-100 group-hover/play:bg-paper/10 backdrop-blur-sm'
                               : 'bg-paper/10 backdrop-blur-sm shadow-2xl border border-white/10'
@@ -315,7 +315,7 @@ export default function LessonPlayerPage({
                       </div>
                       <div className="space-y-4">
                         <Label variant="gold" className="text-[11px] tracking-[0.3em]">Insight Estrutural</Label>
-                        <p className="text-2xl sm:text-3xl font-serif italic text-text leading-tight border-l-4 border-gold/20 pl-6 sm:pl-10 py-4">
+                        <p className="text-lg sm:text-2xl lg:text-3xl font-serif italic text-text leading-tight border-l-4 border-gold/20 pl-4 sm:pl-6 lg:pl-10 py-4">
                           "A estrutura nao e apenas o que voce ve no organograma; e o fluxo invisivel de autoridade e informacao que define o que e possivel."
                         </p>
                       </div>
@@ -323,10 +323,10 @@ export default function LessonPlayerPage({
 
                     <section className="space-y-10">
                       <div className="flex items-baseline gap-4">
-                        <span className="font-serif text-4xl font-black text-gold/20">01</span>
-                        <h3 className="text-text font-black text-xl sm:text-2xl tracking-tight">O Framework da Invisibilidade</h3>
+                        <span className="font-serif text-2xl sm:text-4xl font-black text-gold/20">01</span>
+                        <h3 className="text-text font-black text-lg sm:text-xl lg:text-2xl tracking-tight">O Framework da Invisibilidade</h3>
                       </div>
-                      <p className="text-lg sm:text-xl leading-relaxed text-text/70">
+                      <p className="text-base sm:text-lg lg:text-xl leading-relaxed text-text/70">
                         Para construir sistemas que escalam, o arquiteto deve focar em tres pilares fundamentais que operam abaixo da superficie da consciencia organizacional:
                       </p>
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-8">
@@ -335,7 +335,7 @@ export default function LessonPlayerPage({
                           { title: "Canais", desc: "Caminhos de menor resistencia que guiam o fluxo de energia e informacao." },
                           { title: "Filtros", desc: "Mecanismos de selecao que garantem que apenas o essencial chegue ao topo." }
                         ].map((item, i) => (
-                          <div key={i} className="p-4 sm:p-8 border border-line bg-surface/30 hover:bg-surface transition-all duration-500 group cursor-default">
+                          <div key={i} className="p-3 sm:p-4 lg:p-8 border border-line bg-surface/30 hover:bg-surface transition-all duration-500 group cursor-default">
                             <Label variant="gold" className="mb-4 block group-hover:tracking-[0.4em] transition-all">{item.title}</Label>
                             <p className="text-xs text-warm-gray leading-relaxed opacity-80 group-hover:opacity-100">{item.desc}</p>
                           </div>
@@ -343,7 +343,7 @@ export default function LessonPlayerPage({
                       </div>
                     </section>
 
-                    <section className="p-6 sm:p-12 bg-gold/5 border border-gold/10 relative overflow-hidden group">
+                    <section className="p-4 sm:p-6 lg:p-12 bg-gold/5 border border-gold/10 relative overflow-hidden group">
                       <div className="absolute -right-10 -bottom-10 text-gold/5 rotate-12 transition-transform duration-1000 group-hover:rotate-0">
                         <Quote size={200} />
                       </div>
@@ -352,7 +352,7 @@ export default function LessonPlayerPage({
                           <Quote size={24} />
                           <Label variant="gold" className="text-xs">Nota do Arquiteto</Label>
                         </div>
-                        <p className="text-lg sm:text-xl font-serif italic text-text/80 leading-relaxed">
+                        <p className="text-base sm:text-lg lg:text-xl font-serif italic text-text/80 leading-relaxed">
                           Muitos lideres tentam resolver problemas de comportamento com treinamento, quando na verdade o problema e o sistema.
                           Se voce coloca uma pessoa boa em um sistema ruim, o sistema vence todas as vezes.
                           Nossa tarefa e projetar sistemas onde o comportamento desejado seja o caminho natural.
@@ -367,21 +367,21 @@ export default function LessonPlayerPage({
             {/* Navigation Footer */}
             <footer className="pt-10 sm:pt-20 border-t border-line flex justify-between items-center">
               <button className="flex items-center gap-4 sm:gap-6 text-warm-gray hover:text-gold transition-all group">
-                <div className="w-12 h-12 rounded-full border border-line flex items-center justify-center group-hover:border-gold group-hover:bg-gold/5 transition-all">
-                  <ArrowRight size={20} className="rotate-180 group-hover:-translate-x-1 transition-transform" />
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border border-line flex items-center justify-center group-hover:border-gold group-hover:bg-gold/5 transition-all">
+                  <ArrowRight size={18} className="rotate-180 group-hover:-translate-x-1 transition-transform" />
                 </div>
                 <div className="text-left">
-                  <Label className="opacity-40 mb-1 block text-[9px]">Anterior</Label>
+                  <Label className="opacity-40 mb-1 block text-[10px]">Anterior</Label>
                   <p className="text-sm font-bold tracking-tight">O Mito da Eficiência</p>
                 </div>
               </button>
               <button className="flex items-center gap-4 sm:gap-6 text-warm-gray hover:text-gold transition-all group text-right">
                 <div className="text-right">
-                  <Label className="opacity-40 mb-1 block text-[9px]">Próxima</Label>
+                  <Label className="opacity-40 mb-1 block text-[10px]">Próxima</Label>
                   <p className="text-sm font-bold tracking-tight">Escalabilidade Vertical</p>
                 </div>
-                <div className="w-12 h-12 rounded-full border border-line flex items-center justify-center group-hover:border-gold group-hover:bg-gold/5 transition-all">
-                  <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border border-line flex items-center justify-center group-hover:border-gold group-hover:bg-gold/5 transition-all">
+                  <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                 </div>
               </button>
             </footer>
@@ -398,9 +398,9 @@ export default function LessonPlayerPage({
       <aside className={cn(
         "w-80 border-l border-line bg-surface flex flex-col transition-colors duration-500 z-50 shadow-[-20px_0_40px_rgba(0,0,0,0.1)]",
         "hidden lg:flex",
-        showSidebar && "!flex fixed inset-y-0 right-0"
+        showSidebar && "!flex fixed inset-y-0 right-0 max-w-[85vw]"
       )}>
-        <div className="p-5 sm:p-10 border-b border-line space-y-5 sm:space-y-10">
+        <div className="p-4 sm:p-5 lg:p-10 border-b border-line space-y-4 sm:space-y-5 lg:space-y-10">
           <div className="flex justify-between items-center">
             <Label variant="gold" className="tracking-widest">Ferramentas</Label>
             <button
@@ -439,7 +439,7 @@ export default function LessonPlayerPage({
           </Button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-5 sm:p-10 space-y-6 sm:space-y-12 custom-scrollbar">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-5 lg:p-10 space-y-6 sm:space-y-8 lg:space-y-12 custom-scrollbar">
           <section className="space-y-6">
             <div className="flex items-center gap-3 text-gold">
               <PenTool size={16} />
