@@ -11,7 +11,7 @@ interface AuthContextType {
   setAuthMode: (mode: AuthMode) => void;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
-  register: (name: string, email: string, password: string) => Promise<void>;
+  register: (name: string, email: string, password: string, phone?: string, inviteCode?: string) => Promise<void>;
   updateUser: (data: Partial<AuthUser>) => void;
 }
 
@@ -45,8 +45,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(res.user);
   }, []);
 
-  const register = useCallback(async (name: string, email: string, password: string) => {
-    const res = await api.register(name, email, password);
+  const register = useCallback(async (name: string, email: string, password: string, phone?: string, inviteCode?: string) => {
+    const res = await api.register(name, email, password, phone, inviteCode);
     api.setTokens(res.accessToken, res.refreshToken);
     setUser(res.user);
   }, []);

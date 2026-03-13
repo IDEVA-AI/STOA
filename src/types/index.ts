@@ -108,8 +108,26 @@ export interface AuthUser {
   id: number;
   name: string;
   email: string;
+  phone?: string;
   role: string;
   avatar: string;
+}
+
+export interface InviteInfo {
+  valid: boolean;
+  reason?: string;
+  invite?: {
+    id: number;
+    code: string;
+    workspace_id: number;
+    product_id: number | null;
+    expires_at: string | null;
+  };
+  workspace?: {
+    id: number;
+    name: string;
+    logo: string | null;
+  };
 }
 
 export interface AuthResponse {

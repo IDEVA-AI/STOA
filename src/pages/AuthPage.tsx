@@ -1,20 +1,49 @@
-import { useState } from 'react';
-import type { AuthMode } from '../types';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { Loader2, AlertTriangle } from 'lucide-react';
+import type { AuthMode, InviteInfo } from '../types';
 import { Button, Input, FormGroup } from '../components/ui';
+import * as api from '../services/api';
 
 interface AuthPageProps {
   authMode: AuthMode;
   setAuthMode: (mode: AuthMode) => void;
   onLogin: (email: string, password: string) => Promise<void>;
-  onRegister: (name: string, email: string, password: string) => Promise<void>;
+  onRegister: (name: string, email: string, password: string, phone?: string, inviteCode?: string) => Promise<void>;
 }
 
 export default function AuthPage({ authMode, setAuthMode, onLogin, onRegister }: AuthPageProps) {
+  const [searchParams] = useSearchParams();
+  const inviteCode = searchParams.get('invite') || undefined;
+
   const [name, setName] = useState('');
-  const [email, setEmail] = useState('gestao@ideva.ai');
-  const [password, setPassword] = useState('123456');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [phone, setPhone] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // Invite validation state
+  const [inviteInfo, setInviteInfo] = useState<InviteInfo | null>(null);
+  const [inviteLoading, setInviteLoading] = useState(!!inviteCode);
+
+  // Validate invite on mount
+  useEffect(() => {
+    if (!inviteCode) return;
+    setInviteLoading(true);
+    setAuthMode('register');
+    api.validateInvite(inviteCode)
+      .then((info) => {
+        setInviteInfo(info);
+        if (!info.valid) {
+          setError(info.reason || 'Convite invalido.');
+        }
+      })
+      .catch(() => {
+        setInviteInfo({ valid: false, reason: 'Erro ao validar convite.' });
+      })
+      .finally(() => setInviteLoading(false));
+  }, [inviteCode, setAuthMode]);
 
   function validate(): string | null {
     if (authMode === 'register' && name.trim().length < 2) {
@@ -44,13 +73,55 @@ export default function AuthPage({ authMode, setAuthMode, onLogin, onRegister }:
       if (authMode === 'login') {
         await onLogin(email, password);
       } else {
-        await onRegister(name, email, password);
+        await onRegister(
+          name,
+          email,
+          password,
+          phone.trim() || undefined,
+          inviteCode,
+        );
       }
     } catch (err: any) {
       setError(err.message || 'Ocorreu um erro. Tente novamente.');
     } finally {
       setLoading(false);
     }
+  }
+
+  // Loading state while validating invite
+  if (inviteLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-bg">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="animate-spin text-gold" size={32} />
+          <p className="mono-label text-warm-gray text-sm">Validando convite...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Invalid invite: full-screen error
+  if (inviteCode && inviteInfo && !inviteInfo.valid) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-bg p-6">
+        <div className="card-editorial max-w-md w-full p-12 bg-surface text-center space-y-6">
+          <div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center mx-auto">
+            <AlertTriangle size={28} className="text-red-500" />
+          </div>
+          <h2 className="font-serif text-3xl font-black">Convite Invalido</h2>
+          <p className="text-warm-gray text-sm">
+            {inviteInfo.reason || 'Este convite nao e valido ou ja expirou.'}
+          </p>
+          <Button
+            onClick={() => window.location.href = '/login'}
+            fullWidth
+            size="lg"
+          >
+            Ir para Login
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -84,9 +155,19 @@ export default function AuthPage({ authMode, setAuthMode, onLogin, onRegister }:
             <p className="text-warm-gray text-sm">
               {authMode === 'login'
                 ? 'Acesse seu painel de controle e continue sua jornada.'
-                : 'Inicie sua transformacao como arquiteto de sistemas.'}
+                : inviteCode
+                  ? 'Preencha seus dados para acessar a plataforma.'
+                  : 'Inicie sua transformacao como arquiteto de sistemas.'}
             </p>
           </div>
+
+          {/* Invite badge */}
+          {inviteCode && inviteInfo?.valid && inviteInfo.workspace && (
+            <div className="mb-6 p-4 rounded-lg border border-gold/30 bg-gold/5">
+              <p className="mono-label text-gold text-[10px] tracking-widest uppercase mb-1">Convite para</p>
+              <p className="font-serif font-bold text-lg">{inviteInfo.workspace.name}</p>
+            </div>
+          )}
 
           {error && (
             <div className="mb-6 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-500 text-sm">
@@ -135,6 +216,19 @@ export default function AuthPage({ authMode, setAuthMode, onLogin, onRegister }:
               />
             </FormGroup>
 
+            {/* Phone field: only shown in register mode with invite */}
+            {authMode === 'register' && inviteCode && (
+              <FormGroup label="WhatsApp (opcional)">
+                <Input
+                  type="tel"
+                  placeholder="(11) 99999-9999"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  disabled={loading}
+                />
+              </FormGroup>
+            )}
+
             <Button type="submit" fullWidth size="lg" className="mt-4" disabled={loading}>
               {loading
                 ? 'Carregando...'
@@ -145,19 +239,32 @@ export default function AuthPage({ authMode, setAuthMode, onLogin, onRegister }:
           </form>
 
           <div className="mt-12 pt-8 border-t border-line text-center">
-            <p className="text-sm text-warm-gray">
-              {authMode === 'login' ? 'Ainda nao e membro?' : 'Ja possui uma conta?'}
-              <Button
-                variant="link"
-                onClick={() => {
-                  setAuthMode(authMode === 'login' ? 'register' : 'login');
-                  setError('');
-                }}
-                className="ml-2 font-bold text-text hover:text-gold"
-              >
-                {authMode === 'login' ? 'Solicitar Acesso' : 'Fazer Login'}
-              </Button>
-            </p>
+            {inviteCode ? (
+              <p className="text-sm text-warm-gray">
+                Ja possui uma conta?
+                <Button
+                  variant="link"
+                  onClick={() => window.location.href = '/login'}
+                  className="ml-2 font-bold text-text hover:text-gold"
+                >
+                  Fazer Login
+                </Button>
+              </p>
+            ) : (
+              <p className="text-sm text-warm-gray">
+                {authMode === 'login' ? 'Ainda nao e membro?' : 'Ja possui uma conta?'}
+                <Button
+                  variant="link"
+                  onClick={() => {
+                    setAuthMode(authMode === 'login' ? 'register' : 'login');
+                    setError('');
+                  }}
+                  className="ml-2 font-bold text-text hover:text-gold"
+                >
+                  {authMode === 'login' ? 'Solicitar Acesso' : 'Fazer Login'}
+                </Button>
+              </p>
+            )}
           </div>
         </div>
       </div>

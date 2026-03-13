@@ -1,4 +1,4 @@
-import { Course, Module, Post, Comment, DashboardProgress, CommunitySidebar, SearchResults, Conversation, Message, AuthResponse, AuthUser, Workspace, WorkspaceMember, Product, Purchase, Trail, Community, CommunityCategory, LessonBlock } from '../types';
+import { Course, Module, Post, Comment, DashboardProgress, CommunitySidebar, SearchResults, Conversation, Message, AuthResponse, AuthUser, InviteInfo, Workspace, WorkspaceMember, Product, Purchase, Trail, Community, CommunityCategory, LessonBlock } from '../types';
 
 // ── Token helpers ──────────────────────────────────────────────────────
 
@@ -63,16 +63,28 @@ export async function login(email: string, password: string): Promise<AuthRespon
   return res.json();
 }
 
-export async function register(name: string, email: string, password: string): Promise<AuthResponse> {
+export async function register(
+  name: string,
+  email: string,
+  password: string,
+  phone?: string,
+  inviteCode?: string
+): Promise<AuthResponse> {
   const res = await fetch('/api/auth/register', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name, email, password }),
+    body: JSON.stringify({ name, email, password, phone, inviteCode }),
   });
   if (!res.ok) {
     const body = await res.json().catch(() => ({ message: 'Falha ao criar conta.' }));
-    throw new Error(body.message || 'Falha ao criar conta.');
+    throw new Error(body.error || body.message || 'Falha ao criar conta.');
   }
+  return res.json();
+}
+
+export async function validateInvite(code: string): Promise<InviteInfo> {
+  const res = await fetch(`/api/invites/validate/${encodeURIComponent(code)}`);
+  if (!res.ok) return { valid: false, reason: 'Convite nao encontrado' };
   return res.json();
 }
 
@@ -959,4 +971,38 @@ export async function applyTemplateToLesson(templateId: number, lessonId: number
     method: 'POST',
   });
   if (!res.ok) throw new Error('Falha ao aplicar template.');
+}
+
+// ── Invites API ──────────────────────────────────────────────────────
+
+export async function createInvite(data: { workspace_id: number; product_id?: number; max_uses?: number; expires_at?: string }): Promise<{ id: number; code: string }> {
+  const res = await authFetch('/api/invites', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Falha ao criar convite.');
+  return res.json();
+}
+
+export async function getWorkspaceInvites(workspaceId: number): Promise<any[]> {
+  const res = await authFetch(`/api/invites/workspace/${workspaceId}`);
+  if (!res.ok) throw new Error('Falha ao carregar convites.');
+  return res.json();
+}
+
+export async function revokeInvite(id: number): Promise<void> {
+  const res = await authFetch(`/api/invites/${id}/revoke`, { method: 'PUT' });
+  if (!res.ok) throw new Error('Falha ao revogar convite.');
+}
+
+export async function deleteInvite(id: number): Promise<void> {
+  const res = await authFetch(`/api/invites/${id}`, { method: 'DELETE' });
+  if (!res.ok) throw new Error('Falha ao deletar convite.');
+}
+
+export async function getInviteRedemptions(id: number): Promise<any[]> {
+  const res = await authFetch(`/api/invites/${id}/redemptions`);
+  if (!res.ok) throw new Error('Falha ao carregar resgates.');
+  return res.json();
 }
