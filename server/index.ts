@@ -26,6 +26,7 @@ import announcementsRouter from "./routes/announcements";
 import workspacesRouter from "./routes/workspaces";
 import productsRouter from "./routes/products";
 import purchasesRouter from "./routes/purchases";
+import invitesRouter from "./routes/invites";
 import trailsRouter from "./routes/trails";
 import communitiesRouter from "./routes/communities";
 import lessonBlocksRouter from "./routes/lessonBlocks";
@@ -79,6 +80,7 @@ async function startServer() {
   app.use("/api/workspaces", workspacesRouter);
   app.use("/api/products", productsRouter);
   app.use("/api/purchases", purchasesRouter);
+  app.use("/api/invites", invitesRouter);
   app.use("/api/trails", trailsRouter);
   app.use("/api/communities", communitiesRouter);
   app.use("/api/lesson-blocks", lessonBlocksRouter);
