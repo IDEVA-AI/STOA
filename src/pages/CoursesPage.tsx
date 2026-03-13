@@ -110,7 +110,7 @@ export default function CoursesPage({ courses, onEnterCourse }: CoursesPageProps
 
   if (!loaded) {
     return (
-      <PageTransition id="courses" className="space-y-16">
+      <PageTransition id="courses" className="space-y-8 sm:space-y-16">
         <PageHeader
           title="Conhecimento"
           subtitle="Arquitetura, Estrategia e Sistemas Organizacionais."
@@ -125,7 +125,7 @@ export default function CoursesPage({ courses, onEnterCourse }: CoursesPageProps
   }
 
   return (
-    <PageTransition id="courses" className="space-y-16">
+    <PageTransition id="courses" className="space-y-8 sm:space-y-16">
       <PageHeader
         title="Conhecimento"
         subtitle="Arquitetura, Estrategia e Sistemas Organizacionais."
@@ -155,7 +155,7 @@ export default function CoursesPage({ courses, onEnterCourse }: CoursesPageProps
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -8 }}
           transition={{ duration: 0.3 }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-12"
         >
           {filteredCourses.length === 0 ? (
             <div className="col-span-full flex flex-col items-center justify-center py-24 space-y-4">
@@ -241,7 +241,7 @@ export default function CoursesPage({ courses, onEnterCourse }: CoursesPageProps
                   </div>
 
                   {/* Content */}
-                  <div className="p-10 flex flex-col flex-1 space-y-8">
+                  <div className="p-5 sm:p-10 flex flex-col flex-1 space-y-8">
                     <div className="space-y-4">
                       <h3
                         className={`font-serif text-3xl font-bold leading-tight tracking-tight transition-colors duration-500 ${
