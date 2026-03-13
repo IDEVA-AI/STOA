@@ -307,6 +307,42 @@ export function initializeSchema() {
       FOREIGN KEY(user_id) REFERENCES users(id),
       UNIQUE(invite_code_id, user_id)
     );
+
+    CREATE TABLE IF NOT EXISTS availability_configs (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      workspace_id INTEGER NOT NULL,
+      title TEXT NOT NULL DEFAULT 'Tutoria Individual',
+      duration_minutes INTEGER NOT NULL DEFAULT 60,
+      buffer_minutes INTEGER NOT NULL DEFAULT 15,
+      max_advance_days INTEGER NOT NULL DEFAULT 30,
+      is_active INTEGER NOT NULL DEFAULT 1,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY(workspace_id) REFERENCES workspaces(id)
+    );
+
+    CREATE TABLE IF NOT EXISTS availability_slots (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      config_id INTEGER NOT NULL,
+      day_of_week INTEGER NOT NULL,
+      start_time TEXT NOT NULL,
+      end_time TEXT NOT NULL,
+      FOREIGN KEY(config_id) REFERENCES availability_configs(id) ON DELETE CASCADE
+    );
+
+    CREATE TABLE IF NOT EXISTS bookings (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      config_id INTEGER NOT NULL,
+      user_id INTEGER NOT NULL,
+      date TEXT NOT NULL,
+      start_time TEXT NOT NULL,
+      end_time TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'confirmed',
+      meet_link TEXT,
+      notes TEXT,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY(config_id) REFERENCES availability_configs(id),
+      FOREIGN KEY(user_id) REFERENCES users(id)
+    );
   `);
 
   // Safely add new columns to existing users table (SQLite has no IF NOT EXISTS for ALTER TABLE)
@@ -398,6 +434,12 @@ export function initializeSchema() {
     CREATE INDEX IF NOT EXISTS idx_invite_codes_status ON invite_codes(status);
     CREATE INDEX IF NOT EXISTS idx_invite_redemptions_invite_code_id ON invite_redemptions(invite_code_id);
     CREATE INDEX IF NOT EXISTS idx_invite_redemptions_user_id ON invite_redemptions(user_id);
+    CREATE INDEX IF NOT EXISTS idx_availability_configs_workspace_id ON availability_configs(workspace_id);
+    CREATE INDEX IF NOT EXISTS idx_availability_slots_config_id ON availability_slots(config_id);
+    CREATE INDEX IF NOT EXISTS idx_bookings_config_id ON bookings(config_id);
+    CREATE INDEX IF NOT EXISTS idx_bookings_user_id ON bookings(user_id);
+    CREATE INDEX IF NOT EXISTS idx_bookings_date ON bookings(date);
+    CREATE INDEX IF NOT EXISTS idx_bookings_status ON bookings(status);
   `);
 
   // Migrate existing relationships to junction tables
