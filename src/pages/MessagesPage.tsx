@@ -138,7 +138,7 @@ export default function MessagesPage() {
                   exit={{ opacity: 0, y: -10 }}
                   onClick={() => selectConversation(conv.id)}
                   className={cn(
-                    "w-full p-6 flex gap-5 text-left transition-all duration-500 border-none group relative overflow-hidden",
+                    "w-full p-4 sm:p-6 flex gap-5 text-left transition-all duration-500 border-none group relative overflow-hidden",
                     activeConversation === conv.id
                       ? "bg-surface shadow-xl shadow-black/5"
                       : "hover:bg-surface/50"
@@ -207,8 +207,8 @@ export default function MessagesPage() {
             >
               {/* Chat Header */}
               {activeConv && (
-                <div className="p-8 border-b border-line flex justify-between items-center bg-bg/30 backdrop-blur-md">
-                  <div className="flex items-center gap-6">
+                <div className="p-4 sm:p-8 border-b border-line flex justify-between items-center bg-bg/30 backdrop-blur-md">
+                  <div className="flex items-center gap-3 sm:gap-6">
                     <button
                       onClick={() => selectConversation(0)}
                       className="sm:hidden w-8 h-8 rounded-full flex items-center justify-center text-warm-gray hover:text-gold transition-colors shrink-0"
@@ -229,7 +229,7 @@ export default function MessagesPage() {
               )}
 
               {/* Messages Area */}
-              <div className="flex-1 overflow-y-auto p-4 sm:p-12 space-y-8 custom-scrollbar bg-bg/5">
+              <div className="flex-1 overflow-y-auto p-4 sm:p-12 space-y-4 sm:space-y-8 custom-scrollbar bg-bg/5">
                 {loading ? (
                   <div className="flex items-center justify-center py-20 opacity-40">
                     <p className="font-serif text-lg">Carregando...</p>
@@ -268,7 +268,7 @@ export default function MessagesPage() {
                         <div className={cn("space-y-2", isOwn && "text-right")}>
                           <div
                             className={cn(
-                              "p-5 text-base leading-relaxed font-light whitespace-pre-wrap",
+                              "p-3 sm:p-5 text-base leading-relaxed font-light whitespace-pre-wrap",
                               isOwn
                                 ? "bg-gold text-paper shadow-xl shadow-gold/10"
                                 : "bg-bg border border-line shadow-sm hover:border-gold/30 transition-all"

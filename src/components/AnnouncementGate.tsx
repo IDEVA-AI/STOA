@@ -176,7 +176,7 @@ function AnnouncementCard({
               <Megaphone className="w-5 h-5 text-gold" />
             </div>
             <div>
-              <h2 className="serif-display text-3xl text-text leading-tight">
+              <h2 className="serif-display text-2xl sm:text-3xl text-text leading-tight">
                 {announcement.title}
               </h2>
             </div>

@@ -219,13 +219,13 @@ export default function CommunityPage({ communityId }: CommunityPageProps) {
         </div>
 
         {loadingList ? (
-          <div className="flex items-center justify-center py-32">
+          <div className="flex items-center justify-center py-16 sm:py-32">
             <span className="mono-label text-warm-gray/40 animate-pulse tracking-widest">
               Carregando comunidades...
             </span>
           </div>
         ) : communities.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-32 space-y-4">
+          <div className="flex flex-col items-center justify-center py-16 sm:py-32 space-y-4">
             <Users size={48} className="text-warm-gray/20" />
             <span className="mono-label text-warm-gray/40 tracking-widest">
               Nenhuma comunidade disponivel.
@@ -257,7 +257,7 @@ export default function CommunityPage({ communityId }: CommunityPageProps) {
                       <Users size={22} />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-serif text-2xl font-bold tracking-tight truncate">
+                      <h3 className="font-serif text-xl sm:text-2xl font-bold tracking-tight truncate">
                         {comm.name}
                       </h3>
                       {comm.post_count !== undefined && (
@@ -290,7 +290,7 @@ export default function CommunityPage({ communityId }: CommunityPageProps) {
   // ── Scoped community view ─────────────────────────────────────────
 
   return (
-    <PageTransition id="community" className="space-y-12">
+    <PageTransition id="community" className="space-y-6 sm:space-y-12">
       {/* Community header */}
       {community && (
         <div className="space-y-6">
@@ -319,7 +319,7 @@ export default function CommunityPage({ communityId }: CommunityPageProps) {
 
       {/* Category tabs */}
       {categories.length > 0 && (
-        <div className="flex gap-8 border-b border-line pb-0 overflow-x-auto">
+        <div className="flex gap-4 sm:gap-8 border-b border-line pb-0 overflow-x-auto">
           <button
             onClick={() => loadPostsByCategory(null)}
             className={`mono-label pb-4 tracking-[0.2em] transition-colors whitespace-nowrap border-b-2 -mb-px ${
@@ -347,13 +347,13 @@ export default function CommunityPage({ communityId }: CommunityPageProps) {
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-16">
-        <div className="lg:col-span-2 space-y-12">
+        <div className="lg:col-span-2 space-y-6 sm:space-y-12">
           {/* Post creation form */}
           <Card variant="elevated" padding="lg" className="border-none">
             <form onSubmit={handlePostSubmit}>
               <div className="flex flex-col sm:flex-row gap-4 sm:gap-8">
                 <Avatar name="Julio" size="xl" interactive />
-                <div className="flex-1 space-y-8">
+                <div className="flex-1 space-y-5 sm:space-y-8">
                   <Textarea
                     variant="editorial"
                     value={newPost}
@@ -362,8 +362,8 @@ export default function CommunityPage({ communityId }: CommunityPageProps) {
                     rows={3}
                     className="text-text"
                   />
-                  <div className="flex justify-between items-center pt-8 border-t border-line">
-                    <div className="flex gap-8 text-warm-gray/40">
+                  <div className="flex justify-between items-center pt-4 sm:pt-8 border-t border-line">
+                    <div className="flex gap-4 sm:gap-8 text-warm-gray/40">
                       <Button variant="ghost" iconOnly icon={<Share2 size={20} />} size="sm" />
                       <Button variant="ghost" iconOnly icon={<BarChart3 size={20} />} size="sm" />
                       <Button variant="ghost" iconOnly icon={<Image size={20} />} size="sm" />
@@ -397,22 +397,22 @@ export default function CommunityPage({ communityId }: CommunityPageProps) {
               </span>
             </div>
           ) : (
-            <div className="space-y-12">
+            <div className="space-y-6 sm:space-y-12">
               {sortedPosts.map((post) => (
                 <Card
                   key={post.id}
                   variant="elevated"
                   padding="lg"
-                  className={`space-y-10 border-none group ${
+                  className={`space-y-6 sm:space-y-10 border-none group ${
                     post.pinned ? 'ring-1 ring-gold/20' : ''
                   }`}
                 >
                   <div className="flex justify-between items-start">
-                    <div className="flex gap-6">
+                    <div className="flex gap-4 sm:gap-6">
                       <Avatar name={post.user_name} size="xl" interactive />
                       <div className="space-y-1">
                         <div className="flex items-center gap-3">
-                          <h4 className="font-black text-xl tracking-tighter group-hover:text-gold transition-colors">
+                          <h4 className="font-black text-base sm:text-xl tracking-tighter group-hover:text-gold transition-colors">
                             {post.user_name}
                           </h4>
                           {post.pinned && (
@@ -435,7 +435,7 @@ export default function CommunityPage({ communityId }: CommunityPageProps) {
                     />
                   </div>
 
-                  <p className="text-text/80 leading-relaxed text-2xl font-light whitespace-pre-line font-serif italic">
+                  <p className="text-text/80 leading-relaxed text-xl sm:text-2xl font-light whitespace-pre-line font-serif italic">
                     {post.content}
                   </p>
 
@@ -651,7 +651,7 @@ export default function CommunityPage({ communityId }: CommunityPageProps) {
 
           {categories.length > 0 && (
             <Card variant="elevated" padding="lg" className="border-none">
-              <Heading level={3} className="mb-8">
+              <Heading level={3} className="mb-4 sm:mb-8">
                 Categorias
               </Heading>
               <div className="space-y-3">

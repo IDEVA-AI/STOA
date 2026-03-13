@@ -115,7 +115,7 @@ export default function CoursesPage({ courses, onEnterCourse }: CoursesPageProps
           title="Conhecimento"
           subtitle="Arquitetura, Estrategia e Sistemas Organizacionais."
         />
-        <div className="flex items-center justify-center py-32">
+        <div className="flex items-center justify-center py-16 sm:py-32">
           <span className="mono-label text-warm-gray/40 animate-pulse tracking-widest">
             Carregando cursos...
           </span>
@@ -158,7 +158,7 @@ export default function CoursesPage({ courses, onEnterCourse }: CoursesPageProps
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-12"
         >
           {filteredCourses.length === 0 ? (
-            <div className="col-span-full flex flex-col items-center justify-center py-24 space-y-4">
+            <div className="col-span-full flex flex-col items-center justify-center py-12 sm:py-24 space-y-4">
               <span className="mono-label text-warm-gray/40 tracking-widest text-sm">
                 Nenhum curso nesta categoria.
               </span>
@@ -203,7 +203,7 @@ export default function CoursesPage({ courses, onEnterCourse }: CoursesPageProps
                     />
 
                     {/* Top badges */}
-                    <div className="absolute top-6 right-6 flex gap-2">
+                    <div className="absolute top-4 right-4 sm:top-6 sm:right-6 flex gap-2">
                       {accessible && (
                         <Badge variant="default" className="px-4 py-1.5 shadow-2xl">
                           {course.lessons_count} Aulas
@@ -241,10 +241,10 @@ export default function CoursesPage({ courses, onEnterCourse }: CoursesPageProps
                   </div>
 
                   {/* Content */}
-                  <div className="p-5 sm:p-10 flex flex-col flex-1 space-y-8">
+                  <div className="p-5 sm:p-10 flex flex-col flex-1 space-y-5 sm:space-y-8">
                     <div className="space-y-4">
                       <h3
-                        className={`font-serif text-3xl font-bold leading-tight tracking-tight transition-colors duration-500 ${
+                        className={`font-serif text-2xl sm:text-3xl font-bold leading-tight tracking-tight transition-colors duration-500 ${
                           accessible
                             ? 'group-hover:text-gold'
                             : 'text-text/60'

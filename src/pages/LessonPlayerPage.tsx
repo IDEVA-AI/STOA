@@ -80,7 +80,7 @@ export default function LessonPlayerPage({
   if (!selectedLesson) {
     return (
       <div className="h-screen w-full flex items-center justify-center bg-bg p-8">
-        <div className="flex flex-col items-center gap-8 max-w-md text-center">
+        <div className="flex flex-col items-center gap-5 sm:gap-8 max-w-md text-center">
           {courseError ? (
             <>
               <div className="w-16 h-16 rounded-full bg-danger/10 flex items-center justify-center text-danger mb-2">
@@ -135,8 +135,8 @@ export default function LessonPlayerPage({
         "hidden lg:flex",
         showModules && "!flex fixed inset-y-0 left-0"
       )}>
-        <div className="p-10 border-b border-line">
-          <div className="flex items-center justify-between mb-10">
+        <div className="p-5 sm:p-10 border-b border-line">
+          <div className="flex items-center justify-between mb-5 sm:mb-10">
             <button
               onClick={onBack}
               className="flex items-center gap-2 text-[10px] mono-label text-warm-gray hover:text-gold transition-all group"
@@ -152,9 +152,9 @@ export default function LessonPlayerPage({
               <X size={16} />
             </button>
           </div>
-          <div className="space-y-1 mb-8">
+          <div className="space-y-1 mb-4 sm:mb-8">
             <Label variant="gold" className="text-[9px]">Arquitetura de Sistemas</Label>
-            <h2 className="font-serif text-2xl font-black leading-tight tracking-tight">{selectedCourse.title}</h2>
+            <h2 className="font-serif text-xl sm:text-2xl font-black leading-tight tracking-tight">{selectedCourse.title}</h2>
           </div>
 
           <ProgressBar value={selectedCourse.progress} size="sm" showLabel glow />
@@ -163,7 +163,7 @@ export default function LessonPlayerPage({
         <div className="flex-1 overflow-y-auto py-8 custom-scrollbar">
           {courseContent.map((module, mIdx) => (
             <div key={module.id} className="mb-10">
-              <div className="px-10 mb-4">
+              <div className="px-5 sm:px-10 mb-4">
                 <h3 className="text-[9px] mono-label text-warm-gray/40 mb-1">Módulo {String(mIdx + 1).padStart(2, '0')}</h3>
                 <p className="text-[11px] font-bold uppercase tracking-widest text-text/80">{module.title}</p>
               </div>
@@ -173,7 +173,7 @@ export default function LessonPlayerPage({
                     key={lesson.id}
                     onClick={() => onSelectLesson(lesson)}
                     className={cn(
-                      "w-full flex items-center gap-4 px-10 py-3.5 text-left transition-all group relative",
+                      "w-full flex items-center gap-4 px-5 sm:px-10 py-3.5 text-left transition-all group relative",
                       selectedLesson.id === lesson.id
                         ? "bg-gold/5 text-gold"
                         : "text-warm-gray hover:text-text hover:bg-bg/40"
@@ -230,7 +230,7 @@ export default function LessonPlayerPage({
             className="max-w-5xl mx-auto px-4 sm:px-8 lg:px-16 py-8 sm:py-12 lg:py-20 space-y-8 sm:space-y-16"
           >
             {/* Header */}
-            <header className="space-y-8">
+            <header className="space-y-4 sm:space-y-8">
               <div className="flex items-center gap-4">
                 <Badge variant="gold" className="rounded-sm">Aula {selectedLesson.order}</Badge>
                 <span className="w-1.5 h-1.5 bg-line rounded-full" />
@@ -238,7 +238,7 @@ export default function LessonPlayerPage({
               </div>
               <div className="space-y-4">
                 <h1 className="serif-display text-4xl sm:text-5xl lg:text-7xl leading-[0.9] tracking-tighter">{selectedLesson.title}</h1>
-                <p className="text-2xl text-warm-gray font-light leading-relaxed max-w-3xl italic font-serif">
+                <p className="text-xl sm:text-2xl text-warm-gray font-light leading-relaxed max-w-3xl italic font-serif">
                   Uma exploração profunda sobre como os sistemas invisíveis moldam o comportamento e a escalabilidade das organizações modernas.
                 </p>
               </div>
@@ -247,7 +247,7 @@ export default function LessonPlayerPage({
             {/* Content: Blocks or Legacy Video */}
             {selectedLesson.blocks && selectedLesson.blocks.length > 0 ? (
               /* Block-based content */
-              <div className="max-w-4xl space-y-10">
+              <div className="max-w-4xl space-y-6 sm:space-y-10">
                 {selectedLesson.blocks
                   .sort((a, b) => a.position - b.position)
                   .map((block, idx) => (
@@ -308,14 +308,14 @@ export default function LessonPlayerPage({
 
                 {/* Static editorial content for legacy lessons */}
                 <div className="max-w-4xl">
-                  <div className="space-y-20 text-warm-gray font-light leading-relaxed">
+                  <div className="space-y-10 sm:space-y-20 text-warm-gray font-light leading-relaxed">
                     <section className="space-y-8 relative">
                       <div className="absolute -left-12 top-0 text-gold/20">
                         <Lightbulb size={32} />
                       </div>
                       <div className="space-y-4">
                         <Label variant="gold" className="text-[11px] tracking-[0.3em]">Insight Estrutural</Label>
-                        <p className="text-3xl font-serif italic text-text leading-tight border-l-4 border-gold/20 pl-10 py-4">
+                        <p className="text-2xl sm:text-3xl font-serif italic text-text leading-tight border-l-4 border-gold/20 pl-6 sm:pl-10 py-4">
                           "A estrutura nao e apenas o que voce ve no organograma; e o fluxo invisivel de autoridade e informacao que define o que e possivel."
                         </p>
                       </div>
@@ -324,18 +324,18 @@ export default function LessonPlayerPage({
                     <section className="space-y-10">
                       <div className="flex items-baseline gap-4">
                         <span className="font-serif text-4xl font-black text-gold/20">01</span>
-                        <h3 className="text-text font-black text-2xl tracking-tight">O Framework da Invisibilidade</h3>
+                        <h3 className="text-text font-black text-xl sm:text-2xl tracking-tight">O Framework da Invisibilidade</h3>
                       </div>
-                      <p className="text-xl leading-relaxed text-text/70">
+                      <p className="text-lg sm:text-xl leading-relaxed text-text/70">
                         Para construir sistemas que escalam, o arquiteto deve focar em tres pilares fundamentais que operam abaixo da superficie da consciencia organizacional:
                       </p>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-8">
                         {[
                           { title: "Protocolos", desc: "Regras automaticas de decisao que eliminam a necessidade de microgestao constante." },
                           { title: "Canais", desc: "Caminhos de menor resistencia que guiam o fluxo de energia e informacao." },
                           { title: "Filtros", desc: "Mecanismos de selecao que garantem que apenas o essencial chegue ao topo." }
                         ].map((item, i) => (
-                          <div key={i} className="p-8 border border-line bg-surface/30 hover:bg-surface transition-all duration-500 group cursor-default">
+                          <div key={i} className="p-4 sm:p-8 border border-line bg-surface/30 hover:bg-surface transition-all duration-500 group cursor-default">
                             <Label variant="gold" className="mb-4 block group-hover:tracking-[0.4em] transition-all">{item.title}</Label>
                             <p className="text-xs text-warm-gray leading-relaxed opacity-80 group-hover:opacity-100">{item.desc}</p>
                           </div>
@@ -343,7 +343,7 @@ export default function LessonPlayerPage({
                       </div>
                     </section>
 
-                    <section className="p-12 bg-gold/5 border border-gold/10 relative overflow-hidden group">
+                    <section className="p-6 sm:p-12 bg-gold/5 border border-gold/10 relative overflow-hidden group">
                       <div className="absolute -right-10 -bottom-10 text-gold/5 rotate-12 transition-transform duration-1000 group-hover:rotate-0">
                         <Quote size={200} />
                       </div>
@@ -352,7 +352,7 @@ export default function LessonPlayerPage({
                           <Quote size={24} />
                           <Label variant="gold" className="text-xs">Nota do Arquiteto</Label>
                         </div>
-                        <p className="text-xl font-serif italic text-text/80 leading-relaxed">
+                        <p className="text-lg sm:text-xl font-serif italic text-text/80 leading-relaxed">
                           Muitos lideres tentam resolver problemas de comportamento com treinamento, quando na verdade o problema e o sistema.
                           Se voce coloca uma pessoa boa em um sistema ruim, o sistema vence todas as vezes.
                           Nossa tarefa e projetar sistemas onde o comportamento desejado seja o caminho natural.
@@ -365,8 +365,8 @@ export default function LessonPlayerPage({
             )}
 
             {/* Navigation Footer */}
-            <footer className="pt-20 border-t border-line flex justify-between items-center">
-              <button className="flex items-center gap-6 text-warm-gray hover:text-gold transition-all group">
+            <footer className="pt-10 sm:pt-20 border-t border-line flex justify-between items-center">
+              <button className="flex items-center gap-4 sm:gap-6 text-warm-gray hover:text-gold transition-all group">
                 <div className="w-12 h-12 rounded-full border border-line flex items-center justify-center group-hover:border-gold group-hover:bg-gold/5 transition-all">
                   <ArrowRight size={20} className="rotate-180 group-hover:-translate-x-1 transition-transform" />
                 </div>
@@ -375,7 +375,7 @@ export default function LessonPlayerPage({
                   <p className="text-sm font-bold tracking-tight">O Mito da Eficiência</p>
                 </div>
               </button>
-              <button className="flex items-center gap-6 text-warm-gray hover:text-gold transition-all group text-right">
+              <button className="flex items-center gap-4 sm:gap-6 text-warm-gray hover:text-gold transition-all group text-right">
                 <div className="text-right">
                   <Label className="opacity-40 mb-1 block text-[9px]">Próxima</Label>
                   <p className="text-sm font-bold tracking-tight">Escalabilidade Vertical</p>
@@ -400,7 +400,7 @@ export default function LessonPlayerPage({
         "hidden lg:flex",
         showSidebar && "!flex fixed inset-y-0 right-0"
       )}>
-        <div className="p-10 border-b border-line space-y-10">
+        <div className="p-5 sm:p-10 border-b border-line space-y-5 sm:space-y-10">
           <div className="flex justify-between items-center">
             <Label variant="gold" className="tracking-widest">Ferramentas</Label>
             <button
@@ -439,7 +439,7 @@ export default function LessonPlayerPage({
           </Button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-10 space-y-12 custom-scrollbar">
+        <div className="flex-1 overflow-y-auto p-5 sm:p-10 space-y-6 sm:space-y-12 custom-scrollbar">
           <section className="space-y-6">
             <div className="flex items-center gap-3 text-gold">
               <PenTool size={16} />
@@ -477,7 +477,7 @@ export default function LessonPlayerPage({
             </ul>
           </section>
 
-          <section className="space-y-6 pt-10 border-t border-line">
+          <section className="space-y-6 pt-5 sm:pt-10 border-t border-line">
             <ProgressBar value={75} size="md" showLabel />
           </section>
         </div>

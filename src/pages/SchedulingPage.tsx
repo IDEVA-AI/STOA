@@ -427,7 +427,7 @@ export default function SchedulingPage() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-surface border border-line p-8 max-w-md w-full mx-4 shadow-2xl"
+              className="bg-surface border border-line p-5 sm:p-8 max-w-md w-full mx-4 shadow-2xl"
             >
               <div className="flex items-center justify-between mb-6">
                 <Heading level={3}>Confirmar agendamento?</Heading>
@@ -436,7 +436,7 @@ export default function SchedulingPage() {
                 </button>
               </div>
 
-              <div className="space-y-3 mb-8">
+              <div className="space-y-3 mb-5 sm:mb-8">
                 <div className="flex items-center gap-3">
                   <Calendar size={16} className="text-gold" />
                   <Text>{formatDateLong(selectedDate)}</Text>
@@ -466,7 +466,7 @@ export default function SchedulingPage() {
       </AnimatePresence>
 
       {/* My Bookings */}
-      <div className="space-y-8">
+      <div className="space-y-5 sm:space-y-8">
         <Heading level={2}>Meus Agendamentos</Heading>
 
         {loadingBookings ? (

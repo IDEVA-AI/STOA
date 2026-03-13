@@ -119,7 +119,7 @@ export default function ProfilePage() {
   }, [currentPassword, newPassword, confirmPassword]);
 
   return (
-    <PageTransition id="profile" className="max-w-4xl mx-auto space-y-12">
+    <PageTransition id="profile" className="max-w-4xl mx-auto space-y-6 sm:space-y-12">
       <PageHeader
         title="Meu Perfil"
         label="Configurações de Conta"
@@ -142,7 +142,7 @@ export default function ProfilePage() {
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-12">
-        <div className="lg:col-span-1 space-y-8">
+        <div className="lg:col-span-1 space-y-5 sm:space-y-8">
           <Card variant="default" padding="md" className="text-center">
             <div className="relative inline-block mb-6">
               <Avatar name={name || user?.name || ''} size="2xl" className="border-2 border-gold" />
@@ -152,7 +152,7 @@ export default function ProfilePage() {
             </div>
             <Heading level={4}>{name || user?.name || ''}</Heading>
             <Label className="mt-1">{role || user?.role || ''}</Label>
-            <div className="mt-8 pt-8 border-t border-line grid grid-cols-2 gap-4">
+            <div className="mt-4 pt-4 sm:mt-8 sm:pt-8 border-t border-line grid grid-cols-2 gap-4">
               <div className="text-center">
                 <p className="font-serif text-xl font-bold">{courseCount}</p>
                 <Label className="text-[8px]">Cursos</Label>
@@ -215,9 +215,9 @@ export default function ProfilePage() {
           </Card>
         </div>
 
-        <div className="lg:col-span-2 space-y-8">
-          <Card variant="default" padding="lg" className="space-y-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="lg:col-span-2 space-y-5 sm:space-y-8">
+          <Card variant="default" padding="lg" className="space-y-5 sm:space-y-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-8">
               <FormGroup label="Nome de Exibição">
                 <Input
                   type="text"

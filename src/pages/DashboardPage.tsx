@@ -112,9 +112,9 @@ export default function DashboardPage({ courses, posts, onEnterCourse, setActive
 
         <div className="space-y-6 sm:space-y-12">
           <Label variant="gold" className="tracking-[0.3em]">Pulso da Comunidade</Label>
-          <Card variant="elevated" padding="lg" className="space-y-10">
+          <Card variant="elevated" padding="lg" className="space-y-6 sm:space-y-10">
             {posts.slice(0, 3).map(post => (
-              <div key={post.id} className="flex gap-6 group cursor-pointer">
+              <div key={post.id} className="flex gap-4 sm:gap-6 group cursor-pointer">
                 <Avatar name={post.user_name} size="lg" interactive />
                 <div className="space-y-2">
                   <p className="text-sm font-bold group-hover:text-gold transition-colors tracking-tight">{post.user_name}</p>
@@ -124,7 +124,7 @@ export default function DashboardPage({ courses, posts, onEnterCourse, setActive
             ))}
             <button
               onClick={() => setActiveTab('community')}
-              className="w-full pt-10 text-[10px] mono-label text-warm-gray hover:text-gold transition-all border-t border-line flex items-center justify-center gap-3 group"
+              className="w-full pt-6 sm:pt-10 text-[10px] mono-label text-warm-gray hover:text-gold transition-all border-t border-line flex items-center justify-center gap-3 group"
             >
               <span className="group-hover:tracking-[0.4em] transition-all">Ver feed completo</span>
               <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
