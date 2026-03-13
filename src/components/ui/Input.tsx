@@ -12,7 +12,7 @@ export interface InputProps extends ComponentPropsWithoutRef<'input'> {
 }
 
 const variantStyles: Record<InputVariant, string> = {
-  default: 'bg-bg border border-line px-4 py-3 focus:border-gold focus:outline-none transition-colors text-sm',
+  default: 'bg-bg border border-line px-4 py-2.5 sm:py-3 focus:border-gold focus:outline-none transition-colors text-sm',
   ghost: 'bg-transparent border-none focus:ring-0 focus:outline-none text-sm',
 };
 
@@ -34,8 +34,8 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             className={cn(
               'w-full',
               variantStyles[variant],
-              icon && 'pl-11',
-              iconRight && 'pr-11',
+              icon && 'pl-10 sm:pl-11',
+              iconRight && 'pr-10 sm:pr-11',
               error && 'border-red-500 focus:border-red-500 focus:ring-red-500/20',
               className
             )}

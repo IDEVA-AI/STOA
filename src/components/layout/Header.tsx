@@ -112,7 +112,7 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-10 px-4 py-4 sm:px-10 sm:py-8 flex items-center justify-between bg-bg/80 backdrop-blur-md border-b border-line transition-colors duration-500">
       {/* Workspace Selector */}
-      <div ref={wsRef} className="relative mr-6">
+      <div ref={wsRef} className="relative mr-2 sm:mr-6">
         <button
           onClick={() => setShowWsDropdown(!showWsDropdown)}
           className="flex items-center gap-3 px-3 py-2 rounded hover:bg-surface transition-colors"
@@ -274,7 +274,7 @@ export default function Header() {
         </AnimatePresence>
       </div>
 
-      <div className="flex items-center gap-8">
+      <div className="flex items-center gap-3 sm:gap-8">
         <div className="relative">
           <button
             onClick={() => setShowNotifications(!showNotifications)}
@@ -304,7 +304,7 @@ export default function Header() {
             )}
           </AnimatePresence>
         </div>
-        <div className="flex items-center gap-4 pl-8 border-l border-line">
+        <div className="flex items-center gap-2 sm:gap-4 pl-3 sm:pl-8 border-l border-line">
           <div className="text-right hidden sm:block">
             <p className="text-sm font-medium">Julio Carvalho</p>
             <Label className="text-[9px]">Membro Fundador</Label>

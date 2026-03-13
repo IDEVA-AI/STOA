@@ -38,7 +38,7 @@ export default function DashboardPage({ courses, posts, onEnterCourse, setActive
 
   return (
     <PageTransition id="dashboard" className="space-y-8 sm:space-y-16">
-      <section className="relative py-10">
+      <section className="relative py-6 sm:py-10">
         <div className="relative z-10 space-y-6">
           <h1 className="serif-display text-4xl sm:text-5xl lg:text-7xl tracking-tighter leading-[0.9]">
             Bem-vindo, <br />
@@ -55,7 +55,7 @@ export default function DashboardPage({ courses, posts, onEnterCourse, setActive
       </section>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-16">
-        <div className="lg:col-span-2 space-y-12">
+        <div className="lg:col-span-2 space-y-6 sm:space-y-12">
           <div className="flex items-center justify-between">
             <Label variant="gold" className="tracking-[0.3em]">Continuar Aprendendo</Label>
             <Button variant="link" className="text-[10px] mono-label text-warm-gray hover:text-gold">Ver Histórico</Button>
@@ -110,7 +110,7 @@ export default function DashboardPage({ courses, posts, onEnterCourse, setActive
           </div>
         </div>
 
-        <div className="space-y-12">
+        <div className="space-y-6 sm:space-y-12">
           <Label variant="gold" className="tracking-[0.3em]">Pulso da Comunidade</Label>
           <Card variant="elevated" padding="lg" className="space-y-10">
             {posts.slice(0, 3).map(post => (

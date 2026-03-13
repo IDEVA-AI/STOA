@@ -14,18 +14,18 @@ const EmptyState = forwardRef<HTMLDivElement, EmptyStateProps>(
       <div
         ref={ref}
         className={cn(
-          'flex flex-col items-center justify-center py-32 space-y-8 opacity-40',
+          'flex flex-col items-center justify-center py-16 sm:py-32 space-y-4 sm:space-y-8 opacity-40',
           className
         )}
         {...props}
       >
         {icon && (
-          <div className="w-24 h-24 rounded-full border-2 border-dashed border-warm-gray/30 flex items-center justify-center">
+          <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-full border-2 border-dashed border-warm-gray/30 flex items-center justify-center">
             {icon}
           </div>
         )}
         <div className="text-center space-y-2">
-          <h3 className="font-serif text-3xl font-black tracking-tighter">{title}</h3>
+          <h3 className="font-serif text-xl sm:text-3xl font-black tracking-tighter">{title}</h3>
           {description && (
             <p className="mono-label text-[10px] tracking-widest uppercase">{description}</p>
           )}

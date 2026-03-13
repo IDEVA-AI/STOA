@@ -11,9 +11,9 @@ export interface TextareaProps extends ComponentPropsWithoutRef<'textarea'> {
 
 const variantStyles: Record<TextareaVariant, string> = {
   default:
-    'bg-bg border border-line px-4 py-3 focus:border-gold focus:ring-1 focus:ring-gold/20 focus:outline-none transition-all text-sm resize-none',
+    'bg-bg border border-line px-4 py-2.5 sm:py-3 focus:border-gold focus:ring-1 focus:ring-gold/20 focus:outline-none transition-all text-sm resize-none',
   editorial:
-    'bg-transparent border-none focus:ring-0 focus:outline-none text-2xl resize-none placeholder:text-warm-gray/20 font-serif italic leading-tight',
+    'bg-transparent border-none focus:ring-0 focus:outline-none text-xl sm:text-2xl resize-none placeholder:text-warm-gray/20 font-serif italic leading-tight',
 };
 
 const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(

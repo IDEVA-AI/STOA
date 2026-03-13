@@ -14,7 +14,7 @@ const PageHeader = forwardRef<HTMLDivElement, PageHeaderProps>(
     return (
       <div
         ref={ref}
-        className={cn('flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4 border-b border-line pb-8 sm:pb-12', className)}
+        className={cn('flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4 border-b border-line pb-6 sm:pb-12', className)}
         {...props}
       >
         <div className="space-y-4">

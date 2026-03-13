@@ -22,14 +22,14 @@ const variantStyles: Record<ButtonVariant, string> = {
 
 const sizeStyles: Record<ButtonSize, string> = {
   sm: 'px-4 py-2 text-xs',
-  md: 'px-6 py-3 text-sm',
-  lg: 'px-10 py-4 text-sm',
+  md: 'px-4 py-2.5 sm:px-6 sm:py-3 text-sm',
+  lg: 'px-6 py-3 sm:px-10 sm:py-4 text-sm',
 };
 
 const iconOnlySizeStyles: Record<ButtonSize, string> = {
   sm: 'w-8 h-8',
   md: 'w-10 h-10',
-  lg: 'w-12 h-12',
+  lg: 'w-10 h-10 sm:w-12 sm:h-12',
 };
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
@@ -54,7 +54,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         disabled={disabled || loading}
         className={cn(
-          'inline-flex items-center justify-center gap-3 font-bold tracking-tight transition-all',
+          'inline-flex items-center justify-center gap-2 sm:gap-3 font-bold tracking-tight transition-all',
           variant !== 'link' && (iconOnly ? iconOnlySizeStyles[size] : sizeStyles[size]),
           variant !== 'link' && 'rounded-none',
           variantStyles[variant],

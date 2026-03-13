@@ -17,8 +17,8 @@ const variantStyles: Record<CardVariant, string> = {
 const paddingStyles: Record<CardPadding, string> = {
   none: '',
   sm: 'p-6',
-  md: 'p-8',
-  lg: 'p-10',
+  md: 'p-4 sm:p-8',
+  lg: 'p-5 sm:p-8 lg:p-10',
 };
 
 const Card = forwardRef<HTMLDivElement, CardProps>(
@@ -46,7 +46,7 @@ export interface CardSectionProps extends ComponentPropsWithoutRef<'div'> {}
 
 const CardHeader = forwardRef<HTMLDivElement, CardSectionProps>(
   ({ className, children, ...props }, ref) => (
-    <div ref={ref} className={cn('p-10 border-b border-line', className)} {...props}>
+    <div ref={ref} className={cn('p-4 sm:p-6 lg:p-10 border-b border-line', className)} {...props}>
       {children}
     </div>
   )
@@ -55,7 +55,7 @@ CardHeader.displayName = 'CardHeader';
 
 const CardBody = forwardRef<HTMLDivElement, CardSectionProps>(
   ({ className, children, ...props }, ref) => (
-    <div ref={ref} className={cn('p-10', className)} {...props}>
+    <div ref={ref} className={cn('p-4 sm:p-6 lg:p-10', className)} {...props}>
       {children}
     </div>
   )
@@ -64,7 +64,7 @@ CardBody.displayName = 'CardBody';
 
 const CardFooter = forwardRef<HTMLDivElement, CardSectionProps>(
   ({ className, children, ...props }, ref) => (
-    <div ref={ref} className={cn('p-10 border-t border-line', className)} {...props}>
+    <div ref={ref} className={cn('p-4 sm:p-6 lg:p-10 border-t border-line', className)} {...props}>
       {children}
     </div>
   )
