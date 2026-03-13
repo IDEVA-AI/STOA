@@ -20,6 +20,7 @@ const TAB_TO_PATH: Record<TabId, string> = {
   profile: '/perfil',
   admin: '/admin',
   'design-system': '/design-system',
+  scheduling: '/agenda',
 };
 
 const PATH_TO_TAB: Record<string, TabId> = {
@@ -30,6 +31,7 @@ const PATH_TO_TAB: Record<string, TabId> = {
   '/perfil': 'profile',
   '/admin': 'admin',
   '/design-system': 'design-system',
+  '/agenda': 'scheduling',
 };
 
 function resolveTabFromPath(pathname: string): TabId {
@@ -37,6 +39,7 @@ function resolveTabFromPath(pathname: string): TabId {
   if (pathname.startsWith('/admin')) return 'admin';
   if (pathname.startsWith('/cursos')) return 'courses';
   if (pathname.startsWith('/comunidade')) return 'community';
+  if (pathname.startsWith('/agenda')) return 'scheduling';
   return 'dashboard';
 }
 

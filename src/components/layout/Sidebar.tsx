@@ -21,6 +21,7 @@ import {
   Building2,
   LayoutTemplate,
   Ticket,
+  Calendar,
 } from 'lucide-react';
 import { cn } from '@/src/lib/utils';
 import NavItem from '../ui/NavItem';
@@ -174,6 +175,12 @@ export default function Sidebar({
                 active={activeTab === 'messages'}
                 onClick={() => setActiveTab('messages')}
               />
+              <NavItem
+                icon={<Calendar size={18} />}
+                label="Agenda"
+                active={activeTab === 'scheduling'}
+                onClick={() => setActiveTab('scheduling')}
+              />
 
               <div className="pt-8 pb-4">
                 <p className="mono-label text-[9px] text-warm-gray px-5 mb-2 uppercase tracking-[0.2em]">Gestão</p>
@@ -272,6 +279,13 @@ export default function Sidebar({
                 label="Convites"
                 active={adminSection === 'invites'}
                 onClick={() => setAdminSection('invites')}
+                layoutId="activeAdminNav"
+              />
+              <NavItem
+                icon={<Calendar size={18} />}
+                label="Agenda"
+                active={adminSection === 'scheduling'}
+                onClick={() => setAdminSection('scheduling')}
                 layoutId="activeAdminNav"
               />
               <NavItem

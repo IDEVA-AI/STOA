@@ -21,6 +21,7 @@ import ProfilePage from './pages/ProfilePage';
 import LessonPlayerPage from './pages/LessonPlayerPage';
 import DesignSystemPage from './pages/DesignSystemPage';
 import BlockEditorPage from './pages/BlockEditorPage';
+import SchedulingPage from './pages/SchedulingPage';
 import AnnouncementGate from './components/AnnouncementGate';
 import ErrorBoundary from './components/ErrorBoundary';
 
@@ -175,6 +176,7 @@ export function AppRoutes() {
           <Route path="/comunidade" element={<CommunityRoute />} />
           <Route path="/comunidade/:communityId" element={<CommunityByIdRoute />} />
           <Route path="/mensagens" element={<MessagesPage />} />
+          <Route path="/agenda" element={<SchedulingPage />} />
           <Route path="/perfil" element={<ProfilePage />} />
           <Route path="/admin" element={<AdminRoute />} />
           <Route path="/admin/:section" element={<AdminRoute />} />

@@ -20,6 +20,7 @@ import {
   AdminWorkspace,
   AdminTemplates,
   AdminInvites,
+  AdminScheduling,
 } from '../components/admin';
 
 interface AdminPageProps {
@@ -40,6 +41,7 @@ const sectionTitles: Record<AdminSection, string> = {
   settings: 'Configurações',
   workspace: 'Workspace',
   invites: 'Convites',
+  scheduling: 'Agenda',
 };
 
 const sectionComponents: Record<AdminSection, () => JSX.Element> = {
@@ -56,6 +58,7 @@ const sectionComponents: Record<AdminSection, () => JSX.Element> = {
   settings: AdminSettings,
   workspace: AdminWorkspace,
   invites: AdminInvites,
+  scheduling: AdminScheduling,
 };
 
 export default function AdminPage({ adminSection }: AdminPageProps) {
