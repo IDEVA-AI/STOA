@@ -1,2 +1,2 @@
 // Re-export from new location for backwards compatibility
-export type { User, Course, Module, Lesson, Post, Comment, DashboardProgress, TopPoster, TrendingPost, CommunitySidebar, SearchResults, AuthMode, TabId, AdminSection, Theme, Conversation, Message, InviteInfo, AvailabilityConfig, AvailabilitySlot, TimeSlot, Booking } from './types/index';
+export type { User, Course, Module, Lesson, LessonBlock, Post, Comment, DashboardProgress, TopPoster, TrendingPost, CommunitySidebar, SearchResults, AuthMode, AuthUser, AuthResponse, ApiError, TabId, AdminSection, Theme, Conversation, Message, Workspace, WorkspaceMember, Product, Purchase, Trail, Community, CommunityCategory, InviteInfo, AvailabilityConfig, AvailabilitySlot, TimeSlot, Booking } from './types/index';
