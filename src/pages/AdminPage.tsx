@@ -19,6 +19,7 @@ import {
   AdminTrails,
   AdminWorkspace,
   AdminTemplates,
+  AdminInvites,
 } from '../components/admin';
 
 interface AdminPageProps {
@@ -38,6 +39,7 @@ const sectionTitles: Record<AdminSection, string> = {
   moderation: 'Moderação',
   settings: 'Configurações',
   workspace: 'Workspace',
+  invites: 'Convites',
 };
 
 const sectionComponents: Record<AdminSection, () => JSX.Element> = {
@@ -53,6 +55,7 @@ const sectionComponents: Record<AdminSection, () => JSX.Element> = {
   moderation: AdminModeration,
   settings: AdminSettings,
   workspace: AdminWorkspace,
+  invites: AdminInvites,
 };
 
 export default function AdminPage({ adminSection }: AdminPageProps) {

@@ -10,3 +10,4 @@ export { default as AdminProducts } from './AdminProducts';
 export { default as AdminTrails } from './AdminTrails';
 export { default as AdminWorkspace } from './AdminWorkspace';
 export { default as AdminTemplates } from './AdminTemplates';
+export { default as AdminInvites } from './AdminInvites';

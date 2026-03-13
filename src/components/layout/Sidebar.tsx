@@ -20,6 +20,7 @@ import {
   ChevronDown,
   Building2,
   LayoutTemplate,
+  Ticket,
 } from 'lucide-react';
 import { cn } from '@/src/lib/utils';
 import NavItem from '../ui/NavItem';
@@ -264,6 +265,13 @@ export default function Sidebar({
                 label="Comunidades"
                 active={adminSection === 'communities'}
                 onClick={() => setAdminSection('communities')}
+                layoutId="activeAdminNav"
+              />
+              <NavItem
+                icon={<Ticket size={18} />}
+                label="Convites"
+                active={adminSection === 'invites'}
+                onClick={() => setAdminSection('invites')}
                 layoutId="activeAdminNav"
               />
               <NavItem

@@ -145,7 +145,7 @@ export type AuthMode = 'login' | 'register';
 
 export type TabId = 'dashboard' | 'courses' | 'community' | 'admin' | 'profile' | 'messages' | 'design-system';
 
-export type AdminSection = 'dashboard' | 'communities' | 'courses' | 'templates' | 'media' | 'integrations' | 'unlocks' | 'moderation' | 'settings' | 'products' | 'trails' | 'workspace';
+export type AdminSection = 'dashboard' | 'communities' | 'courses' | 'templates' | 'media' | 'integrations' | 'unlocks' | 'moderation' | 'settings' | 'products' | 'trails' | 'workspace' | 'invites';
 
 export type Theme = 'light' | 'dark' | 'rust';
 
