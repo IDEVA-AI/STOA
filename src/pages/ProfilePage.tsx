@@ -14,7 +14,7 @@ import {
 import { Heading, Label } from '../components/ui/Typography';
 import { useAuth } from '../hooks/useAuth';
 import { ThemeContext } from '../stores/ThemeContext';
-import { ACCENT_PRESETS } from '../types';
+import { ACCENT_PRESETS, SPEC_LABELS, type StyleSpec } from '../types';
 import { cn } from '../lib/utils';
 import * as api from '../services/api';
 
@@ -22,7 +22,7 @@ type FeedbackState = { type: 'success' | 'error'; message: string } | null;
 
 export default function ProfilePage() {
   const { user, updateUser } = useAuth();
-  const { accent, setAccent } = useContext(ThemeContext);
+  const { spec, setSpec, accent, setAccent } = useContext(ThemeContext);
 
   // Profile form state
   const [name, setName] = useState('');
@@ -154,6 +154,26 @@ export default function ProfilePage() {
             <Label variant="gold">Privacidade</Label>
             <Toggle label="Perfil Público" checked onChange={() => {}} />
             <Toggle label="Mostrar Progresso" checked={false} onChange={() => {}} />
+          </Card>
+
+          <Card variant="default" padding="sm" className="space-y-4">
+            <Label variant="gold">Estilo Visual</Label>
+            <div className="flex gap-2">
+              {(['artesanal', 'minimal'] as StyleSpec[]).map((s) => (
+                <button
+                  key={s}
+                  onClick={() => setSpec(s)}
+                  className={cn(
+                    "flex-1 py-2 text-[11px] font-mono uppercase tracking-widest border rounded transition-all duration-300",
+                    spec === s
+                      ? "bg-gold/10 border-gold text-gold font-bold"
+                      : "border-line text-warm-gray/60 hover:text-warm-gray hover:border-warm-gray/40"
+                  )}
+                >
+                  {SPEC_LABELS[s]}
+                </button>
+              ))}
+            </div>
           </Card>
 
           <Card variant="default" padding="sm" className="space-y-4">

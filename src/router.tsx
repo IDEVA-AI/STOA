@@ -49,7 +49,7 @@ function Layout() {
   const { activeTab, setActiveTab, adminSection, setAdminSection } = useNavigation();
   const { selectedCourse, courseContent, selectedLesson, courseError, exitCourse, selectLesson, toggleLessonCompletion, fetchCourses } = useCourses();
   const { fetchPosts } = useCommunity();
-  const { theme, setTheme, spec, setSpec, palette, setPalette } = useTheme();
+  const { theme, setTheme, spec, palette, setPalette } = useTheme();
   const { workspaces, isLoading: wsLoading } = useWorkspace();
 
   useEffect(() => {
@@ -96,7 +96,6 @@ function Layout() {
         theme={theme}
         setTheme={setTheme}
         spec={spec}
-        setSpec={setSpec}
         palette={palette}
         setPalette={setPalette}
         onLogout={logout}
