@@ -87,7 +87,7 @@ export default function Sidebar({
     <aside className="w-20 lg:w-72 border-r border-line flex flex-col items-center lg:items-stretch py-10 px-6 bg-surface transition-all duration-500 relative overflow-hidden">
       <div className="flex flex-col gap-1 px-4 mb-16 relative z-10">
         <div className="flex items-center justify-between mb-1">
-          <span className="font-serif font-black text-2xl tracking-tight">Julio Carvalho</span>
+          <span className="font-serif font-black text-2xl tracking-tight">{user?.name || 'STOA'}</span>
           {activeTab === 'admin' && (
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
@@ -99,7 +99,7 @@ export default function Sidebar({
         </div>
         <div className="flex items-center gap-2">
           <span className="mono-label text-gold text-[10px] tracking-widest uppercase">
-            {activeTab === 'admin' ? 'Admin • Fundador' : 'Arquiteto de Sistemas'}
+            {activeTab === 'admin' ? 'Admin • ' : ''}{user?.role === 'admin' ? 'Fundador' : 'Membro'}
           </span>
           {activeTab === 'admin' && (
             <span className="text-[8px] font-mono text-warm-gray/40 border border-line px-1.5 py-0.5 rounded tracking-tighter">MODO</span>
