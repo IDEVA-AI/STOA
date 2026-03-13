@@ -10,6 +10,7 @@ export interface User {
   created_at: string | null;
   is_active: number;
   bio: string | null;
+  phone: string | null;
 }
 
 export function findByEmail(email: string): User | null {
@@ -24,13 +25,14 @@ export function createUser(
   name: string,
   email: string,
   passwordHash: string,
-  role: string = "Membro"
+  role: string = "Membro",
+  phone?: string
 ): User {
   const result = db
     .prepare(
-      "INSERT INTO users (name, email, password_hash, role, avatar) VALUES (?, ?, ?, ?, ?)"
+      "INSERT INTO users (name, email, password_hash, role, avatar, phone) VALUES (?, ?, ?, ?, ?, ?)"
     )
-    .run(name, email, passwordHash, role, `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(name)}`);
+    .run(name, email, passwordHash, role, `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(name)}`, phone ?? null);
 
   return findById(Number(result.lastInsertRowid))!;
 }

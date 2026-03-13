@@ -281,6 +281,32 @@ export function initializeSchema() {
       position INTEGER NOT NULL DEFAULT 0,
       FOREIGN KEY(template_id) REFERENCES lesson_templates(id) ON DELETE CASCADE
     );
+
+    CREATE TABLE IF NOT EXISTS invite_codes (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      code TEXT NOT NULL UNIQUE,
+      workspace_id INTEGER NOT NULL,
+      product_id INTEGER,
+      created_by INTEGER NOT NULL,
+      max_uses INTEGER,
+      used_count INTEGER NOT NULL DEFAULT 0,
+      status TEXT NOT NULL DEFAULT 'active',
+      expires_at TEXT,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY(workspace_id) REFERENCES workspaces(id),
+      FOREIGN KEY(product_id) REFERENCES products(id),
+      FOREIGN KEY(created_by) REFERENCES users(id)
+    );
+
+    CREATE TABLE IF NOT EXISTS invite_redemptions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      invite_code_id INTEGER NOT NULL,
+      user_id INTEGER NOT NULL,
+      redeemed_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY(invite_code_id) REFERENCES invite_codes(id),
+      FOREIGN KEY(user_id) REFERENCES users(id),
+      UNIQUE(invite_code_id, user_id)
+    );
   `);
 
   // Safely add new columns to existing users table (SQLite has no IF NOT EXISTS for ALTER TABLE)
@@ -290,6 +316,7 @@ export function initializeSchema() {
     { name: "created_at", definition: "TEXT DEFAULT CURRENT_TIMESTAMP" },
     { name: "is_active", definition: "INTEGER DEFAULT 1" },
     { name: "bio", definition: "TEXT" },
+    { name: "phone", definition: "TEXT" },
   ];
 
   const coursesColumnsToAdd = [
@@ -366,6 +393,11 @@ export function initializeSchema() {
     CREATE INDEX IF NOT EXISTS idx_lesson_blocks_lesson_id ON lesson_blocks(lesson_id);
     CREATE INDEX IF NOT EXISTS idx_lesson_templates_workspace_id ON lesson_templates(workspace_id);
     CREATE INDEX IF NOT EXISTS idx_lesson_template_blocks_template_id ON lesson_template_blocks(template_id);
+    CREATE INDEX IF NOT EXISTS idx_invite_codes_code ON invite_codes(code);
+    CREATE INDEX IF NOT EXISTS idx_invite_codes_workspace_id ON invite_codes(workspace_id);
+    CREATE INDEX IF NOT EXISTS idx_invite_codes_status ON invite_codes(status);
+    CREATE INDEX IF NOT EXISTS idx_invite_redemptions_invite_code_id ON invite_redemptions(invite_code_id);
+    CREATE INDEX IF NOT EXISTS idx_invite_redemptions_user_id ON invite_redemptions(user_id);
   `);
 
   // Migrate existing relationships to junction tables
