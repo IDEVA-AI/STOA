@@ -2,9 +2,9 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
-  --font-serif: "Fraunces", serif;
-  --font-mono: "DM Mono", monospace;
+  --font-sans: var(--spec-font-sans);
+  --font-serif: var(--spec-font-serif);
+  --font-mono: var(--spec-font-mono);
 
   --color-gold: var(--theme-gold);
   --color-gold-light: var(--theme-gold-light);
@@ -24,7 +24,13 @@
 }
 
 @layer base {
+  /* ── Artesanal Light (default) ── */
   :root {
+    --spec-font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+    --spec-font-serif: "Fraunces", serif;
+    --spec-font-mono: "DM Mono", monospace;
+    --spec-display-weight: 900;
+
     --theme-bg: #f4f0e8;
     --theme-text: #0e0c0a;
     --theme-surface: #ffffff;
@@ -38,7 +44,8 @@
     --theme-danger: #dc2626;
   }
 
-  .theme-dark {
+  /* ── Artesanal Dark ── */
+  .palette-dark {
     --theme-bg: #0e0c0a;
     --theme-text: #f4f0e8;
     --theme-surface: #1a1714;
@@ -52,7 +59,8 @@
     --theme-danger: #f87171;
   }
 
-  .theme-rust {
+  /* ── Artesanal Rust ── */
+  .palette-rust {
     --theme-bg: #5c2418;
     --theme-text: #f4f0e8;
     --theme-surface: #6d2b1d;
@@ -66,13 +74,49 @@
     --theme-danger: #f87171;
   }
 
+  /* ── Minimal Light ── */
+  .spec-minimal {
+    --spec-font-sans: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+    --spec-font-serif: "Space Grotesk", sans-serif;
+    --spec-font-mono: "JetBrains Mono", monospace;
+    --spec-display-weight: 700;
+
+    --theme-bg: #fafafa;
+    --theme-text: #111111;
+    --theme-surface: #ffffff;
+    --theme-surface-elevated: #ffffff;
+    --theme-line: #e5e5e5;
+    --theme-warm-gray: #737373;
+    --theme-gold: #2563eb;
+    --theme-gold-light: #dbeafe;
+    --theme-overlay: rgba(0, 0, 0, 0.5);
+    --theme-success: #059669;
+    --theme-danger: #dc2626;
+  }
+
+  /* ── Minimal Dark ── */
+  .spec-minimal.palette-dark {
+    --theme-bg: #0a0a0a;
+    --theme-text: #fafafa;
+    --theme-surface: #171717;
+    --theme-surface-elevated: #1c1c1c;
+    --theme-line: rgba(255, 255, 255, 0.1);
+    --theme-warm-gray: #a3a3a3;
+    --theme-gold: #3b82f6;
+    --theme-gold-light: #1e3a5f;
+    --theme-overlay: rgba(0, 0, 0, 0.7);
+    --theme-success: #34d399;
+    --theme-danger: #f87171;
+  }
+
   body {
     @apply bg-bg text-text antialiased font-sans font-light transition-colors duration-500;
   }
 }
 
 .serif-display {
-  @apply font-serif font-black tracking-tight leading-[0.95];
+  @apply font-serif tracking-tight leading-[0.95];
+  font-weight: var(--spec-display-weight);
 }
 
 .mono-label {
@@ -83,11 +127,11 @@
   @apply bg-surface border border-line transition-all duration-300;
 }
 
-.theme-dark .card-editorial {
+.palette-dark .card-editorial {
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(244, 240, 232, 0.04);
 }
 
-.theme-dark .shadow-elevated {
+.palette-dark .shadow-elevated {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(244, 240, 232, 0.04);
 }
 
@@ -122,4 +166,3 @@
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
-

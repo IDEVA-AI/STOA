@@ -25,7 +25,8 @@ import {
 } from 'lucide-react';
 import { cn } from '@/src/lib/utils';
 import NavItem from '../ui/NavItem';
-import type { TabId, AdminSection, Theme, Community } from '@/src/types';
+import type { TabId, AdminSection, Theme, Community, StyleSpec, ColorPalette } from '@/src/types';
+import { SPEC_LABELS, PALETTE_SWATCHES } from '@/src/types';
 import { useWorkspace } from '@/src/hooks/useWorkspace';
 import * as api from '@/src/services/api';
 
@@ -36,6 +37,10 @@ interface SidebarProps {
   setAdminSection: (section: AdminSection) => void;
   theme: Theme;
   setTheme: (theme: Theme) => void;
+  spec: StyleSpec;
+  setSpec: (spec: StyleSpec) => void;
+  palette: ColorPalette;
+  setPalette: (palette: ColorPalette) => void;
   onLogout: () => void;
 }
 
@@ -46,6 +51,10 @@ export default function Sidebar({
   setAdminSection,
   theme,
   setTheme,
+  spec,
+  setSpec,
+  palette,
+  setPalette,
   onLogout
 }: SidebarProps) {
   const navigate = useNavigate();
@@ -335,24 +344,42 @@ export default function Sidebar({
       </nav>
 
       {/* Theme Switcher */}
-      <div className="mt-auto mb-8 px-4">
-        <p className="mono-label text-[9px] text-warm-gray mb-4">Estilo Visual</p>
-        <div className="flex gap-2">
-          <button
-            onClick={() => setTheme('light')}
-            className={cn("w-6 h-6 rounded-full border border-line bg-paper", theme === 'light' && "ring-2 ring-gold ring-offset-2 ring-offset-surface")}
-            title="Light"
-          />
-          <button
-            onClick={() => setTheme('dark')}
-            className={cn("w-6 h-6 rounded-full border border-line bg-ink", theme === 'dark' && "ring-2 ring-gold ring-offset-2 ring-offset-surface")}
-            title="Dark"
-          />
-          <button
-            onClick={() => setTheme('rust')}
-            className={cn("w-6 h-6 rounded-full border border-line bg-rust", theme === 'rust' && "ring-2 ring-gold ring-offset-2 ring-offset-surface")}
-            title="Rust"
-          />
+      <div className="mt-auto mb-8 px-4 space-y-4">
+        <div>
+          <p className="mono-label text-[9px] text-warm-gray mb-2">Estilo Visual</p>
+          <div className="flex gap-1">
+            {(['artesanal', 'minimal'] as const).map((s) => (
+              <button
+                key={s}
+                onClick={() => setSpec(s)}
+                className={cn(
+                  "flex-1 py-1.5 text-[10px] font-mono uppercase tracking-widest border transition-all duration-300",
+                  spec === s
+                    ? "bg-gold/10 border-gold text-gold font-bold"
+                    : "border-line text-warm-gray/60 hover:text-warm-gray hover:border-warm-gray/40"
+                )}
+              >
+                {SPEC_LABELS[s]}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div>
+          <p className="mono-label text-[9px] text-warm-gray mb-2">Paleta</p>
+          <div className="flex gap-2">
+            {PALETTE_SWATCHES[spec].map((swatch) => (
+              <button
+                key={swatch.palette}
+                onClick={() => setPalette(swatch.palette)}
+                className={cn(
+                  "w-6 h-6 rounded-full border border-line transition-all duration-300",
+                  palette === swatch.palette && "ring-2 ring-gold ring-offset-2 ring-offset-surface"
+                )}
+                style={{ backgroundColor: swatch.color }}
+                title={swatch.label}
+              />
+            ))}
+          </div>
         </div>
       </div>
 
