@@ -366,7 +366,7 @@ export default function Sidebar({
       </div>
 
       <div className="space-y-1 border-t border-line pt-10">
-        <NavItem icon={<Settings size={18} />} label="Configurações" />
+        <NavItem icon={<Settings size={18} />} label="Configurações" onClick={() => setActiveTab('profile')} />
         <NavItem
           icon={<LogOut size={18} />}
           label="Sair"
