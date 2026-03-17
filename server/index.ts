@@ -62,9 +62,9 @@ async function startServer() {
   // Auth routes (with stricter rate limit)
   app.use("/api/auth", authLimiter, authRouter);
 
-  // API Routes
+  // API Routes — public routes before catch-all postsRouter
+  app.use("/api/invites", invitesRouter);
   app.use("/api/courses", coursesRouter);
-  app.use("/api", postsRouter);
   app.use("/api/progress", progressRouter);
   app.use("/api/search", searchRouter);
   app.use("/api/admin", adminRouter);
@@ -82,13 +82,15 @@ async function startServer() {
   app.use("/api/workspaces", workspacesRouter);
   app.use("/api/products", productsRouter);
   app.use("/api/purchases", purchasesRouter);
-  app.use("/api/invites", invitesRouter);
   app.use("/api/trails", trailsRouter);
   app.use("/api/communities", communitiesRouter);
   app.use("/api/lesson-blocks", lessonBlocksRouter);
   app.use("/api/lesson-templates", lessonTemplatesRouter);
   app.use("/api/scheduling", schedulingRouter);
   app.use("/api/follows", followRouter);
+
+  // postsRouter mounted last — it uses "/api" catch-all with global authMiddleware
+  app.use("/api", postsRouter);
 
   const httpServer = createHttpServer(app);
   initWebSocket(httpServer);
