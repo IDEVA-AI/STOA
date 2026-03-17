@@ -130,6 +130,22 @@ router.delete("/categories/:categoryId", (req, res) => {
   }
 });
 
+// Create post in community
+router.post("/:id/posts", (req, res) => {
+  try {
+    const communityId = Number(req.params.id);
+    const userId = req.userId;
+    const { content, categoryId } = req.body;
+    if (!content?.trim()) {
+      return res.status(400).json({ error: "Content is required" });
+    }
+    const result = communityService.createPost(communityId, userId!, content, categoryId);
+    res.status(201).json(result);
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 // List posts for community
 router.get("/:id/posts", (req, res) => {
   try {

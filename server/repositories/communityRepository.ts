@@ -119,6 +119,13 @@ export function getPosts(
   `).all(...params);
 }
 
+export function createPost(communityId: number, userId: number, content: string, categoryId?: number) {
+  const result = db.prepare(
+    "INSERT INTO posts (community_id, user_id, content, category_id) VALUES (?, ?, ?, ?)"
+  ).run(communityId, userId, content, categoryId || null);
+  return { id: result.lastInsertRowid };
+}
+
 export function getPinnedPosts(communityId: number) {
   return db.prepare(`
     SELECT posts.*, users.name as user_name, users.avatar as user_avatar

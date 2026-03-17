@@ -55,3 +55,7 @@ export function getPosts(
 export function getPinnedPosts(communityId: number) {
   return communityRepo.getPinnedPosts(communityId);
 }
+
+export function createPost(communityId: number, userId: number, content: string, categoryId?: number) {
+  return communityRepo.createPost(communityId, userId, content, categoryId);
+}
