@@ -93,12 +93,17 @@ async function startServer() {
   app.use("/api/follows", followRouter);
 
   // Vite middleware for development
+  let devHttpServer: ReturnType<typeof createHttpServer> | undefined;
   if (process.env.NODE_ENV !== "production") {
+    const httpServer = createHttpServer(app);
     const env = loadEnv("development", path.resolve(__dirname, ".."), "");
     const vite = await createViteServer({
       configFile: false,
       root: path.resolve(__dirname, ".."),
-      server: { middlewareMode: true },
+      server: {
+        middlewareMode: true,
+        hmr: { server: httpServer },
+      },
       appType: "spa",
       plugins: [react(), tailwindcss()],
       define: {
@@ -111,6 +116,7 @@ async function startServer() {
       },
     });
     app.use(vite.middlewares);
+    devHttpServer = httpServer;
   } else {
     app.use(express.static(path.join(__dirname, "..", "dist")));
     app.get("*", (_req, res) => {
@@ -122,10 +128,10 @@ async function startServer() {
   app.use(notFoundHandler);
   app.use(errorHandler);
 
-  const httpServer = createHttpServer(app);
-  initWebSocket(httpServer);
+  const server = devHttpServer ?? createHttpServer(app);
+  initWebSocket(server);
 
-  httpServer.listen(PORT, "0.0.0.0", () => {
+  server.listen(PORT, "0.0.0.0", () => {
     logger.info(`STOA running on http://localhost:${PORT}`);
   });
 }
