@@ -12,7 +12,12 @@ export { authLimiter, apiLimiter, messageLimiter } from "./rateLimit.js";
 
 export function setupMiddleware(app: Express): void {
   app.use(compression());
-  app.use(helmet());
+  const isDev = process.env.NODE_ENV !== "production";
+  app.use(
+    helmet({
+      contentSecurityPolicy: isDev ? false : undefined,
+    })
+  );
   app.use(corsMiddleware);
   app.use(express.json({ limit: "10mb" }));
   app.use("/api/", apiLimiter);
