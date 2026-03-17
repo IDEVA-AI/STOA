@@ -94,7 +94,7 @@ function verifyToken(token: string): TokenPayload | null {
 }
 
 export function initWebSocket(server: HttpServer) {
-  const wss = new WebSocketServer({ server });
+  const wss = new WebSocketServer({ server, path: "/ws" });
 
   wss.on("connection", (ws: WebSocket) => {
     let authenticated: AuthenticatedSocket | null = null;

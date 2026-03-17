@@ -22,7 +22,7 @@ export const MessagesContext = createContext<MessagesContextType>(null!);
 
 function getWsUrl(): string {
   const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-  return `${proto}//${window.location.host}`;
+  return `${proto}//${window.location.host}/ws`;
 }
 
 export function MessagesProvider({ children }: { children: ReactNode }) {
