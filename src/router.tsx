@@ -46,7 +46,7 @@ function ProtectedRoute() {
 }
 
 function Layout() {
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, logout, user } = useAuth();
   const { activeTab, setActiveTab, adminSection, setAdminSection } = useNavigation();
   const { selectedCourse, courseContent, selectedLesson, courseError, exitCourse, selectLesson, toggleLessonCompletion, fetchCourses } = useCourses();
   const { fetchPosts } = useCommunity();
@@ -121,7 +121,7 @@ function Layout() {
           { id: 'courses' as const, icon: BookOpen, label: 'Cursos' },
           { id: 'community' as const, icon: Users, label: 'Social' },
           { id: 'messages' as const, icon: MessageSquare, label: 'Chat' },
-          { id: 'admin' as const, icon: ShieldCheck, label: 'Admin' },
+          ...(user?.role === 'admin' ? [{ id: 'admin' as const, icon: ShieldCheck, label: 'Admin' }] : []),
         ].map(({ id, icon: Icon, label }) => (
           <button
             key={id}
@@ -184,7 +184,12 @@ function CommunityByIdRoute() {
 }
 
 function AdminRoute() {
+  const { user } = useAuth();
   const { adminSection, setAdminSection } = useNavigation();
+
+  if (user?.role !== 'admin') {
+    return <Navigate to="/" replace />;
+  }
 
   return <AdminPage adminSection={adminSection} setAdminSection={setAdminSection} />;
 }

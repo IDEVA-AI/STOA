@@ -192,6 +192,7 @@ export default function Sidebar({
                 onClick={() => setActiveTab('scheduling')}
               />
 
+              {isAdmin && (
               <div className="pt-8 pb-4">
                 <p className="mono-label text-[9px] text-warm-gray px-5 mb-2 uppercase tracking-[0.2em]">Gestão</p>
                 <NavItem
@@ -201,16 +202,15 @@ export default function Sidebar({
                   onClick={() => setActiveTab('admin')}
                   className="text-gold/80 hover:text-gold"
                 />
-                {isAdmin && (
-                  <NavItem
+                <NavItem
                     icon={<Palette size={18} />}
                     label="Design System"
                     active={activeTab === 'design-system'}
                     onClick={() => setActiveTab('design-system')}
                     className="text-warm-gray/60 hover:text-warm-gray"
                   />
-                )}
               </div>
+              )}
             </motion.div>
           ) : (
             <motion.div
