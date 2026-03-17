@@ -208,7 +208,7 @@ export default function CommunityPage({ communityId }: CommunityPageProps) {
 
   if (!communityId) {
     return (
-      <PageTransition id="community-list" className="space-y-8 sm:space-y-16">
+      <PageTransition id="community-list" className="space-y-5 sm:space-y-8">
         <div className="space-y-4">
           <h1 className="font-serif text-3xl sm:text-5xl font-black tracking-tight">
             Comunidades
@@ -235,7 +235,7 @@ export default function CommunityPage({ communityId }: CommunityPageProps) {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {communities.map((comm) => {
               const hasAccess =
                 !comm.course_id || accessibleIds.has(comm.course_id);
@@ -248,7 +248,7 @@ export default function CommunityPage({ communityId }: CommunityPageProps) {
                   onClick={() =>
                     hasAccess && navigate(`/comunidade/${comm.id}`)
                   }
-                  className={`card-editorial bg-surface-elevated hover:border-gold/50 transition-all duration-700 shadow-xl shadow-black/5 hover:shadow-gold/10 p-4 sm:p-5 lg:p-10 space-y-4 sm:space-y-6 ${
+                  className={`card-editorial bg-surface-elevated hover:border-gold/50 transition-all duration-700 shadow-xl shadow-black/5 hover:shadow-gold/10 p-4 sm:p-5 space-y-3 sm:space-y-4 ${
                     hasAccess ? 'cursor-pointer' : 'cursor-default opacity-50'
                   }`}
                 >
@@ -290,7 +290,7 @@ export default function CommunityPage({ communityId }: CommunityPageProps) {
   // ── Scoped community view ─────────────────────────────────────────
 
   return (
-    <PageTransition id="community" className="space-y-6 sm:space-y-12">
+    <PageTransition id="community" className="space-y-5 sm:space-y-8">
       {/* Community header */}
       {community && (
         <div className="space-y-4 sm:space-y-6">
@@ -346,14 +346,14 @@ export default function CommunityPage({ communityId }: CommunityPageProps) {
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-16">
-        <div className="lg:col-span-2 space-y-6 sm:space-y-12">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 sm:gap-6 lg:gap-10">
+        <div className="lg:col-span-2 space-y-5 sm:space-y-6">
           {/* Post creation form */}
-          <Card variant="elevated" padding="lg" className="border-none">
+          <Card variant="elevated" padding="md" className="border-none">
             <form onSubmit={handlePostSubmit}>
-              <div className="flex flex-col sm:flex-row gap-4 sm:gap-8">
-                <Avatar name="Julio" size="lg" interactive />
-                <div className="flex-1 space-y-4 sm:space-y-8">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                <Avatar name="Julio" size="md" interactive />
+                <div className="flex-1 space-y-3 sm:space-y-4">
                   <Textarea
                     variant="editorial"
                     value={newPost}
@@ -362,8 +362,8 @@ export default function CommunityPage({ communityId }: CommunityPageProps) {
                     rows={3}
                     className="text-text"
                   />
-                  <div className="flex justify-between items-center pt-3 sm:pt-8 border-t border-line">
-                    <div className="flex gap-3 sm:gap-8 text-warm-gray/40">
+                  <div className="flex justify-between items-center pt-3 sm:pt-4 border-t border-line">
+                    <div className="flex gap-3 sm:gap-4 text-warm-gray/40">
                       <Button variant="ghost" iconOnly icon={<Share2 size={16} />} size="sm" />
                       <Button variant="ghost" iconOnly icon={<BarChart3 size={16} />} size="sm" />
                       <Button variant="ghost" iconOnly icon={<Image size={16} />} size="sm" />
@@ -397,19 +397,19 @@ export default function CommunityPage({ communityId }: CommunityPageProps) {
               </span>
             </div>
           ) : (
-            <div className="space-y-6 sm:space-y-12">
+            <div className="space-y-4 sm:space-y-6">
               {sortedPosts.map((post) => (
                 <Card
                   key={post.id}
                   variant="elevated"
-                  padding="lg"
-                  className={`space-y-4 sm:space-y-10 border-none group ${
+                  padding="md"
+                  className={`space-y-3 sm:space-y-5 border-none group ${
                     post.pinned ? 'ring-1 ring-gold/20' : ''
                   }`}
                 >
                   <div className="flex justify-between items-start">
-                    <div className="flex gap-3 sm:gap-6">
-                      <Avatar name={post.user_name} size="lg" interactive />
+                    <div className="flex gap-3 sm:gap-4">
+                      <Avatar name={post.user_name} size="md" interactive />
                       <div className="space-y-1">
                         <div className="flex items-center gap-3">
                           <h4 className="font-black text-base sm:text-xl tracking-tighter group-hover:text-gold transition-colors">
@@ -435,13 +435,13 @@ export default function CommunityPage({ communityId }: CommunityPageProps) {
                     />
                   </div>
 
-                  <p className="text-text/80 leading-relaxed text-base sm:text-2xl font-light whitespace-pre-line font-serif italic">
+                  <p className="text-text/80 leading-relaxed text-sm sm:text-base font-light whitespace-pre-line font-serif italic">
                     {post.content}
                   </p>
 
                   {/* Poll section (kept from original) */}
                   {post.content.includes('sistema') && (
-                    <div className="p-3 sm:p-5 lg:p-10 border border-line bg-bg/30 space-y-4 sm:space-y-8 relative overflow-hidden">
+                    <div className="p-3 sm:p-5 border border-line bg-bg/30 space-y-3 sm:space-y-4 relative overflow-hidden">
                       <div className="absolute top-0 right-0 p-4 opacity-10">
                         <BarChart3 size={80} />
                       </div>
@@ -487,7 +487,7 @@ export default function CommunityPage({ communityId }: CommunityPageProps) {
                   )}
 
                   {/* Actions */}
-                  <div className="flex flex-wrap gap-3 sm:gap-12 pt-4 sm:pt-10 border-t border-line">
+                  <div className="flex flex-wrap gap-3 sm:gap-6 pt-3 sm:pt-4 border-t border-line">
                     <button
                       onClick={() => handleToggleLike(post.id)}
                       className={`flex items-center gap-3 text-[11px] mono-label transition-all group/btn ${
@@ -546,7 +546,7 @@ export default function CommunityPage({ communityId }: CommunityPageProps) {
                         transition={{ duration: 0.3, ease: 'easeInOut' }}
                         className="overflow-hidden"
                       >
-                        <div className="pt-4 sm:pt-6 border-t border-line space-y-4 sm:space-y-6">
+                        <div className="pt-3 sm:pt-4 border-t border-line space-y-3 sm:space-y-4">
                           {loadingComments[post.id] && (
                             <div className="flex justify-center py-4">
                               <Label className="text-warm-gray/40 tracking-widest animate-pulse">
@@ -629,10 +629,10 @@ export default function CommunityPage({ communityId }: CommunityPageProps) {
         </div>
 
         {/* Sidebar */}
-        <div className="space-y-8 sm:space-y-16">
+        <div className="space-y-5 sm:space-y-6">
           {community && (
-            <Card variant="elevated" padding="lg" className="border-none">
-              <Heading level={3} className="mb-4">
+            <Card variant="elevated" padding="md" className="border-none">
+              <Heading level={3} className="mb-3">
                 {community.name}
               </Heading>
               {community.description && (
@@ -650,8 +650,8 @@ export default function CommunityPage({ communityId }: CommunityPageProps) {
           )}
 
           {categories.length > 0 && (
-            <Card variant="elevated" padding="lg" className="border-none">
-              <Heading level={3} className="mb-4 sm:mb-8">
+            <Card variant="elevated" padding="md" className="border-none">
+              <Heading level={3} className="mb-3 sm:mb-4">
                 Categorias
               </Heading>
               <div className="space-y-3">
