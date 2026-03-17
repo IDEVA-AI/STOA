@@ -854,6 +854,26 @@ export async function createCommunityPost(communityId: number, content: string, 
   return res.json();
 }
 
+export async function toggleCommunityPostPin(communityId: number, postId: number): Promise<{ pinned: boolean }> {
+  const res = await authFetch(`/api/communities/${communityId}/posts/${postId}/pin`, { method: 'PUT' });
+  if (!res.ok) throw new Error('Falha ao fixar post.');
+  return res.json();
+}
+
+export async function deleteCommunityPost(communityId: number, postId: number): Promise<void> {
+  const res = await authFetch(`/api/communities/${communityId}/posts/${postId}`, { method: 'DELETE' });
+  if (!res.ok) throw new Error('Falha ao excluir post.');
+}
+
+export async function editCommunityPost(communityId: number, postId: number, content: string): Promise<void> {
+  const res = await authFetch(`/api/communities/${communityId}/posts/${postId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ content }),
+  });
+  if (!res.ok) throw new Error('Falha ao editar post.');
+}
+
 export async function getCommunityCategories(communityId: number): Promise<CommunityCategory[]> {
   const res = await authFetch(`/api/communities/${communityId}/categories`);
   if (!res.ok) throw new Error('Falha ao carregar categorias.');

@@ -1,9 +1,10 @@
-import { useState, useEffect, useCallback, type FormEvent } from 'react';
+import { useState, useEffect, useCallback, useRef, type FormEvent } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Heart, Share2, Send, MessageSquare, BarChart3, Settings, Image, Pin, Users } from 'lucide-react';
+import { Heart, Share2, Send, MessageSquare, BarChart3, MoreHorizontal, Image, Pin, Users, Bookmark, Pencil, Trash2, Link2, Check } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import type { Post, Comment, Community, CommunityCategory } from '../types';
 import { useWorkspace } from '../hooks/useWorkspace';
+import { useAuth } from '../hooks/useAuth';
 import * as api from '../services/api';
 import {
   PageTransition,
@@ -30,6 +31,7 @@ interface CommunityPageProps {
 
 export default function CommunityPage({ communityId }: CommunityPageProps) {
   const { activeWorkspace } = useWorkspace();
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   // Community list state (when no communityId)
@@ -44,6 +46,14 @@ export default function CommunityPage({ communityId }: CommunityPageProps) {
   const [loadingPosts, setLoadingPosts] = useState(false);
   const [activeCategory, setActiveCategory] = useState<number | null>(null);
   const [newPost, setNewPost] = useState('');
+
+  // Post actions state
+  const [openMenu, setOpenMenu] = useState<number | null>(null);
+  const [editingPost, setEditingPost] = useState<number | null>(null);
+  const [editContent, setEditContent] = useState('');
+  const [savedPosts, setSavedPosts] = useState<Set<number>>(new Set());
+  const [copiedPostId, setCopiedPostId] = useState<number | null>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   // Comments state
   const [expandedComments, setExpandedComments] = useState<Record<number, boolean>>({});
@@ -196,6 +206,74 @@ export default function CommunityPage({ communityId }: CommunityPageProps) {
   function getCommentCount(post: Post): number {
     if (commentsCache[post.id]) return commentsCache[post.id].length;
     return post.comment_count ?? 0;
+  }
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setOpenMenu(null);
+      }
+    }
+    if (openMenu !== null) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [openMenu]);
+
+  async function handleTogglePin(postId: number) {
+    if (!communityId) return;
+    setOpenMenu(null);
+    try {
+      const result = await api.toggleCommunityPostPin(communityId, postId);
+      setPosts((prev) =>
+        prev.map((p) => (p.id === postId ? { ...p, pinned: result.pinned } : p))
+      );
+    } catch { /* silently fail */ }
+  }
+
+  async function handleDeletePost(postId: number) {
+    if (!communityId) return;
+    setOpenMenu(null);
+    try {
+      await api.deleteCommunityPost(communityId, postId);
+      setPosts((prev) => prev.filter((p) => p.id !== postId));
+    } catch { /* silently fail */ }
+  }
+
+  function handleStartEdit(post: Post) {
+    setOpenMenu(null);
+    setEditingPost(post.id);
+    setEditContent(post.content);
+  }
+
+  async function handleSaveEdit(postId: number) {
+    if (!communityId || !editContent.trim()) return;
+    try {
+      await api.editCommunityPost(communityId, postId, editContent);
+      setPosts((prev) =>
+        prev.map((p) => (p.id === postId ? { ...p, content: editContent } : p))
+      );
+      setEditingPost(null);
+      setEditContent('');
+    } catch { /* silently fail */ }
+  }
+
+  function handleCopyLink(postId: number) {
+    setOpenMenu(null);
+    const url = `${window.location.origin}/comunidade/${communityId}#post-${postId}`;
+    navigator.clipboard.writeText(url);
+    setCopiedPostId(postId);
+    setTimeout(() => setCopiedPostId(null), 2000);
+  }
+
+  function handleToggleSave(postId: number) {
+    setSavedPosts((prev) => {
+      const next = new Set(prev);
+      if (next.has(postId)) next.delete(postId);
+      else next.add(postId);
+      return next;
+    });
   }
 
   // Sort posts: pinned first, then by date
@@ -428,17 +506,84 @@ export default function CommunityPage({ communityId }: CommunityPageProps) {
                         </Label>
                       </div>
                     </div>
-                    <Button
-                      variant="ghost"
-                      iconOnly
-                      icon={<Settings size={18} />}
-                      className="w-10 h-10 rounded-full text-warm-gray/20 hover:text-gold hover:bg-bg/50"
-                    />
+                    <div className="relative" ref={openMenu === post.id ? menuRef : undefined}>
+                      <button
+                        onClick={() => setOpenMenu(openMenu === post.id ? null : post.id)}
+                        className="w-8 h-8 flex items-center justify-center rounded-full text-warm-gray/30 hover:text-gold hover:bg-bg/50 transition-colors"
+                      >
+                        <MoreHorizontal size={18} />
+                      </button>
+                      <AnimatePresence>
+                        {openMenu === post.id && (
+                          <motion.div
+                            initial={{ opacity: 0, scale: 0.95, y: -4 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: -4 }}
+                            transition={{ duration: 0.15 }}
+                            className="absolute right-0 top-10 z-50 bg-surface-elevated border border-line shadow-xl rounded-lg py-1 min-w-[180px]"
+                          >
+                            {post.user_id === user?.id && (
+                              <button
+                                onClick={() => handleStartEdit(post)}
+                                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-text/70 hover:text-gold hover:bg-bg/50 transition-colors"
+                              >
+                                <Pencil size={14} />
+                                Editar
+                              </button>
+                            )}
+                            {user?.role === 'admin' && (
+                              <button
+                                onClick={() => handleTogglePin(post.id)}
+                                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-text/70 hover:text-gold hover:bg-bg/50 transition-colors"
+                              >
+                                <Pin size={14} className={post.pinned ? 'text-gold' : ''} />
+                                {post.pinned ? 'Desfixar' : 'Fixar'}
+                              </button>
+                            )}
+                            <button
+                              onClick={() => handleCopyLink(post.id)}
+                              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-text/70 hover:text-gold hover:bg-bg/50 transition-colors"
+                            >
+                              <Link2 size={14} />
+                              Copiar link
+                            </button>
+                            {(post.user_id === user?.id || user?.role === 'admin') && (
+                              <button
+                                onClick={() => handleDeletePost(post.id)}
+                                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-500/70 hover:text-red-500 hover:bg-red-500/5 transition-colors"
+                              >
+                                <Trash2 size={14} />
+                                Excluir
+                              </button>
+                            )}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
                   </div>
 
-                  <p className="text-text/80 leading-relaxed text-sm sm:text-base font-light whitespace-pre-line font-serif italic">
-                    {post.content}
-                  </p>
+                  {editingPost === post.id ? (
+                    <div className="space-y-3">
+                      <Textarea
+                        variant="editorial"
+                        value={editContent}
+                        onChange={(e) => setEditContent(e.target.value)}
+                        rows={3}
+                      />
+                      <div className="flex gap-2 justify-end">
+                        <Button variant="ghost" size="sm" onClick={() => setEditingPost(null)}>
+                          Cancelar
+                        </Button>
+                        <Button size="sm" onClick={() => handleSaveEdit(post.id)}>
+                          Salvar
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-text/80 leading-relaxed text-sm sm:text-base font-light whitespace-pre-line font-serif italic">
+                      {post.content}
+                    </p>
+                  )}
 
                   {/* Poll section (kept from original) */}
                   {post.content.includes('sistema') && (
@@ -529,10 +674,32 @@ export default function CommunityPage({ communityId }: CommunityPageProps) {
                           : 'Comentar Insight'}
                       </span>
                     </button>
-                    <button className="flex items-center gap-3 text-[11px] mono-label text-warm-gray hover:text-gold transition-all ml-auto group/btn">
-                      <Share2
+                    <button
+                      onClick={() => handleCopyLink(post.id)}
+                      className={`flex items-center gap-3 text-[11px] mono-label transition-all group/btn ${
+                        copiedPostId === post.id ? 'text-gold' : 'text-warm-gray hover:text-gold'
+                      }`}
+                    >
+                      {copiedPostId === post.id ? (
+                        <Check size={16} />
+                      ) : (
+                        <Share2 size={16} className="group-hover/btn:scale-125 transition-transform" />
+                      )}
+                      {copiedPostId === post.id && (
+                        <span className="font-bold tracking-widest">Copiado!</span>
+                      )}
+                    </button>
+                    <button
+                      onClick={() => handleToggleSave(post.id)}
+                      className={`flex items-center gap-3 text-[11px] mono-label transition-all ml-auto group/btn ${
+                        savedPosts.has(post.id) ? 'text-gold' : 'text-warm-gray hover:text-gold'
+                      }`}
+                    >
+                      <Bookmark
                         size={16}
-                        className="group-hover/btn:scale-125 transition-transform"
+                        className={`group-hover/btn:scale-125 transition-transform ${
+                          savedPosts.has(post.id) ? 'fill-gold' : ''
+                        }`}
                       />
                     </button>
                   </div>
