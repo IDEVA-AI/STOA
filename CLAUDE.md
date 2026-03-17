@@ -2,16 +2,20 @@
 
 ## Sobre o Projeto
 
-Plataforma educacional e de comunidade para **Julio Carvalho — Arquiteto de Sistemas Organizacionais**. O nome "STOA" remete à Stoá grega, local de ensino e troca de ideias. O sistema inclui cursos, feed de comunidade, painel administrativo, mensagens e perfil do usuário.
+Plataforma educacional e de comunidade para **Julio Carvalho — Arquiteto de Sistemas Organizacionais**. O nome "STOA" remete à Stoá grega, local de ensino e troca de ideias. O sistema inclui cursos, feed de comunidade, painel administrativo, mensagens, agendamentos e perfil do usuário.
 
-**Status atual:** Protótipo de frontend criado no Google AI Studio (Gemini). Continuidade do desenvolvimento acontece aqui.
+**Status atual:** Em produção em `https://membros.jcarv.in`. Acesso via convite vinculado a produto.
 
 ## Stack Técnica
 
 - **Frontend:** React 19, TypeScript, Tailwind CSS v4, Motion (Framer Motion), Lucide Icons
-- **Backend:** Express + Vite (dev middleware), better-sqlite3 (`nexus.db`)
+- **Backend:** Express + better-sqlite3 (`nexus.db`), Vite middleware em dev
 - **Build:** Vite 6, tsx (runtime TS para server)
-- **Utilitários:** clsx + tailwind-merge (via `cn()`), date-fns
+- **Auth:** JWT (access 15m + refresh 7d), bcryptjs
+- **WebSocket:** `ws` (noServer mode, path `/ws`) — mensagens em tempo real
+- **Upload:** Multer → `/uploads` (volume persistente em produção)
+- **Deploy:** Docker multi-stage (Node 20-alpine), Docker Swarm via Traefik
+- **Utilitários:** clsx + tailwind-merge (via `cn()`), date-fns, pino (logger)
 
 ## Comandos
 
@@ -26,17 +30,102 @@ npm run clean     # Remove dist/
 ## Estrutura de Arquivos
 
 ```
-├── server.ts           # Express + SQLite + Vite middleware
+├── server/
+│   ├── index.ts            # Entry point Express + Vite middleware
+│   ├── ws.ts               # WebSocket (noServer, path /ws)
+│   ├── db/
+│   │   ├── connection.ts   # SQLite connection
+│   │   ├── schema.ts       # DDL (todas as tabelas)
+│   │   └── seed.ts         # Dados iniciais
+│   ├── middleware/
+│   │   ├── index.ts        # Stack: compression, helmet (prod), cors, json, rate limit
+│   │   ├── auth.ts         # JWT auth + optionalAuth + refresh
+│   │   ├── cors.ts
+│   │   ├── errorHandler.ts
+│   │   └── rateLimit.ts
+│   ├── routes/             # 21 arquivos de rotas
+│   ├── services/           # Lógica de negócio
+│   ├── repositories/       # Acesso a dados (SQLite)
+│   └── validation/         # Schemas de validação
 ├── src/
-│   ├── App.tsx         # Componente principal (monolítico atualmente)
-│   ├── main.tsx        # Entry point React
-│   ├── index.css       # Tailwind config + tema + utilitários CSS
-│   ├── types.ts        # Interfaces: User, Course, Module, Lesson, Post
-│   └── lib/utils.ts    # cn() helper
-├── vite.config.ts      # Plugins: React, Tailwind. Alias: @ → raiz
-├── tsconfig.json       # ES2022, bundler resolution, paths: @/* → ./*
-└── index.html          # SPA entry
+│   ├── App.tsx             # Root component
+│   ├── router.tsx          # React Router config
+│   ├── main.tsx            # Entry point React
+│   ├── index.css           # Tailwind config + tema + utilitários CSS
+│   ├── components/
+│   │   ├── admin/          # 16 componentes do painel admin
+│   │   ├── ui/             # 20 componentes reutilizáveis (Button, Card, Input, Avatar...)
+│   │   ├── blocks/         # Editor de blocos de aula
+│   │   ├── layout/         # Layout components
+│   │   └── workspace/      # Componentes de workspace
+│   ├── pages/              # 11 páginas (Auth, Dashboard, Courses, Community, Messages, Profile, Scheduling, Admin, LessonPlayer, BlockEditor, DesignSystem)
+│   ├── hooks/              # 8 hooks customizados
+│   ├── services/
+│   │   └── api.ts          # Cliente API centralizado
+│   ├── stores/             # 7 context providers (Auth, Course, Community, Messages, Workspace, Navigation, Theme)
+│   ├── types/              # Interfaces e tipos
+│   └── lib/
+│       └── utils.ts        # cn() helper
+├── vite.config.mjs         # .mjs para evitar conflito tsx/esbuild
+├── Dockerfile              # Multi-stage: build → prod (Node 20-alpine)
+├── index.html              # SPA entry
+└── nexus.db                # SQLite local (produção usa /data/nexus.db no container)
 ```
+
+## Infraestrutura de Produção
+
+- **Domínio:** `membros.jcarv.in`
+- **Servidor:** 178.156.252.78 (Docker Swarm)
+- **Serviço:** `nexo_stoa` (1 replica)
+- **Proxy:** Traefik (entrypoint `web`, roteamento por Host header)
+- **DB:** `/data/nexus.db` (volume persistente no container)
+- **Uploads:** `/data/uploads/` (volume persistente)
+- **Deploy:** Clone repo no servidor → `docker build --no-cache` → `docker service update --force`
+
+## Sistema de Acesso
+
+Fluxo: **Convite → Produto → Cursos/Comunidades**
+
+1. Admin cria convite vinculado a um produto (ex: Formação DEV.IA)
+2. Usuário acessa link `https://membros.jcarv.in/login?invite=CODIGO`
+3. Ao registrar, o sistema: adiciona ao workspace, cria purchase do produto
+4. Purchase ativa dá acesso aos cursos e comunidades vinculados ao produto
+
+Convite ativo: `D64WU63gCwnz3Kq6` → Formação DEV.IA (product_id=1, workspace_id=1)
+
+## API Endpoints
+
+### Rotas Públicas (sem auth)
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| POST | `/api/auth/register` | Registro (aceita inviteCode) |
+| POST | `/api/auth/login` | Login |
+| POST | `/api/auth/refresh` | Refresh token |
+| GET | `/api/invites/validate/:code` | Validar convite |
+
+### Rotas Autenticadas
+| Grupo | Prefixo | Rotas principais |
+|-------|---------|-----------------|
+| Auth | `/api/auth` | GET /me |
+| Courses | `/api/courses` | GET /, GET /:id/content |
+| Communities | `/api/communities` | CRUD + categories + posts (pin, edit, delete) |
+| Posts/Feed | `/api` | GET /feed, POST /posts, likes, comments |
+| Messages | `/api/messages` | Conversas, polling, unread count |
+| Scheduling | `/api/scheduling` | Configs, slots, booking, cancelamento |
+| Profile | `/api/profile` | GET/PUT profile, PUT password |
+| Upload | `/api/upload` | POST upload, DELETE |
+| Products | `/api/products` | CRUD + vinculação de cursos |
+| Purchases | `/api/purchases` | GET /my, /check/:courseId, POST |
+| Workspaces | `/api/workspaces` | CRUD + membros |
+| Trails | `/api/trails` | CRUD + cursos |
+| Invites | `/api/invites` | CRUD + redemptions + revoke |
+| Follows | `/api/follows` | Follow/unfollow + counts |
+| Admin | `/api/admin` | Stats, CRUD (courses, modules, lessons, users) |
+| Announcements | `/api/announcements` | CRUD + pending + confirm |
+| Lesson Blocks | `/api/lesson-blocks` | CRUD + reorder + batch |
+| Lesson Templates | `/api/lesson-templates` | CRUD + apply |
+
+**Atenção:** O `postsRouter` é montado em `/api` (catch-all) com `authMiddleware` global. Deve ser o ÚLTIMO router registrado para não bloquear rotas públicas.
 
 ## Design System
 
@@ -69,32 +158,6 @@ Variáveis CSS: `--theme-bg`, `--theme-text`, `--theme-surface`, `--theme-line`.
 - **Voz:** Assertiva, direta, sem floreios. "O problema nunca é a peça. É o sistema."
 - **Sem emojis** no código ou interface, a menos que explicitamente solicitado.
 
-## API Endpoints (server.ts)
-
-| Método | Rota                        | Descrição                    |
-|--------|-----------------------------|------------------------------|
-| GET    | `/api/courses`              | Lista todos os cursos        |
-| GET    | `/api/courses/:id/content`  | Módulos e aulas de um curso  |
-| GET    | `/api/feed`                 | Posts da comunidade com user  |
-| POST   | `/api/posts`                | Criar novo post              |
-
-## Seções da Interface
-
-1. **Login/Register** — Tela de autenticação com branding editorial
-2. **Dashboard** — Visão geral com cursos em progresso e feed
-3. **Cursos** — Listagem e player de aulas (vídeo embeds)
-4. **Comunidade** — Feed de posts com likes e compartilhamento
-5. **Admin** — Painel com sub-seções: dashboard, communities, courses, media, integrations, unlocks, moderation, settings
-6. **Perfil** — Dados do usuário
-7. **Mensagens** — Sistema de mensagens
-
-## Diretriz de Desenvolvimento
-
-- **Foco na interface.** A prioridade é a excelência visual e UX.
-- **Backend é secundário.** SQLite + Express servem como suporte ao protótipo.
-- **App.tsx é monolítico** — precisa ser decomposto em componentes conforme o projeto cresce.
-- **Alias `@/`** mapeia para a raiz do projeto (não para `src/`).
-
 ## Convenções
 
 - Idioma do código: inglês (nomes de variáveis, funções, componentes)
@@ -102,38 +165,28 @@ Variáveis CSS: `--theme-bg`, `--theme-text`, `--theme-surface`, `--theme-line`.
 - Usar `cn()` de `@/src/lib/utils` para classes condicionais
 - Animações via `motion/react` (Motion library)
 - Ícones via `lucide-react`
+- Alias `@/` mapeia para a raiz do projeto (não para `src/`)
 
 ## Arquitetura Modular
-
-O sistema deve seguir rigorosamente princípios de arquitetura modular e componentização. A estrutura deve ser escalável, organizada e de fácil manutenção, com separação clara de responsabilidades.
 
 ### Camadas
 
 #### 1. Frontend (Interface)
-- Responsável exclusivamente pela interface e experiência do usuário.
-- Organizado em componentes reutilizáveis com separação clara entre:
-  - **Componentes visuais** (`src/components/`) — UI pura, apresentação
-  - **Estado da aplicação** (`src/stores/` ou `src/hooks/`) — gerenciamento de estado
-  - **Serviços de API** (`src/services/`) — comunicação com o backend
-- Seguir boas práticas de organização de pastas e componentização.
+- Componentes visuais (`src/components/`) — UI pura
+- Estado da aplicação (`src/stores/`) — 7 React Context providers
+- Serviços de API (`src/services/api.ts`) — cliente centralizado
+- Hooks customizados (`src/hooks/`) — lógica reutilizável
 
-#### 2. Camada de Inteligência (Lógica / IA / Regras de Negócio)
-- Responsável por toda lógica do sistema, processamento de dados e inteligência aplicada.
-- Isolada do frontend.
-- Módulos independentes para:
-  - Processamento
-  - Tomada de decisão
-  - Análise ou integração com IA
-- Deve evoluir sem impactar diretamente a interface.
+#### 2. Backend (Infraestrutura)
+- **Routes** (`server/routes/`) — endpoints da API (21 arquivos)
+- **Services** (`server/services/`) — lógica de negócio
+- **Repositories** (`server/repositories/`) — acesso a dados (SQLite)
+- **Middleware** (`server/middleware/`) — auth, cors, rate limit, error handling
+- **Validation** (`server/validation/`) — schemas de validação de input
 
-#### 3. Backend (Infraestrutura)
-- Responsável pela API, persistência de dados e integrações externas.
-- Estruturado em módulos claros:
-  - **Controllers** — endpoints da API
-  - **Services** — lógica de negócio
-  - **Repositories** — acesso a dados
-  - **Models** — modelos de dados
-- Separação rigorosa entre lógica de negócio, acesso a dados e endpoints.
+#### 3. Camada de Inteligência (planejada)
+- Diretório `intelligence/` ainda não implementado
+- Previsto para: processamento, tomada de decisão, integração com IA
 
 ### Princípios Arquiteturais
 
@@ -141,37 +194,16 @@ O sistema deve seguir rigorosamente princípios de arquitetura modular e compone
 - **Clean Architecture** — dependências apontam para dentro (domínio)
 - **Baixo acoplamento** — módulos independentes e substituíveis
 - **Alta coesão** — código relacionado vive junto
-- Cada módulo deve ser independente e reutilizável
-- Evitar código monolítico ou funções com múltiplas responsabilidades
-- Priorizar legibilidade, escalabilidade e modularidade
 
-### Estrutura-Alvo do Projeto
+## Gotchas de Dev
 
-```
-├── server/
-│   ├── controllers/    # Endpoints da API
-│   ├── services/       # Lógica de negócio
-│   ├── repositories/   # Acesso a dados (SQLite)
-│   ├── models/         # Modelos de dados
-│   └── index.ts        # Entry point do servidor
-├── src/
-│   ├── components/     # Componentes visuais reutilizáveis
-│   ├── pages/          # Páginas/views da aplicação
-│   ├── hooks/          # Hooks customizados e estado
-│   ├── services/       # Comunicação com API
-│   ├── stores/         # Estado global da aplicação
-│   ├── types/          # Interfaces e tipos
-│   ├── lib/            # Utilitários
-│   ├── App.tsx
-│   ├── main.tsx
-│   └── index.css
-├── intelligence/       # Camada de inteligência/IA/regras
-│   ├── processing/     # Processamento de dados
-│   ├── decisions/      # Tomada de decisão
-│   └── analysis/       # Análise e integração IA
-```
+- **Vite config deve ser `.mjs`** — tsx e Vite compartilham esbuild, `.ts` causa deadlock
+- **Helmet desabilitado em dev** — CSP e CORP bloqueiam scripts do Vite
+- **WebSocket em noServer mode** — para não conflitar com HMR do Vite (upgrade manual por path `/ws`)
+- **SPA fallback manual** — necessário em Vite middleware mode (usa `vite.transformIndexHtml`)
+- **postsRouter é catch-all** — montado em `/api` com auth global, deve ser o último
 
-## Funcionalidades Planejadas (pendentes de implementação)
+## Funcionalidades Planejadas
 
 ### Announcement Gate (Sistema de Avisos Obrigatórios)
 - **Spec:** `docs/superpowers/specs/2026-03-10-announcement-gate-design.md`
