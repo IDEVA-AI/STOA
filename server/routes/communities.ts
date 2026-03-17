@@ -172,4 +172,55 @@ router.get("/:id/posts/pinned", (req, res) => {
   }
 });
 
+router.put("/:id/posts/:postId/pin", (req, res) => {
+  try {
+    const postId = Number(req.params.postId);
+    if (req.userRole !== "admin") {
+      return res.status(403).json({ error: "Only admins can pin posts" });
+    }
+    const result = communityService.togglePin(postId);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.delete("/:id/posts/:postId", (req, res) => {
+  try {
+    const postId = Number(req.params.postId);
+    const post = communityService.getPostById(postId);
+    if (!post) {
+      return res.status(404).json({ error: "Post not found" });
+    }
+    if (post.user_id !== req.userId && req.userRole !== "admin") {
+      return res.status(403).json({ error: "Not authorized" });
+    }
+    communityService.deletePost(postId);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.put("/:id/posts/:postId", (req, res) => {
+  try {
+    const postId = Number(req.params.postId);
+    const { content } = req.body;
+    const post = communityService.getPostById(postId);
+    if (!post) {
+      return res.status(404).json({ error: "Post not found" });
+    }
+    if (post.user_id !== req.userId) {
+      return res.status(403).json({ error: "Not authorized" });
+    }
+    if (!content?.trim()) {
+      return res.status(400).json({ error: "Content is required" });
+    }
+    communityService.updatePost(postId, content);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 export default router;

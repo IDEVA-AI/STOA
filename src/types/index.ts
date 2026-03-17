@@ -52,6 +52,7 @@ export interface Post {
   has_liked: boolean;
   created_at: string;
   pinned?: boolean;
+  comment_count?: number;
   category_id?: number | null;
   community_id?: number | null;
 }

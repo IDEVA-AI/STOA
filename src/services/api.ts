@@ -186,11 +186,11 @@ export async function getFeed(): Promise<Post[]> {
   return res.json();
 }
 
-export async function createPost(content: string, userId: number = 1): Promise<{ id: number }> {
+export async function createPost(content: string): Promise<{ id: number }> {
   const res = await authFetch('/api/posts', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ content, userId })
+    body: JSON.stringify({ content })
   });
   if (!res.ok) throw new Error('Falha ao criar post.');
   return res.json();
@@ -210,11 +210,11 @@ export async function getComments(postId: number): Promise<Comment[]> {
   return res.json();
 }
 
-export async function createComment(postId: number, userId: number, content: string): Promise<Comment> {
+export async function createComment(postId: number, content: string): Promise<Comment> {
   const res = await authFetch(`/api/posts/${postId}/comments`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ userId, content })
+    body: JSON.stringify({ content })
   });
   if (!res.ok) throw new Error('Falha ao criar comentario.');
   return res.json();

@@ -182,7 +182,7 @@ export default function CommunityPage({ communityId }: CommunityPageProps) {
     const content = commentInputs[postId]?.trim();
     if (!content) return;
     try {
-      const comment = await api.createComment(postId, 1, content);
+      const comment = await api.createComment(postId, content);
       setCommentsCache((prev) => ({
         ...prev,
         [postId]: [...(prev[postId] || []), comment],
@@ -193,8 +193,9 @@ export default function CommunityPage({ communityId }: CommunityPageProps) {
     }
   }
 
-  function getCommentCount(postId: number): number {
-    return commentsCache[postId]?.length ?? 0;
+  function getCommentCount(post: Post): number {
+    if (commentsCache[post.id]) return commentsCache[post.id].length;
+    return post.comment_count ?? 0;
   }
 
   // Sort posts: pinned first, then by date
@@ -521,9 +522,9 @@ export default function CommunityPage({ communityId }: CommunityPageProps) {
                         }`}
                       />
                       <span className="font-bold tracking-widest">
-                        {getCommentCount(post.id) > 0
-                          ? `${getCommentCount(post.id)} Comentario${
-                              getCommentCount(post.id) > 1 ? 's' : ''
+                        {getCommentCount(post) > 0
+                          ? `${getCommentCount(post)} Comentario${
+                              getCommentCount(post) > 1 ? 's' : ''
                             }`
                           : 'Comentar Insight'}
                       </span>

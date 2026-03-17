@@ -1,7 +1,9 @@
 import { Router } from "express";
+import { authMiddleware } from "../middleware/auth";
 import * as postService from "../services/postService";
 
 const router = Router();
+router.use(authMiddleware);
 
 router.get("/community/sidebar", (req, res) => {
   const topPosters = postService.getTopPosters(5);
@@ -15,15 +17,14 @@ router.get("/feed", (req, res) => {
 });
 
 router.post("/posts", (req, res) => {
-  const { content, userId } = req.body;
-  const result = postService.createPost(userId || 1, content);
+  const { content } = req.body;
+  const result = postService.createPost(req.userId!, content);
   res.json({ id: result.lastInsertRowid });
 });
 
 router.post("/posts/:id/like", (req, res) => {
   const postId = Number(req.params.id);
-  const userId = Number(req.body?.userId) || 1;
-  const liked = postService.toggleLike(postId, userId);
+  const liked = postService.toggleLike(postId, req.userId!);
   res.json({ liked });
 });
 
@@ -35,8 +36,8 @@ router.get("/posts/:id/comments", (req, res) => {
 
 router.post("/posts/:id/comments", (req, res) => {
   const postId = Number(req.params.id);
-  const { userId, content } = req.body;
-  const comment = postService.createComment(postId, userId || 1, content);
+  const { content } = req.body;
+  const comment = postService.createComment(postId, req.userId!, content);
   res.json(comment);
 });
 

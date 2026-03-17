@@ -109,7 +109,9 @@ export function getPosts(
 
   return db.prepare(`
     SELECT posts.*, users.name as user_name, users.avatar as user_avatar,
-      CASE WHEN post_likes.id IS NOT NULL THEN 1 ELSE 0 END as has_liked
+      posts.is_pinned as pinned,
+      CASE WHEN post_likes.id IS NOT NULL THEN 1 ELSE 0 END as has_liked,
+      (SELECT COUNT(*) FROM post_comments WHERE post_comments.post_id = posts.id) as comment_count
     FROM posts
     JOIN users ON posts.user_id = users.id
     LEFT JOIN post_likes ON post_likes.post_id = posts.id AND post_likes.user_id = ?
@@ -123,12 +125,42 @@ export function createPost(communityId: number, userId: number, content: string,
   const result = db.prepare(
     "INSERT INTO posts (community_id, user_id, content, category_id) VALUES (?, ?, ?, ?)"
   ).run(communityId, userId, content, categoryId || null);
-  return { id: result.lastInsertRowid };
+  const id = result.lastInsertRowid;
+  return db.prepare(`
+    SELECT posts.*, users.name as user_name, users.avatar as user_avatar,
+      posts.is_pinned as pinned,
+      0 as has_liked,
+      0 as comment_count
+    FROM posts
+    JOIN users ON posts.user_id = users.id
+    WHERE posts.id = ?
+  `).get(id);
+}
+
+export function getPostById(postId: number) {
+  return db.prepare("SELECT * FROM posts WHERE id = ?").get(postId) as any;
+}
+
+export function togglePin(postId: number) {
+  db.prepare("UPDATE posts SET is_pinned = CASE WHEN is_pinned = 1 THEN 0 ELSE 1 END WHERE id = ?").run(postId);
+  const post = db.prepare("SELECT is_pinned FROM posts WHERE id = ?").get(postId) as any;
+  return { pinned: post?.is_pinned === 1 };
+}
+
+export function deletePost(postId: number) {
+  db.prepare("DELETE FROM post_likes WHERE post_id = ?").run(postId);
+  db.prepare("DELETE FROM post_comments WHERE post_id = ?").run(postId);
+  db.prepare("DELETE FROM posts WHERE id = ?").run(postId);
+}
+
+export function updatePost(postId: number, content: string) {
+  db.prepare("UPDATE posts SET content = ? WHERE id = ?").run(content, postId);
 }
 
 export function getPinnedPosts(communityId: number) {
   return db.prepare(`
-    SELECT posts.*, users.name as user_name, users.avatar as user_avatar
+    SELECT posts.*, users.name as user_name, users.avatar as user_avatar,
+      posts.is_pinned as pinned
     FROM posts
     JOIN users ON posts.user_id = users.id
     WHERE posts.community_id = ? AND posts.is_pinned = 1

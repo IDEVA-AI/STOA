@@ -59,3 +59,19 @@ export function getPinnedPosts(communityId: number) {
 export function createPost(communityId: number, userId: number, content: string, categoryId?: number) {
   return communityRepo.createPost(communityId, userId, content, categoryId);
 }
+
+export function getPostById(postId: number) {
+  return communityRepo.getPostById(postId);
+}
+
+export function togglePin(postId: number) {
+  return communityRepo.togglePin(postId);
+}
+
+export function deletePost(postId: number) {
+  communityRepo.deletePost(postId);
+}
+
+export function updatePost(postId: number, content: string) {
+  communityRepo.updatePost(postId, content);
+}
