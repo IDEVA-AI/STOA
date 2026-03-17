@@ -100,6 +100,17 @@ async function startServer() {
       appType: "spa",
     });
     app.use(vite.middlewares);
+    // SPA fallback — serve index.html for non-API routes
+    app.use("*", async (req, res, next) => {
+      if (req.originalUrl.startsWith("/api/") || req.originalUrl.startsWith("/uploads/")) {
+        return next();
+      }
+      const html = await vite.transformIndexHtml(
+        req.originalUrl,
+        (await import("fs")).readFileSync(path.resolve(__dirname, "..", "index.html"), "utf-8")
+      );
+      res.status(200).set({ "Content-Type": "text/html" }).end(html);
+    });
   } else {
     app.use(express.static(path.join(__dirname, "..", "dist")));
     app.get("*", (_req, res) => {
