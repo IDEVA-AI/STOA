@@ -1,8 +1,10 @@
 import "dotenv/config";
 import express from "express";
-import { createServer as createViteServer } from "vite";
+import { createServer as createViteServer, loadEnv } from "vite";
 import { createServer as createHttpServer } from "http";
 import path from "path";
+import tailwindcss from "@tailwindcss/vite";
+import react from "@vitejs/plugin-react";
 import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -92,9 +94,21 @@ async function startServer() {
 
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {
+    const env = loadEnv("development", path.resolve(__dirname, ".."), "");
     const vite = await createViteServer({
+      configFile: false,
+      root: path.resolve(__dirname, ".."),
       server: { middlewareMode: true },
       appType: "spa",
+      plugins: [react(), tailwindcss()],
+      define: {
+        "process.env.GEMINI_API_KEY": JSON.stringify(env.GEMINI_API_KEY),
+      },
+      resolve: {
+        alias: {
+          "@": path.resolve(__dirname, ".."),
+        },
+      },
     });
     app.use(vite.middlewares);
   } else {
