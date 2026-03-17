@@ -93,6 +93,7 @@ async function startServer() {
   app.use("/api/follows", followRouter);
 
   const httpServer = createHttpServer(app);
+  initWebSocket(httpServer);
 
   // Vite middleware for development (must be before error handlers)
   if (process.env.NODE_ENV !== "production") {
@@ -103,6 +104,9 @@ async function startServer() {
       server: {
         middlewareMode: true,
         hmr: { server: httpServer },
+        watch: {
+          ignored: ["**/design-system/**", "**/node_modules/**", "**/.git/**"],
+        },
       },
       appType: "spa",
       plugins: [react(), tailwindcss()],
@@ -126,8 +130,6 @@ async function startServer() {
   // Error handlers (must be after all routes and middleware)
   app.use(notFoundHandler);
   app.use(errorHandler);
-
-  initWebSocket(httpServer);
 
   httpServer.listen(PORT, "0.0.0.0", () => {
     logger.info(`STOA running on http://localhost:${PORT}`);

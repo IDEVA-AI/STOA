@@ -94,7 +94,16 @@ function verifyToken(token: string): TokenPayload | null {
 }
 
 export function initWebSocket(server: HttpServer) {
-  const wss = new WebSocketServer({ server, path: "/ws" });
+  const wss = new WebSocketServer({ noServer: true });
+
+  server.on("upgrade", (req, socket, head) => {
+    if (req.url === "/ws") {
+      wss.handleUpgrade(req, socket, head, (ws) => {
+        wss.emit("connection", ws, req);
+      });
+    }
+    // Let other upgrade requests (like Vite HMR) pass through
+  });
 
   wss.on("connection", (ws: WebSocket) => {
     let authenticated: AuthenticatedSocket | null = null;
