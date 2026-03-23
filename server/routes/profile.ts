@@ -6,9 +6,9 @@ const router = Router();
 
 router.use(authMiddleware);
 
-router.get("/", (req: Request, res: Response) => {
+router.get("/", async (req: Request, res: Response) => {
   try {
-    const profile = profileService.getProfile(req.userId!);
+    const profile = await profileService.getProfile(req.userId!);
     res.status(200).json(profile);
   } catch (err: any) {
     const status = err.status || 500;
@@ -16,10 +16,10 @@ router.get("/", (req: Request, res: Response) => {
   }
 });
 
-router.put("/", (req: Request, res: Response) => {
+router.put("/", async (req: Request, res: Response) => {
   try {
     const { name, avatar, bio, website, is_public, show_progress } = req.body;
-    const profile = profileService.updateProfile(req.userId!, { name, avatar, bio, website, is_public, show_progress });
+    const profile = await profileService.updateProfile(req.userId!, { name, avatar, bio, website, is_public, show_progress });
     res.status(200).json(profile);
   } catch (err: any) {
     const status = err.status || 500;

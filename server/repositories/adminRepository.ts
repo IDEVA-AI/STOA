@@ -15,18 +15,18 @@ export interface ActivityEntry {
   created_at: string;
 }
 
-export function getStats(): StatsRow {
-  return db.prepare(`
+export async function getStats(): Promise<StatsRow> {
+  return (await db.get<StatsRow>(`
     SELECT
       (SELECT COUNT(*) FROM users) as total_users,
       (SELECT COUNT(*) FROM courses) as total_courses,
       (SELECT COUNT(*) FROM lesson_progress) as total_completed_lessons,
       (SELECT COUNT(*) FROM posts) as total_posts
-  `).get() as StatsRow;
+  `))!;
 }
 
-export function getRecentActivity(limit: number = 10): ActivityEntry[] {
-  return db.prepare(`
+export async function getRecentActivity(limit: number = 10): Promise<ActivityEntry[]> {
+  return db.all<ActivityEntry>(`
     SELECT * FROM (
       SELECT
         'lesson_completed' as type,
@@ -56,11 +56,11 @@ export function getRecentActivity(limit: number = 10): ActivityEntry[] {
         'entrou na plataforma' as description,
         u.name as user_name,
         u.avatar as user_avatar,
-        '' as created_at
+        u.created_at as created_at
       FROM users u
-    )
-    WHERE created_at != ''
+    ) sub
+    WHERE created_at IS NOT NULL
     ORDER BY created_at DESC
-    LIMIT ?
-  `).all(limit) as ActivityEntry[];
+    LIMIT $1
+  `, [limit]);
 }

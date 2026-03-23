@@ -3,64 +3,64 @@ import * as messageService from "../services/messageService";
 
 const router = Router();
 
-router.get("/conversations", (req, res) => {
+router.get("/conversations", async (req, res) => {
   const userId = Number(req.query.userId) || 1;
-  const conversations = messageService.listConversations(userId);
+  const conversations = await messageService.listConversations(userId);
   res.json(conversations);
 });
 
-router.post("/conversations", (req, res) => {
+router.post("/conversations", async (req, res) => {
   const { userId, targetUserId } = req.body;
-  const conversationId = messageService.getOrCreateConversation(userId || 1, targetUserId);
+  const conversationId = await messageService.getOrCreateConversation(userId || 1, targetUserId);
   res.json({ conversationId });
 });
 
-router.get("/conversations/:id/messages", (req, res) => {
+router.get("/conversations/:id/messages", async (req, res) => {
   const conversationId = Number(req.params.id);
   const userId = Number(req.query.userId) || 1;
   const limit = req.query.limit ? Number(req.query.limit) : undefined;
   const offset = req.query.offset ? Number(req.query.offset) : undefined;
   try {
-    const messages = messageService.getMessages(conversationId, userId, limit, offset);
+    const messages = await messageService.getMessages(conversationId, userId, limit, offset);
     res.json(messages);
   } catch {
     res.status(403).json({ error: "Not a participant" });
   }
 });
 
-router.get("/conversations/:id/messages/poll", (req, res) => {
+router.get("/conversations/:id/messages/poll", async (req, res) => {
   const conversationId = Number(req.params.id);
   const userId = Number(req.query.userId) || 1;
   const afterId = Number(req.query.after_id) || 0;
   try {
-    const messages = messageService.getNewMessages(conversationId, userId, afterId);
+    const messages = await messageService.getNewMessages(conversationId, userId, afterId);
     res.json(messages);
   } catch {
     res.status(403).json({ error: "Not a participant" });
   }
 });
 
-router.post("/conversations/:id/messages", (req, res) => {
+router.post("/conversations/:id/messages", async (req, res) => {
   const conversationId = Number(req.params.id);
   const { senderId, content } = req.body;
   try {
-    const message = messageService.sendMessage(conversationId, senderId || 1, content);
+    const message = await messageService.sendMessage(conversationId, senderId || 1, content);
     res.json(message);
   } catch {
     res.status(403).json({ error: "Not a participant" });
   }
 });
 
-router.post("/conversations/:id/read", (req, res) => {
+router.post("/conversations/:id/read", async (req, res) => {
   const conversationId = Number(req.params.id);
   const { userId } = req.body;
-  messageService.markAsRead(conversationId, userId || 1);
+  await messageService.markAsRead(conversationId, userId || 1);
   res.json({ success: true });
 });
 
-router.get("/unread-count", (req, res) => {
+router.get("/unread-count", async (req, res) => {
   const userId = Number(req.query.userId) || 1;
-  const count = messageService.getTotalUnreadCount(userId);
+  const count = await messageService.getTotalUnreadCount(userId);
   res.json({ count });
 });
 

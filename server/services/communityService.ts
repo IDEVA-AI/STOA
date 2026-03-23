@@ -1,77 +1,77 @@
 import * as communityRepo from "../repositories/communityRepository";
 
-export function listByWorkspace(workspaceId: number) {
-  return communityRepo.getByWorkspace(workspaceId);
+export async function listByWorkspace(workspaceId: number) {
+  return await communityRepo.getByWorkspace(workspaceId);
 }
 
-export function getByCourse(courseId: number) {
-  return communityRepo.getByCourse(courseId);
+export async function getByCourse(courseId: number) {
+  return await communityRepo.getByCourse(courseId);
 }
 
-export function getById(id: number) {
-  return communityRepo.getById(id);
+export async function getById(id: number) {
+  return await communityRepo.getById(id);
 }
 
-export function create(data: {
+export async function create(data: {
   workspace_id: number;
   course_id?: number;
   name: string;
   description?: string;
 }) {
-  return communityRepo.create(data);
+  return await communityRepo.create(data);
 }
 
-export function update(id: number, data: Partial<{ name: string; description: string }>) {
-  communityRepo.update(id, data);
+export async function update(id: number, data: Partial<{ name: string; description: string }>) {
+  await communityRepo.update(id, data);
 }
 
-export function remove(id: number) {
-  communityRepo.remove(id);
+export async function remove(id: number) {
+  await communityRepo.remove(id);
 }
 
-export function getCategories(communityId: number) {
-  return communityRepo.getCategories(communityId);
+export async function getCategories(communityId: number) {
+  return await communityRepo.getCategories(communityId);
 }
 
-export function createCategory(communityId: number, name: string, position: number) {
-  return communityRepo.createCategory(communityId, name, position);
+export async function createCategory(communityId: number, name: string, position: number) {
+  return await communityRepo.createCategory(communityId, name, position);
 }
 
-export function updateCategory(categoryId: number, data: Partial<{ name: string; position: number }>) {
-  communityRepo.updateCategory(categoryId, data);
+export async function updateCategory(categoryId: number, data: Partial<{ name: string; position: number }>) {
+  await communityRepo.updateCategory(categoryId, data);
 }
 
-export function removeCategory(categoryId: number) {
-  communityRepo.removeCategory(categoryId);
+export async function removeCategory(categoryId: number) {
+  await communityRepo.removeCategory(categoryId);
 }
 
-export function getPosts(
+export async function getPosts(
   communityId: number,
   opts: { categoryId?: number; userId?: number; limit?: number; offset?: number } = {}
 ) {
-  return communityRepo.getPosts(communityId, opts);
+  return await communityRepo.getPosts(communityId, opts);
 }
 
-export function getPinnedPosts(communityId: number) {
-  return communityRepo.getPinnedPosts(communityId);
+export async function getPinnedPosts(communityId: number) {
+  return await communityRepo.getPinnedPosts(communityId);
 }
 
-export function createPost(communityId: number, userId: number, content: string, categoryId?: number) {
-  return communityRepo.createPost(communityId, userId, content, categoryId);
+export async function createPost(communityId: number, userId: number, content: string, categoryId?: number) {
+  return await communityRepo.createPost(communityId, userId, content, categoryId);
 }
 
-export function getPostById(postId: number) {
-  return communityRepo.getPostById(postId);
+export async function getPostById(postId: number) {
+  return await communityRepo.getPostById(postId);
 }
 
-export function togglePin(postId: number) {
-  return communityRepo.togglePin(postId);
+export async function togglePin(postId: number) {
+  return await communityRepo.togglePin(postId);
 }
 
-export function deletePost(postId: number) {
-  communityRepo.deletePost(postId);
+export async function deletePost(postId: number) {
+  await communityRepo.deletePost(postId);
 }
 
-export function updatePost(postId: number, content: string) {
-  communityRepo.updatePost(postId, content);
+export async function updatePost(postId: number, content: string) {
+  await communityRepo.updatePost(postId, content);
 }

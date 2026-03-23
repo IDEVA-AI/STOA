@@ -2,106 +2,100 @@ import db from "../db/connection";
 
 function parseContent(row: any) {
   if (!row) return row;
-  try {
-    row.content = JSON.parse(row.content);
-  } catch {
-    row.content = {};
-  }
+  row.content = typeof row.content === 'string' ? JSON.parse(row.content) : row.content;
   return row;
 }
 
-export function getByLesson(lessonId: number) {
-  const rows = db
-    .prepare("SELECT * FROM lesson_blocks WHERE lesson_id = ? ORDER BY position ASC")
-    .all(lessonId) as any[];
+export async function getByLesson(lessonId: number) {
+  const rows = await db.all(
+    "SELECT * FROM lesson_blocks WHERE lesson_id = $1 ORDER BY position ASC",
+    [lessonId]
+  );
   return rows.map(parseContent);
 }
 
-export function getById(id: number) {
-  const row = db.prepare("SELECT * FROM lesson_blocks WHERE id = ?").get(id);
+export async function getById(id: number) {
+  const row = await db.get("SELECT * FROM lesson_blocks WHERE id = $1", [id]);
   return parseContent(row);
 }
 
-export function create(data: {
+export async function create(data: {
   lesson_id: number;
   block_type: string;
   content: object;
   position: number;
-}) {
-  const result = db
-    .prepare(
-      "INSERT INTO lesson_blocks (lesson_id, block_type, content, position) VALUES (?, ?, ?, ?)"
-    )
-    .run(data.lesson_id, data.block_type, JSON.stringify(data.content), data.position);
-  return { id: result.lastInsertRowid };
+}): Promise<{ id: number }> {
+  const result = await db.run(
+    "INSERT INTO lesson_blocks (lesson_id, block_type, content, position) VALUES ($1, $2, $3, $4) RETURNING id",
+    [data.lesson_id, data.block_type, JSON.stringify(data.content), data.position]
+  );
+  return { id: result.rows[0].id };
 }
 
-export function update(
+export async function update(
   id: number,
   data: Partial<{ block_type: string; content: object; position: number }>
-) {
+): Promise<void> {
   const fields: string[] = [];
   const values: any[] = [];
+  let paramIndex = 1;
 
   if (data.block_type !== undefined) {
-    fields.push("block_type = ?");
+    fields.push(`block_type = $${paramIndex}`);
     values.push(data.block_type);
+    paramIndex++;
   }
   if (data.content !== undefined) {
-    fields.push("content = ?");
+    fields.push(`content = $${paramIndex}`);
     values.push(JSON.stringify(data.content));
+    paramIndex++;
   }
   if (data.position !== undefined) {
-    fields.push("position = ?");
+    fields.push(`position = $${paramIndex}`);
     values.push(data.position);
+    paramIndex++;
   }
 
   if (fields.length === 0) return;
 
   values.push(id);
-  db.prepare(`UPDATE lesson_blocks SET ${fields.join(", ")} WHERE id = ?`).run(...values);
+  await db.run(`UPDATE lesson_blocks SET ${fields.join(", ")} WHERE id = $${paramIndex}`, values);
 }
 
-export function remove(id: number) {
-  db.prepare("DELETE FROM lesson_blocks WHERE id = ?").run(id);
+export async function remove(id: number): Promise<void> {
+  await db.run("DELETE FROM lesson_blocks WHERE id = $1", [id]);
 }
 
-export function removeByLesson(lessonId: number) {
-  db.prepare("DELETE FROM lesson_blocks WHERE lesson_id = ?").run(lessonId);
+export async function removeByLesson(lessonId: number): Promise<void> {
+  await db.run("DELETE FROM lesson_blocks WHERE lesson_id = $1", [lessonId]);
 }
 
-export function reorder(lessonId: number, blockIds: number[]) {
-  const tx = db.transaction(() => {
-    const stmt = db.prepare(
-      "UPDATE lesson_blocks SET position = ? WHERE id = ? AND lesson_id = ?"
-    );
-    blockIds.forEach((blockId, index) => {
-      stmt.run(index, blockId, lessonId);
-    });
+export async function reorder(lessonId: number, blockIds: number[]): Promise<void> {
+  await db.transaction(async (client) => {
+    for (let index = 0; index < blockIds.length; index++) {
+      await client.query(
+        "UPDATE lesson_blocks SET position = $1 WHERE id = $2 AND lesson_id = $3",
+        [index, blockIds[index], lessonId]
+      );
+    }
   });
-  tx();
 }
 
-export function setBlocks(
+export async function setBlocks(
   lessonId: number,
   blocks: { block_type: string; content: object; position: number }[]
-) {
-  const tx = db.transaction(() => {
-    db.prepare("DELETE FROM lesson_blocks WHERE lesson_id = ?").run(lessonId);
-    const insert = db.prepare(
-      "INSERT INTO lesson_blocks (lesson_id, block_type, content, position) VALUES (?, ?, ?, ?)"
-    );
+): Promise<number[]> {
+  return db.transaction(async (client) => {
+    await client.query("DELETE FROM lesson_blocks WHERE lesson_id = $1", [lessonId]);
     const ids: number[] = [];
-    blocks.forEach((block, index) => {
-      const result = insert.run(
-        lessonId,
-        block.block_type,
-        JSON.stringify(block.content),
-        block.position ?? index
+    for (let index = 0; index < blocks.length; index++) {
+      const block = blocks[index];
+      const result = await client.query(
+        "INSERT INTO lesson_blocks (lesson_id, block_type, content, position) VALUES ($1, $2, $3, $4) RETURNING id",
+        [lessonId, block.block_type, JSON.stringify(block.content), block.position ?? index]
       );
-      ids.push(Number(result.lastInsertRowid));
-    });
+      ids.push(result.rows[0].id);
+    }
     return ids;
   });
-  return tx();
 }

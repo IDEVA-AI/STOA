@@ -3,9 +3,9 @@ import * as searchService from "../services/searchService";
 
 const router = Router();
 
-router.get("/", (req, res) => {
+router.get("/", async (req, res) => {
   const q = String(req.query.q || "");
-  const results = searchService.search(q);
+  const results = await searchService.search(q);
   res.json(results);
 });
 

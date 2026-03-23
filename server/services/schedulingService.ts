@@ -2,25 +2,25 @@ import * as repo from "../repositories/schedulingRepository";
 
 // ── Config ──
 
-export function createConfig(data: {
+export async function createConfig(data: {
   workspace_id: number;
   title?: string;
   duration_minutes?: number;
   buffer_minutes?: number;
   max_advance_days?: number;
 }) {
-  return repo.createConfig(data);
+  return await repo.createConfig(data);
 }
 
-export function getConfigs(workspaceId: number) {
-  return repo.getConfigsByWorkspace(workspaceId);
+export async function getConfigs(workspaceId: number) {
+  return await repo.getConfigsByWorkspace(workspaceId);
 }
 
-export function getConfig(id: number) {
-  return repo.getConfigById(id);
+export async function getConfig(id: number) {
+  return await repo.getConfigById(id);
 }
 
-export function updateConfig(
+export async function updateConfig(
   id: number,
   data: Partial<{
     title: string;
@@ -30,35 +30,35 @@ export function updateConfig(
     is_active: number;
   }>
 ) {
-  repo.updateConfig(id, data);
-  return repo.getConfigById(id);
+  await repo.updateConfig(id, data);
+  return await repo.getConfigById(id);
 }
 
-export function deleteConfig(id: number) {
-  repo.deleteConfig(id);
+export async function deleteConfig(id: number) {
+  await repo.deleteConfig(id);
 }
 
 // ── Slots ──
 
-export function getSlots(configId: number) {
-  return repo.getSlotsByConfig(configId);
+export async function getSlots(configId: number) {
+  return await repo.getSlotsByConfig(configId);
 }
 
-export function setSlots(
+export async function setSlots(
   configId: number,
   slots: Array<{ day_of_week: number; start_time: string; end_time: string }>
 ) {
-  repo.setSlots(configId, slots);
-  return repo.getSlotsByConfig(configId);
+  await repo.setSlots(configId, slots);
+  return await repo.getSlotsByConfig(configId);
 }
 
 // ── Available times ──
 
-export function getAvailableTimes(
+export async function getAvailableTimes(
   configId: number,
   date: string
-): Array<{ start: string; end: string }> {
-  const config = repo.getConfigById(configId);
+): Promise<Array<{ start: string; end: string }>> {
+  const config = await repo.getConfigById(configId);
   if (!config || !config.is_active) return [];
 
   const dateObj = new Date(date + "T00:00:00");
@@ -70,12 +70,11 @@ export function getAvailableTimes(
   maxDate.setDate(maxDate.getDate() + config.max_advance_days);
   if (dateObj < today || dateObj > maxDate) return [];
 
-  const slots = repo
-    .getSlotsByConfig(configId)
-    .filter((s) => s.day_of_week === dayOfWeek);
+  const allSlots = await repo.getSlotsByConfig(configId);
+  const slots = allSlots.filter((s) => s.day_of_week === dayOfWeek);
   if (slots.length === 0) return [];
 
-  const bookings = repo.getBookingsByDate(configId, date);
+  const bookings = await repo.getBookingsByDate(configId, date);
   const available: Array<{ start: string; end: string }> = [];
   const duration = config.duration_minutes;
   const buffer = config.buffer_minutes;
@@ -117,14 +116,14 @@ export function getAvailableTimes(
 
 // ── Booking ──
 
-export function book(data: {
+export async function book(data: {
   config_id: number;
   user_id: number;
   date: string;
   start_time: string;
   meet_link?: string;
 }) {
-  const config = repo.getConfigById(data.config_id);
+  const config = await repo.getConfigById(data.config_id);
   if (!config || !config.is_active)
     throw { status: 400, message: "Agenda nao disponivel" };
 
@@ -133,12 +132,12 @@ export function book(data: {
   );
 
   if (
-    repo.hasBookingConflict(data.config_id, data.date, data.start_time, endTime)
+    await repo.hasBookingConflict(data.config_id, data.date, data.start_time, endTime)
   ) {
     throw { status: 409, message: "Horario ja reservado" };
   }
 
-  return repo.createBooking({
+  return await repo.createBooking({
     config_id: data.config_id,
     user_id: data.user_id,
     date: data.date,
@@ -148,27 +147,27 @@ export function book(data: {
   });
 }
 
-export function cancelBooking(bookingId: number, userId: number) {
-  const booking = repo.getBookingById(bookingId);
+export async function cancelBooking(bookingId: number, userId: number) {
+  const booking = await repo.getBookingById(bookingId);
   if (!booking)
     throw { status: 404, message: "Agendamento nao encontrado" };
-  repo.cancelBooking(bookingId);
+  await repo.cancelBooking(bookingId);
 }
 
-export function getMyBookings(userId: number) {
-  return repo.getBookingsByUser(userId);
+export async function getMyBookings(userId: number) {
+  return await repo.getBookingsByUser(userId);
 }
 
-export function getBookingsByConfig(configId: number) {
-  return repo.getBookingsByConfig(configId);
+export async function getBookingsByConfig(configId: number) {
+  return await repo.getBookingsByConfig(configId);
 }
 
-export function updateBookingNotes(id: number, notes: string) {
-  repo.updateBookingNotes(id, notes);
+export async function updateBookingNotes(id: number, notes: string) {
+  await repo.updateBookingNotes(id, notes);
 }
 
-export function updateBookingMeetLink(id: number, meetLink: string) {
-  repo.updateBookingMeetLink(id, meetLink);
+export async function updateBookingMeetLink(id: number, meetLink: string) {
+  await repo.updateBookingMeetLink(id, meetLink);
 }
 
 // ── Helpers ──

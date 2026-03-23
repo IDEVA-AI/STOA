@@ -7,10 +7,10 @@ const router = Router();
 router.use(authMiddleware);
 
 // List templates for a workspace
-router.get("/workspace/:workspaceId", (req, res) => {
+router.get("/workspace/:workspaceId", async (req, res) => {
   try {
     const workspaceId = Number(req.params.workspaceId);
-    const templates = lessonTemplateService.listByWorkspace(workspaceId);
+    const templates = await lessonTemplateService.listByWorkspace(workspaceId);
     res.json(templates);
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
@@ -18,10 +18,10 @@ router.get("/workspace/:workspaceId", (req, res) => {
 });
 
 // Get template with blocks
-router.get("/:id", (req, res) => {
+router.get("/:id", async (req, res) => {
   try {
     const id = Number(req.params.id);
-    const template = lessonTemplateService.getById(id);
+    const template = await lessonTemplateService.getById(id);
     if (!template) {
       res.status(404).json({ error: "Template not found" });
       return;
@@ -33,7 +33,7 @@ router.get("/:id", (req, res) => {
 });
 
 // Create template
-router.post("/", (req, res) => {
+router.post("/", async (req, res) => {
   try {
     const { workspace_id, name, description, thumbnail, blocks } = req.body;
     if (!workspace_id || !name) {
@@ -42,7 +42,7 @@ router.post("/", (req, res) => {
         .json({ error: "workspace_id and name are required" });
       return;
     }
-    const result = lessonTemplateService.create({
+    const result = await lessonTemplateService.create({
       workspace_id,
       name,
       description,
@@ -56,11 +56,11 @@ router.post("/", (req, res) => {
 });
 
 // Update template
-router.put("/:id", (req, res) => {
+router.put("/:id", async (req, res) => {
   try {
     const id = Number(req.params.id);
     const { name, description, thumbnail, is_default, blocks } = req.body;
-    lessonTemplateService.update(id, {
+    await lessonTemplateService.update(id, {
       name,
       description,
       thumbnail,
@@ -74,10 +74,10 @@ router.put("/:id", (req, res) => {
 });
 
 // Delete template
-router.delete("/:id", (req, res) => {
+router.delete("/:id", async (req, res) => {
   try {
     const id = Number(req.params.id);
-    lessonTemplateService.remove(id);
+    await lessonTemplateService.remove(id);
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
@@ -85,7 +85,7 @@ router.delete("/:id", (req, res) => {
 });
 
 // Create template from existing lesson
-router.post("/from-lesson", (req, res) => {
+router.post("/from-lesson", async (req, res) => {
   try {
     const { workspace_id, lesson_id, name } = req.body;
     if (!workspace_id || !lesson_id || !name) {
@@ -94,7 +94,7 @@ router.post("/from-lesson", (req, res) => {
         .json({ error: "workspace_id, lesson_id and name are required" });
       return;
     }
-    const result = lessonTemplateService.createFromLesson(
+    const result = await lessonTemplateService.createFromLesson(
       workspace_id,
       lesson_id,
       name
@@ -106,11 +106,11 @@ router.post("/from-lesson", (req, res) => {
 });
 
 // Apply template to a lesson (copies blocks)
-router.post("/:id/apply/:lessonId", (req, res) => {
+router.post("/:id/apply/:lessonId", async (req, res) => {
   try {
     const templateId = Number(req.params.id);
     const lessonId = Number(req.params.lessonId);
-    lessonTemplateService.applyToLesson(templateId, lessonId);
+    await lessonTemplateService.applyToLesson(templateId, lessonId);
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
@@ -118,11 +118,11 @@ router.post("/:id/apply/:lessonId", (req, res) => {
 });
 
 // Seed default templates for a workspace (idempotent — skips existing names)
-router.post("/seed-defaults/:workspaceId", (req, res) => {
+router.post("/seed-defaults/:workspaceId", async (req, res) => {
   try {
     const workspaceId = Number(req.params.workspaceId);
-    upsertDefaultTemplates(workspaceId);
-    const templates = lessonTemplateService.listByWorkspace(workspaceId);
+    await upsertDefaultTemplates(workspaceId);
+    const templates = await lessonTemplateService.listByWorkspace(workspaceId);
     res.json({ success: true, count: templates.length, templates });
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });

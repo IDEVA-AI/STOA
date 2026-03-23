@@ -5,9 +5,9 @@ import * as inviteService from "../services/inviteService";
 const router = Router();
 
 // Public: validate invite code
-router.get("/validate/:code", (req: Request, res: Response) => {
+router.get("/validate/:code", async (req: Request, res: Response) => {
   try {
-    const result = inviteService.validateInvite(req.params.code);
+    const result = await inviteService.validateInvite(req.params.code);
     res.json(result);
   } catch (err: any) {
     res.status(500).json({ error: err.message });
@@ -15,10 +15,10 @@ router.get("/validate/:code", (req: Request, res: Response) => {
 });
 
 // Admin: create invite
-router.post("/", authMiddleware, (req: Request, res: Response) => {
+router.post("/", authMiddleware, async (req: Request, res: Response) => {
   try {
     const { workspace_id, product_id, max_uses, expires_at } = req.body;
-    const invite = inviteService.createInvite({
+    const invite = await inviteService.createInvite({
       workspace_id,
       product_id,
       created_by: req.userId!,
@@ -32,9 +32,9 @@ router.post("/", authMiddleware, (req: Request, res: Response) => {
 });
 
 // Admin: list invites for workspace
-router.get("/workspace/:workspaceId", authMiddleware, (req: Request, res: Response) => {
+router.get("/workspace/:workspaceId", authMiddleware, async (req: Request, res: Response) => {
   try {
-    const invites = inviteService.getByWorkspace(Number(req.params.workspaceId));
+    const invites = await inviteService.getByWorkspace(Number(req.params.workspaceId));
     res.json(invites);
   } catch (err: any) {
     res.status(500).json({ error: err.message });
@@ -42,9 +42,9 @@ router.get("/workspace/:workspaceId", authMiddleware, (req: Request, res: Respon
 });
 
 // Admin: get redemptions
-router.get("/:id/redemptions", authMiddleware, (req: Request, res: Response) => {
+router.get("/:id/redemptions", authMiddleware, async (req: Request, res: Response) => {
   try {
-    const redemptions = inviteService.getRedemptions(Number(req.params.id));
+    const redemptions = await inviteService.getRedemptions(Number(req.params.id));
     res.json(redemptions);
   } catch (err: any) {
     res.status(500).json({ error: err.message });
@@ -52,9 +52,9 @@ router.get("/:id/redemptions", authMiddleware, (req: Request, res: Response) => 
 });
 
 // Admin: revoke invite
-router.put("/:id/revoke", authMiddleware, (req: Request, res: Response) => {
+router.put("/:id/revoke", authMiddleware, async (req: Request, res: Response) => {
   try {
-    inviteService.revokeInvite(Number(req.params.id));
+    await inviteService.revokeInvite(Number(req.params.id));
     res.json({ success: true });
   } catch (err: any) {
     res.status(err.status || 500).json({ error: err.message });
@@ -62,9 +62,9 @@ router.put("/:id/revoke", authMiddleware, (req: Request, res: Response) => {
 });
 
 // Admin: delete invite
-router.delete("/:id", authMiddleware, (req: Request, res: Response) => {
+router.delete("/:id", authMiddleware, async (req: Request, res: Response) => {
   try {
-    inviteService.deleteInvite(Number(req.params.id));
+    await inviteService.deleteInvite(Number(req.params.id));
     res.json({ success: true });
   } catch (err: any) {
     res.status(err.status || 500).json({ error: err.message });

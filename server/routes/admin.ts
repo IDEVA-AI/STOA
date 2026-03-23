@@ -3,9 +3,9 @@ import * as adminService from "../services/adminService";
 
 const router = Router();
 
-router.get("/stats", (req, res) => {
-  const stats = adminService.getStats();
-  const recentActivity = adminService.getRecentActivity(15);
+router.get("/stats", async (req, res) => {
+  const stats = await adminService.getStats();
+  const recentActivity = await adminService.getRecentActivity(15);
 
   res.json({
     kpis: {

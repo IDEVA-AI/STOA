@@ -1,104 +1,97 @@
 import db from "../db/connection";
 
-export function getByUser(userId: number) {
-  return db
-    .prepare(
-      `SELECT pu.*, p.title AS product_title, p.type AS product_type, p.price AS product_price
-       FROM purchases pu
-       JOIN products p ON p.id = pu.product_id
-       WHERE pu.user_id = ? AND pu.status = 'active'
-       ORDER BY pu.purchased_at DESC`
-    )
-    .all(userId);
+export async function getByUser(userId: number) {
+  return await db.all(
+    `SELECT pu.*, p.title AS product_title, p.type AS product_type, p.price AS product_price
+     FROM purchases pu
+     JOIN products p ON p.id = pu.product_id
+     WHERE pu.user_id = $1 AND pu.status = 'active'
+     ORDER BY pu.purchased_at DESC`,
+    [userId]
+  );
 }
 
-export function getByWorkspace(workspaceId: number) {
-  return db
-    .prepare(
-      `SELECT pu.*, p.title AS product_title, p.type AS product_type, p.price AS product_price,
-              u.name AS user_name, u.email AS user_email
-       FROM purchases pu
-       JOIN products p ON p.id = pu.product_id
-       JOIN users u ON u.id = pu.user_id
-       WHERE pu.workspace_id = ?
-       ORDER BY pu.purchased_at DESC`
-    )
-    .all(workspaceId);
+export async function getByWorkspace(workspaceId: number) {
+  return await db.all(
+    `SELECT pu.*, p.title AS product_title, p.type AS product_type, p.price AS product_price,
+            u.name AS user_name, u.email AS user_email
+     FROM purchases pu
+     JOIN products p ON p.id = pu.product_id
+     JOIN users u ON u.id = pu.user_id
+     WHERE pu.workspace_id = $1
+     ORDER BY pu.purchased_at DESC`,
+    [workspaceId]
+  );
 }
 
-export function getById(id: number) {
-  return db
-    .prepare(
-      `SELECT pu.*, p.title AS product_title, p.type AS product_type, p.price AS product_price
-       FROM purchases pu
-       JOIN products p ON p.id = pu.product_id
-       WHERE pu.id = ?`
-    )
-    .get(id);
+export async function getById(id: number) {
+  return await db.get(
+    `SELECT pu.*, p.title AS product_title, p.type AS product_type, p.price AS product_price
+     FROM purchases pu
+     JOIN products p ON p.id = pu.product_id
+     WHERE pu.id = $1`,
+    [id]
+  );
 }
 
-export function create(data: {
+export async function create(data: {
   user_id: number;
   product_id: number;
   workspace_id: number;
   status?: string;
   expires_at?: string | null;
 }) {
-  const result = db
-    .prepare(
-      `INSERT INTO purchases (user_id, product_id, workspace_id, status, expires_at)
-       VALUES (?, ?, ?, ?, ?)`
-    )
-    .run(
+  const result = await db.run(
+    `INSERT INTO purchases (user_id, product_id, workspace_id, status, expires_at)
+     VALUES ($1, $2, $3, $4, $5) RETURNING id`,
+    [
       data.user_id,
       data.product_id,
       data.workspace_id,
       data.status ?? "active",
       data.expires_at ?? null
-    );
-  return result.lastInsertRowid as number;
+    ]
+  );
+  return result.rows[0].id as number;
 }
 
-export function updateStatus(id: number, status: string) {
-  db.prepare("UPDATE purchases SET status = ? WHERE id = ?").run(status, id);
+export async function updateStatus(id: number, status: string) {
+  await db.run("UPDATE purchases SET status = $1 WHERE id = $2", [status, id]);
 }
 
-export function hasAccess(userId: number, courseId: number): boolean {
-  const row = db
-    .prepare(
-      `SELECT 1 FROM purchases pu
-       JOIN product_courses pc ON pc.product_id = pu.product_id
-       WHERE pu.user_id = ?
-         AND pc.course_id = ?
-         AND pu.status = 'active'
-         AND (pu.expires_at IS NULL OR pu.expires_at > datetime('now'))
-       LIMIT 1`
-    )
-    .get(userId, courseId);
+export async function hasAccess(userId: number, courseId: number): Promise<boolean> {
+  const row = await db.get(
+    `SELECT 1 FROM purchases pu
+     JOIN product_courses pc ON pc.product_id = pu.product_id
+     WHERE pu.user_id = $1
+       AND pc.course_id = $2
+       AND pu.status = 'active'
+       AND (pu.expires_at IS NULL OR pu.expires_at > NOW())
+     LIMIT 1`,
+    [userId, courseId]
+  );
   return !!row;
 }
 
-export function getUserCourseIds(userId: number): number[] {
-  const rows = db
-    .prepare(
-      `SELECT DISTINCT pc.course_id FROM purchases pu
-       JOIN product_courses pc ON pc.product_id = pu.product_id
-       WHERE pu.user_id = ?
-         AND pu.status = 'active'
-         AND (pu.expires_at IS NULL OR pu.expires_at > datetime('now'))`
-    )
-    .all(userId) as { course_id: number }[];
+export async function getUserCourseIds(userId: number): Promise<number[]> {
+  const rows = await db.all<{ course_id: number }>(
+    `SELECT DISTINCT pc.course_id FROM purchases pu
+     JOIN product_courses pc ON pc.product_id = pu.product_id
+     WHERE pu.user_id = $1
+       AND pu.status = 'active'
+       AND (pu.expires_at IS NULL OR pu.expires_at > NOW())`,
+    [userId]
+  );
   return rows.map((r) => r.course_id);
 }
 
-export function getByUserAndWorkspace(userId: number, workspaceId: number) {
-  return db
-    .prepare(
-      `SELECT pu.*, p.title AS product_title, p.type AS product_type, p.price AS product_price
-       FROM purchases pu
-       JOIN products p ON p.id = pu.product_id
-       WHERE pu.user_id = ? AND pu.workspace_id = ? AND pu.status = 'active'
-       ORDER BY pu.purchased_at DESC`
-    )
-    .all(userId, workspaceId);
+export async function getByUserAndWorkspace(userId: number, workspaceId: number) {
+  return await db.all(
+    `SELECT pu.*, p.title AS product_title, p.type AS product_type, p.price AS product_price
+     FROM purchases pu
+     JOIN products p ON p.id = pu.product_id
+     WHERE pu.user_id = $1 AND pu.workspace_id = $2 AND pu.status = 'active'
+     ORDER BY pu.purchased_at DESC`,
+    [userId, workspaceId]
+  );
 }

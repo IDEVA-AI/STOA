@@ -3,17 +3,17 @@ import * as courseService from "../services/courseService";
 
 const router = Router();
 
-router.get("/", (req, res) => {
+router.get("/", async (req, res) => {
   const workspaceId = req.query.workspaceId ? Number(req.query.workspaceId) : undefined;
-  const courses = courseService.listCourses(workspaceId);
+  const courses = await courseService.listCourses(workspaceId);
   res.json(courses);
 });
 
-router.get("/:id/content", (req, res) => {
+router.get("/:id/content", async (req, res) => {
   const id = Number(req.params.id);
   console.log(`Fetching content for course ID: ${id}`);
   try {
-    const modules = courseService.getCourseContent(id);
+    const modules = await courseService.getCourseContent(id);
     console.log(`Found ${modules.length} modules for course ${id}`);
     res.json(modules);
   } catch (error) {

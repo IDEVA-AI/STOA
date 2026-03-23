@@ -11,85 +11,88 @@ export interface AdminCourseRow {
   lesson_count: number;
 }
 
-export function listCourses(): AdminCourseRow[] {
-  return db
-    .prepare(
-      `SELECT
-        c.id,
-        c.title,
-        c.description,
-        c.thumbnail,
-        (SELECT COUNT(*) FROM courses_modules cm WHERE cm.course_id = c.id) AS module_count,
-        (SELECT COUNT(*) FROM modules_lessons ml
-         JOIN courses_modules cm ON cm.module_id = ml.module_id
-         WHERE cm.course_id = c.id) AS lesson_count
-      FROM courses c
-      ORDER BY c.id DESC`
-    )
-    .all() as AdminCourseRow[];
+export async function listCourses(): Promise<AdminCourseRow[]> {
+  return db.all<AdminCourseRow>(
+    `SELECT
+      c.id,
+      c.title,
+      c.description,
+      c.thumbnail,
+      (SELECT COUNT(*) FROM courses_modules cm WHERE cm.course_id = c.id) AS module_count,
+      (SELECT COUNT(*) FROM modules_lessons ml
+       JOIN courses_modules cm ON cm.module_id = ml.module_id
+       WHERE cm.course_id = c.id) AS lesson_count
+    FROM courses c
+    ORDER BY c.id DESC`
+  );
 }
 
-export function createCourse(title: string, description: string, thumbnail: string, workspaceId?: number): number {
+export async function createCourse(title: string, description: string, thumbnail: string, workspaceId?: number): Promise<number> {
   if (workspaceId) {
-    const result = db
-      .prepare(`INSERT INTO courses (title, description, thumbnail, lessons_count, workspace_id) VALUES (?, ?, ?, 0, ?)`)
-      .run(title, description, thumbnail, workspaceId);
-    return Number(result.lastInsertRowid);
+    const result = await db.run(
+      `INSERT INTO courses (title, description, thumbnail, lessons_count, workspace_id) VALUES ($1, $2, $3, 0, $4) RETURNING id`,
+      [title, description, thumbnail, workspaceId]
+    );
+    return result.rows[0].id;
   }
-  const result = db
-    .prepare(`INSERT INTO courses (title, description, thumbnail, lessons_count) VALUES (?, ?, ?, 0)`)
-    .run(title, description, thumbnail);
-  return Number(result.lastInsertRowid);
+  const result = await db.run(
+    `INSERT INTO courses (title, description, thumbnail, lessons_count) VALUES ($1, $2, $3, 0) RETURNING id`,
+    [title, description, thumbnail]
+  );
+  return result.rows[0].id;
 }
 
-export function updateCourse(
+export async function updateCourse(
   id: number,
   data: { title?: string; description?: string; thumbnail?: string }
-): boolean {
+): Promise<boolean> {
   const fields: string[] = [];
   const values: any[] = [];
+  let paramIndex = 1;
 
   if (data.title !== undefined) {
-    fields.push("title = ?");
+    fields.push(`title = $${paramIndex++}`);
     values.push(data.title);
   }
   if (data.description !== undefined) {
-    fields.push("description = ?");
+    fields.push(`description = $${paramIndex++}`);
     values.push(data.description);
   }
   if (data.thumbnail !== undefined) {
-    fields.push("thumbnail = ?");
+    fields.push(`thumbnail = $${paramIndex++}`);
     values.push(data.thumbnail);
   }
 
   if (fields.length === 0) return false;
   values.push(id);
 
-  const result = db
-    .prepare(`UPDATE courses SET ${fields.join(", ")} WHERE id = ?`)
-    .run(...values);
-  return result.changes > 0;
+  const result = await db.run(
+    `UPDATE courses SET ${fields.join(", ")} WHERE id = $${paramIndex}`,
+    values
+  );
+  return result.rowCount > 0;
 }
 
-export function deleteCourse(id: number): boolean {
-  const del = db.transaction(() => {
+export async function deleteCourse(id: number): Promise<boolean> {
+  return db.transaction(async (client) => {
     // Delete lessons belonging to modules of this course (via junction)
-    db.prepare(
-      `DELETE FROM modules_lessons WHERE module_id IN (SELECT module_id FROM courses_modules WHERE course_id = ?)`
-    ).run(id);
+    await client.query(
+      `DELETE FROM modules_lessons WHERE module_id IN (SELECT module_id FROM courses_modules WHERE course_id = $1)`,
+      [id]
+    );
     // Delete lessons belonging to modules of this course (direct FK)
-    db.prepare(
-      `DELETE FROM lessons WHERE module_id IN (SELECT id FROM modules WHERE course_id = ?)`
-    ).run(id);
+    await client.query(
+      `DELETE FROM lessons WHERE module_id IN (SELECT id FROM modules WHERE course_id = $1)`,
+      [id]
+    );
     // Delete junction entries
-    db.prepare(`DELETE FROM courses_modules WHERE course_id = ?`).run(id);
+    await client.query(`DELETE FROM courses_modules WHERE course_id = $1`, [id]);
     // Delete modules
-    db.prepare(`DELETE FROM modules WHERE course_id = ?`).run(id);
+    await client.query(`DELETE FROM modules WHERE course_id = $1`, [id]);
     // Delete course
-    const result = db.prepare(`DELETE FROM courses WHERE id = ?`).run(id);
-    return result.changes > 0;
+    const result = await client.query(`DELETE FROM courses WHERE id = $1`, [id]);
+    return (result.rowCount ?? 0) > 0;
   });
-  return del();
 }
 
 // ── Modules ──────────────────────────────────────────────────────────
@@ -101,66 +104,68 @@ export interface ModuleRow {
   order: number;
 }
 
-export function createModule(courseId: number, title: string, order: number): number {
-  const create = db.transaction(() => {
-    const result = db
-      .prepare(`INSERT INTO modules (course_id, title, "order") VALUES (?, ?, ?)`)
-      .run(courseId, title, order);
-    const newModuleId = Number(result.lastInsertRowid);
+export async function createModule(courseId: number, title: string, order: number): Promise<number> {
+  return db.transaction(async (client) => {
+    const { rows } = await client.query(
+      `INSERT INTO modules (course_id, title, "order") VALUES ($1, $2, $3) RETURNING id`,
+      [courseId, title, order]
+    );
+    const newModuleId = rows[0].id;
     // Also insert into junction table
-    db.prepare(`INSERT INTO courses_modules (course_id, module_id, position) VALUES (?, ?, ?)`)
-      .run(courseId, newModuleId, order);
+    await client.query(
+      `INSERT INTO courses_modules (course_id, module_id, position) VALUES ($1, $2, $3)`,
+      [courseId, newModuleId, order]
+    );
     return newModuleId;
   });
-  return create();
 }
 
-export function updateModule(
+export async function updateModule(
   id: number,
   data: { title?: string; order?: number }
-): boolean {
+): Promise<boolean> {
   const fields: string[] = [];
   const values: any[] = [];
+  let paramIndex = 1;
 
   if (data.title !== undefined) {
-    fields.push("title = ?");
+    fields.push(`title = $${paramIndex++}`);
     values.push(data.title);
   }
   if (data.order !== undefined) {
-    fields.push('"order" = ?');
+    fields.push(`"order" = $${paramIndex++}`);
     values.push(data.order);
   }
 
   if (fields.length === 0) return false;
   values.push(id);
 
-  const result = db
-    .prepare(`UPDATE modules SET ${fields.join(", ")} WHERE id = ?`)
-    .run(...values);
-  return result.changes > 0;
+  const result = await db.run(
+    `UPDATE modules SET ${fields.join(", ")} WHERE id = $${paramIndex}`,
+    values
+  );
+  return result.rowCount > 0;
 }
 
-export function deleteModule(id: number): boolean {
-  const del = db.transaction(() => {
-    db.prepare(`DELETE FROM modules_lessons WHERE module_id = ?`).run(id);
-    db.prepare(`DELETE FROM lessons WHERE module_id = ?`).run(id);
-    db.prepare(`DELETE FROM courses_modules WHERE module_id = ?`).run(id);
-    const result = db.prepare(`DELETE FROM modules WHERE id = ?`).run(id);
-    return result.changes > 0;
+export async function deleteModule(id: number): Promise<boolean> {
+  return db.transaction(async (client) => {
+    await client.query(`DELETE FROM modules_lessons WHERE module_id = $1`, [id]);
+    await client.query(`DELETE FROM lessons WHERE module_id = $1`, [id]);
+    await client.query(`DELETE FROM courses_modules WHERE module_id = $1`, [id]);
+    const result = await client.query(`DELETE FROM modules WHERE id = $1`, [id]);
+    return (result.rowCount ?? 0) > 0;
   });
-  return del();
 }
 
-export function getModulesByCourse(courseId: number): ModuleRow[] {
-  return db
-    .prepare(
-      `SELECT m.id, m.course_id, m.title, m."order"
-       FROM modules m
-       JOIN courses_modules cm ON cm.module_id = m.id
-       WHERE cm.course_id = ?
-       ORDER BY cm.position`
-    )
-    .all(courseId) as ModuleRow[];
+export async function getModulesByCourse(courseId: number): Promise<ModuleRow[]> {
+  return db.all<ModuleRow>(
+    `SELECT m.id, m.course_id, m.title, m."order"
+     FROM modules m
+     JOIN courses_modules cm ON cm.module_id = m.id
+     WHERE cm.course_id = $1
+     ORDER BY cm.position`,
+    [courseId]
+  );
 }
 
 // ── Lessons ──────────────────────────────────────────────────────────
@@ -175,30 +180,30 @@ export interface LessonRow {
   order: number;
 }
 
-export function createLesson(
+export async function createLesson(
   moduleId: number,
   title: string,
   contentUrl: string | null,
   contentType: string | null,
   duration: number | null,
   order: number
-): number {
-  const create = db.transaction(() => {
-    const result = db
-      .prepare(
-        `INSERT INTO lessons (module_id, title, content_url, content_type, duration, "order") VALUES (?, ?, ?, ?, ?, ?)`
-      )
-      .run(moduleId, title, contentUrl, contentType, duration, order);
-    const newLessonId = Number(result.lastInsertRowid);
+): Promise<number> {
+  return db.transaction(async (client) => {
+    const { rows } = await client.query(
+      `INSERT INTO lessons (module_id, title, content_url, content_type, duration, "order") VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
+      [moduleId, title, contentUrl, contentType, duration, order]
+    );
+    const newLessonId = rows[0].id;
     // Also insert into junction table
-    db.prepare(`INSERT INTO modules_lessons (module_id, lesson_id, position) VALUES (?, ?, ?)`)
-      .run(moduleId, newLessonId, order);
+    await client.query(
+      `INSERT INTO modules_lessons (module_id, lesson_id, position) VALUES ($1, $2, $3)`,
+      [moduleId, newLessonId, order]
+    );
     return newLessonId;
   });
-  return create();
 }
 
-export function updateLesson(
+export async function updateLesson(
   id: number,
   data: {
     title?: string;
@@ -207,59 +212,59 @@ export function updateLesson(
     duration?: number;
     order?: number;
   }
-): boolean {
+): Promise<boolean> {
   const fields: string[] = [];
   const values: any[] = [];
+  let paramIndex = 1;
 
   if (data.title !== undefined) {
-    fields.push("title = ?");
+    fields.push(`title = $${paramIndex++}`);
     values.push(data.title);
   }
   if (data.content_url !== undefined) {
-    fields.push("content_url = ?");
+    fields.push(`content_url = $${paramIndex++}`);
     values.push(data.content_url);
   }
   if (data.content_type !== undefined) {
-    fields.push("content_type = ?");
+    fields.push(`content_type = $${paramIndex++}`);
     values.push(data.content_type);
   }
   if (data.duration !== undefined) {
-    fields.push("duration = ?");
+    fields.push(`duration = $${paramIndex++}`);
     values.push(data.duration);
   }
   if (data.order !== undefined) {
-    fields.push('"order" = ?');
+    fields.push(`"order" = $${paramIndex++}`);
     values.push(data.order);
   }
 
   if (fields.length === 0) return false;
   values.push(id);
 
-  const result = db
-    .prepare(`UPDATE lessons SET ${fields.join(", ")} WHERE id = ?`)
-    .run(...values);
-  return result.changes > 0;
+  const result = await db.run(
+    `UPDATE lessons SET ${fields.join(", ")} WHERE id = $${paramIndex}`,
+    values
+  );
+  return result.rowCount > 0;
 }
 
-export function deleteLesson(id: number): boolean {
-  const del = db.transaction(() => {
-    db.prepare(`DELETE FROM modules_lessons WHERE lesson_id = ?`).run(id);
-    const result = db.prepare(`DELETE FROM lessons WHERE id = ?`).run(id);
-    return result.changes > 0;
+export async function deleteLesson(id: number): Promise<boolean> {
+  return db.transaction(async (client) => {
+    await client.query(`DELETE FROM modules_lessons WHERE lesson_id = $1`, [id]);
+    const result = await client.query(`DELETE FROM lessons WHERE id = $1`, [id]);
+    return (result.rowCount ?? 0) > 0;
   });
-  return del();
 }
 
-export function getLessonsByModule(moduleId: number): LessonRow[] {
-  return db
-    .prepare(
-      `SELECT l.id, l.module_id, l.title, l.content_url, l.content_type, l.duration, l."order"
-       FROM lessons l
-       JOIN modules_lessons ml ON ml.lesson_id = l.id
-       WHERE ml.module_id = ?
-       ORDER BY ml.position`
-    )
-    .all(moduleId) as LessonRow[];
+export async function getLessonsByModule(moduleId: number): Promise<LessonRow[]> {
+  return db.all<LessonRow>(
+    `SELECT l.id, l.module_id, l.title, l.content_url, l.content_type, l.duration, l."order"
+     FROM lessons l
+     JOIN modules_lessons ml ON ml.lesson_id = l.id
+     WHERE ml.module_id = $1
+     ORDER BY ml.position`,
+    [moduleId]
+  );
 }
 
 // ── Users ────────────────────────────────────────────────────────────
@@ -273,42 +278,43 @@ export interface AdminUserRow {
   created_at: string;
 }
 
-export function listUsers(): AdminUserRow[] {
-  return db
-    .prepare(
-      `SELECT id, name, email, role, is_active, created_at FROM users ORDER BY id`
-    )
-    .all() as AdminUserRow[];
+export async function listUsers(): Promise<AdminUserRow[]> {
+  return db.all<AdminUserRow>(
+    `SELECT id, name, email, role, is_active, created_at FROM users ORDER BY id`
+  );
 }
 
-export function updateUser(
+export async function updateUser(
   id: number,
   data: { role?: string; is_active?: number }
-): boolean {
+): Promise<boolean> {
   const fields: string[] = [];
   const values: any[] = [];
+  let paramIndex = 1;
 
   if (data.role !== undefined) {
-    fields.push("role = ?");
+    fields.push(`role = $${paramIndex++}`);
     values.push(data.role);
   }
   if (data.is_active !== undefined) {
-    fields.push("is_active = ?");
+    fields.push(`is_active = $${paramIndex++}`);
     values.push(data.is_active);
   }
 
   if (fields.length === 0) return false;
   values.push(id);
 
-  const result = db
-    .prepare(`UPDATE users SET ${fields.join(", ")} WHERE id = ?`)
-    .run(...values);
-  return result.changes > 0;
+  const result = await db.run(
+    `UPDATE users SET ${fields.join(", ")} WHERE id = $${paramIndex}`,
+    values
+  );
+  return result.rowCount > 0;
 }
 
-export function softDeleteUser(id: number): boolean {
-  const result = db
-    .prepare(`UPDATE users SET is_active = 0 WHERE id = ?`)
-    .run(id);
-  return result.changes > 0;
+export async function softDeleteUser(id: number): Promise<boolean> {
+  const result = await db.run(
+    `UPDATE users SET is_active = 0 WHERE id = $1`,
+    [id]
+  );
+  return result.rowCount > 0;
 }

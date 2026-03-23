@@ -16,25 +16,25 @@ router.use((req: Request, res: Response, next) => {
 
 // ── Courses ──────────────────────────────────────────────────────────
 
-router.get("/courses", (_req: Request, res: Response) => {
-  const courses = adminCrudService.listCourses();
+router.get("/courses", async (_req: Request, res: Response) => {
+  const courses = await adminCrudService.listCourses();
   res.json(courses);
 });
 
-router.post("/courses", (req: Request, res: Response) => {
+router.post("/courses", async (req: Request, res: Response) => {
   const { title, description, thumbnail } = req.body;
   if (!title) {
     res.status(400).json({ error: "Titulo e obrigatorio." });
     return;
   }
-  const id = adminCrudService.createCourse(title, description || "", thumbnail || "");
+  const id = await adminCrudService.createCourse(title, description || "", thumbnail || "");
   res.status(201).json({ id });
 });
 
-router.put("/courses/:id", (req: Request, res: Response) => {
+router.put("/courses/:id", async (req: Request, res: Response) => {
   const id = Number(req.params.id);
   const { title, description, thumbnail } = req.body;
-  const updated = adminCrudService.updateCourse(id, { title, description, thumbnail });
+  const updated = await adminCrudService.updateCourse(id, { title, description, thumbnail });
   if (!updated) {
     res.status(404).json({ error: "Curso nao encontrado." });
     return;
@@ -42,9 +42,9 @@ router.put("/courses/:id", (req: Request, res: Response) => {
   res.json({ success: true });
 });
 
-router.delete("/courses/:id", (req: Request, res: Response) => {
+router.delete("/courses/:id", async (req: Request, res: Response) => {
   const id = Number(req.params.id);
-  const deleted = adminCrudService.deleteCourse(id);
+  const deleted = await adminCrudService.deleteCourse(id);
   if (!deleted) {
     res.status(404).json({ error: "Curso nao encontrado." });
     return;
@@ -54,21 +54,21 @@ router.delete("/courses/:id", (req: Request, res: Response) => {
 
 // ── Modules ──────────────────────────────────────────────────────────
 
-router.post("/courses/:courseId/modules", (req: Request, res: Response) => {
+router.post("/courses/:courseId/modules", async (req: Request, res: Response) => {
   const courseId = Number(req.params.courseId);
   const { title, order } = req.body;
   if (!title) {
     res.status(400).json({ error: "Titulo e obrigatorio." });
     return;
   }
-  const id = adminCrudService.createModule(courseId, title, order ?? 0);
+  const id = await adminCrudService.createModule(courseId, title, order ?? 0);
   res.status(201).json({ id });
 });
 
-router.put("/modules/:id", (req: Request, res: Response) => {
+router.put("/modules/:id", async (req: Request, res: Response) => {
   const id = Number(req.params.id);
   const { title, order } = req.body;
-  const updated = adminCrudService.updateModule(id, { title, order });
+  const updated = await adminCrudService.updateModule(id, { title, order });
   if (!updated) {
     res.status(404).json({ error: "Modulo nao encontrado." });
     return;
@@ -76,9 +76,9 @@ router.put("/modules/:id", (req: Request, res: Response) => {
   res.json({ success: true });
 });
 
-router.delete("/modules/:id", (req: Request, res: Response) => {
+router.delete("/modules/:id", async (req: Request, res: Response) => {
   const id = Number(req.params.id);
-  const deleted = adminCrudService.deleteModule(id);
+  const deleted = await adminCrudService.deleteModule(id);
   if (!deleted) {
     res.status(404).json({ error: "Modulo nao encontrado." });
     return;
@@ -88,14 +88,14 @@ router.delete("/modules/:id", (req: Request, res: Response) => {
 
 // ── Lessons ──────────────────────────────────────────────────────────
 
-router.post("/modules/:moduleId/lessons", (req: Request, res: Response) => {
+router.post("/modules/:moduleId/lessons", async (req: Request, res: Response) => {
   const moduleId = Number(req.params.moduleId);
   const { title, content_url, content_type, duration, order } = req.body;
   if (!title) {
     res.status(400).json({ error: "Titulo e obrigatorio." });
     return;
   }
-  const id = adminCrudService.createLesson(
+  const id = await adminCrudService.createLesson(
     moduleId,
     title,
     content_url || null,
@@ -106,10 +106,10 @@ router.post("/modules/:moduleId/lessons", (req: Request, res: Response) => {
   res.status(201).json({ id });
 });
 
-router.put("/lessons/:id", (req: Request, res: Response) => {
+router.put("/lessons/:id", async (req: Request, res: Response) => {
   const id = Number(req.params.id);
   const { title, content_url, content_type, duration, order } = req.body;
-  const updated = adminCrudService.updateLesson(id, {
+  const updated = await adminCrudService.updateLesson(id, {
     title,
     content_url,
     content_type,
@@ -123,9 +123,9 @@ router.put("/lessons/:id", (req: Request, res: Response) => {
   res.json({ success: true });
 });
 
-router.delete("/lessons/:id", (req: Request, res: Response) => {
+router.delete("/lessons/:id", async (req: Request, res: Response) => {
   const id = Number(req.params.id);
-  const deleted = adminCrudService.deleteLesson(id);
+  const deleted = await adminCrudService.deleteLesson(id);
   if (!deleted) {
     res.status(404).json({ error: "Aula nao encontrada." });
     return;
@@ -135,15 +135,15 @@ router.delete("/lessons/:id", (req: Request, res: Response) => {
 
 // ── Users ────────────────────────────────────────────────────────────
 
-router.get("/users", (_req: Request, res: Response) => {
-  const users = adminCrudService.listUsers();
+router.get("/users", async (_req: Request, res: Response) => {
+  const users = await adminCrudService.listUsers();
   res.json(users);
 });
 
-router.put("/users/:id", (req: Request, res: Response) => {
+router.put("/users/:id", async (req: Request, res: Response) => {
   const id = Number(req.params.id);
   const { role, is_active } = req.body;
-  const updated = adminCrudService.updateUser(id, { role, is_active });
+  const updated = await adminCrudService.updateUser(id, { role, is_active });
   if (!updated) {
     res.status(404).json({ error: "Usuario nao encontrado." });
     return;
@@ -151,9 +151,9 @@ router.put("/users/:id", (req: Request, res: Response) => {
   res.json({ success: true });
 });
 
-router.delete("/users/:id", (req: Request, res: Response) => {
+router.delete("/users/:id", async (req: Request, res: Response) => {
   const id = Number(req.params.id);
-  const deleted = adminCrudService.softDeleteUser(id);
+  const deleted = await adminCrudService.softDeleteUser(id);
   if (!deleted) {
     res.status(404).json({ error: "Usuario nao encontrado." });
     return;

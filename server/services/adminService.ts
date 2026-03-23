@@ -1,9 +1,9 @@
 import * as adminRepo from "../repositories/adminRepository";
 
-export function getStats() {
-  return adminRepo.getStats();
+export async function getStats() {
+  return await adminRepo.getStats();
 }
 
-export function getRecentActivity(limit: number = 10) {
-  return adminRepo.getRecentActivity(limit);
+export async function getRecentActivity(limit: number = 10) {
+  return await adminRepo.getRecentActivity(limit);
 }

@@ -6,13 +6,13 @@ const router = Router();
 
 // ── User-facing (auth required) ────────────────────────────────────────
 
-router.get("/pending", authMiddleware, (req, res) => {
+router.get("/pending", authMiddleware, async (req, res) => {
   const userId = req.userId!;
-  const pending = announcementService.getPendingForUser(userId);
+  const pending = await announcementService.getPendingForUser(userId);
   res.json(pending);
 });
 
-router.post("/:id/confirm", authMiddleware, (req, res) => {
+router.post("/:id/confirm", authMiddleware, async (req, res) => {
   const userId = req.userId!;
   const announcementId = Number(req.params.id);
 
@@ -21,7 +21,7 @@ router.post("/:id/confirm", authMiddleware, (req, res) => {
     return;
   }
 
-  announcementService.confirm(announcementId, userId);
+  await announcementService.confirm(announcementId, userId);
   res.json({ success: true });
 });
 
@@ -35,14 +35,14 @@ function requireAdmin(req: any, res: any, next: any) {
   next();
 }
 
-router.get("/", authMiddleware, requireAdmin, (_req, res) => {
-  const announcements = announcementService.getAll();
+router.get("/", authMiddleware, requireAdmin, async (_req, res) => {
+  const announcements = await announcementService.getAll();
   res.json(announcements);
 });
 
-router.get("/:id", authMiddleware, requireAdmin, (req, res) => {
+router.get("/:id", authMiddleware, requireAdmin, async (req, res) => {
   const id = Number(req.params.id);
-  const announcement = announcementService.getById(id);
+  const announcement = await announcementService.getById(id);
 
   if (!announcement) {
     res.status(404).json({ error: "Announcement not found" });
@@ -52,7 +52,7 @@ router.get("/:id", authMiddleware, requireAdmin, (req, res) => {
   res.json(announcement);
 });
 
-router.post("/", authMiddleware, requireAdmin, (req, res) => {
+router.post("/", authMiddleware, requireAdmin, async (req, res) => {
   const { title, type, priority, frequency, target, is_active, expires_at, blocks } = req.body;
 
   if (!title) {
@@ -60,7 +60,7 @@ router.post("/", authMiddleware, requireAdmin, (req, res) => {
     return;
   }
 
-  const announcement = announcementService.create({
+  const announcement = await announcementService.create({
     title,
     type,
     priority,
@@ -74,7 +74,7 @@ router.post("/", authMiddleware, requireAdmin, (req, res) => {
   res.status(201).json(announcement);
 });
 
-router.put("/:id", authMiddleware, requireAdmin, (req, res) => {
+router.put("/:id", authMiddleware, requireAdmin, async (req, res) => {
   const id = Number(req.params.id);
   const { title, type, priority, frequency, target, is_active, expires_at, blocks } = req.body;
 
@@ -83,13 +83,13 @@ router.put("/:id", authMiddleware, requireAdmin, (req, res) => {
     return;
   }
 
-  const existing = announcementService.getById(id);
+  const existing = await announcementService.getById(id);
   if (!existing) {
     res.status(404).json({ error: "Announcement not found" });
     return;
   }
 
-  const announcement = announcementService.update(id, {
+  const announcement = await announcementService.update(id, {
     title,
     type,
     priority,
@@ -103,16 +103,16 @@ router.put("/:id", authMiddleware, requireAdmin, (req, res) => {
   res.json(announcement);
 });
 
-router.delete("/:id", authMiddleware, requireAdmin, (req, res) => {
+router.delete("/:id", authMiddleware, requireAdmin, async (req, res) => {
   const id = Number(req.params.id);
 
-  const existing = announcementService.getById(id);
+  const existing = await announcementService.getById(id);
   if (!existing) {
     res.status(404).json({ error: "Announcement not found" });
     return;
   }
 
-  announcementService.remove(id);
+  await announcementService.remove(id);
   res.json({ success: true });
 });
 

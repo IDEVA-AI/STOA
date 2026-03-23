@@ -6,10 +6,10 @@ const router = Router();
 router.use(authMiddleware);
 
 // Get all blocks for a lesson (ordered by position)
-router.get("/lesson/:lessonId", (req, res) => {
+router.get("/lesson/:lessonId", async (req, res) => {
   try {
     const lessonId = Number(req.params.lessonId);
-    const blocks = lessonBlockService.getByLesson(lessonId);
+    const blocks = await lessonBlockService.getByLesson(lessonId);
     res.json(blocks);
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
@@ -17,10 +17,10 @@ router.get("/lesson/:lessonId", (req, res) => {
 });
 
 // Get single block
-router.get("/:id", (req, res) => {
+router.get("/:id", async (req, res) => {
   try {
     const id = Number(req.params.id);
-    const block = lessonBlockService.getById(id);
+    const block = await lessonBlockService.getById(id);
     if (!block) {
       res.status(404).json({ error: "Block not found" });
       return;
@@ -32,14 +32,14 @@ router.get("/:id", (req, res) => {
 });
 
 // Create block
-router.post("/", (req, res) => {
+router.post("/", async (req, res) => {
   try {
     const { lesson_id, block_type, content, position } = req.body;
     if (!lesson_id || !block_type) {
       res.status(400).json({ error: "lesson_id and block_type are required" });
       return;
     }
-    const result = lessonBlockService.create({
+    const result = await lessonBlockService.create({
       lesson_id,
       block_type,
       content: content || {},
@@ -52,11 +52,11 @@ router.post("/", (req, res) => {
 });
 
 // Update block
-router.put("/:id", (req, res) => {
+router.put("/:id", async (req, res) => {
   try {
     const id = Number(req.params.id);
     const { block_type, content, position } = req.body;
-    lessonBlockService.update(id, { block_type, content, position });
+    await lessonBlockService.update(id, { block_type, content, position });
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
@@ -64,10 +64,10 @@ router.put("/:id", (req, res) => {
 });
 
 // Delete block
-router.delete("/:id", (req, res) => {
+router.delete("/:id", async (req, res) => {
   try {
     const id = Number(req.params.id);
-    lessonBlockService.remove(id);
+    await lessonBlockService.remove(id);
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
@@ -75,7 +75,7 @@ router.delete("/:id", (req, res) => {
 });
 
 // Reorder blocks for a lesson
-router.post("/lesson/:lessonId/reorder", (req, res) => {
+router.post("/lesson/:lessonId/reorder", async (req, res) => {
   try {
     const lessonId = Number(req.params.lessonId);
     const { blockIds } = req.body;
@@ -83,7 +83,7 @@ router.post("/lesson/:lessonId/reorder", (req, res) => {
       res.status(400).json({ error: "blockIds must be an array" });
       return;
     }
-    lessonBlockService.reorder(lessonId, blockIds);
+    await lessonBlockService.reorder(lessonId, blockIds);
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
@@ -91,7 +91,7 @@ router.post("/lesson/:lessonId/reorder", (req, res) => {
 });
 
 // Set all blocks at once for a lesson
-router.put("/lesson/:lessonId/batch", (req, res) => {
+router.put("/lesson/:lessonId/batch", async (req, res) => {
   try {
     const lessonId = Number(req.params.lessonId);
     const { blocks } = req.body;
@@ -99,7 +99,7 @@ router.put("/lesson/:lessonId/batch", (req, res) => {
       res.status(400).json({ error: "blocks must be an array" });
       return;
     }
-    const ids = lessonBlockService.setBlocks(lessonId, blocks);
+    const ids = await lessonBlockService.setBlocks(lessonId, blocks);
     res.json({ ids });
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });

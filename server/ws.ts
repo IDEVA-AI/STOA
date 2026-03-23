@@ -70,12 +70,12 @@ export function broadcastToUser(userId: number, data: unknown) {
   }
 }
 
-function broadcastToConversation(
+async function broadcastToConversation(
   conversationId: number,
   data: unknown,
   excludeUserId?: number
 ) {
-  const participants = messageService.getConversationParticipants(conversationId);
+  const participants = await messageService.getConversationParticipants(conversationId);
   for (const userId of participants) {
     if (userId !== excludeUserId) {
       broadcastToUser(userId, data);
@@ -115,7 +115,7 @@ export function initWebSocket(server: HttpServer) {
       }
     }, 5000);
 
-    ws.on("message", (raw: Buffer | string) => {
+    ws.on("message", async (raw: Buffer | string) => {
       let msg: WsIncoming;
       try {
         msg = JSON.parse(typeof raw === "string" ? raw : raw.toString());
@@ -150,11 +150,11 @@ export function initWebSocket(server: HttpServer) {
           const { conversationId, content } = msg as WsSendMessage;
           if (!content?.trim() || !conversationId) return;
           try {
-            const savedMsg = messageService.sendMessage(conversationId, userId, content);
+            const savedMsg = await messageService.sendMessage(conversationId, userId, content);
             // Send confirmation to sender (all tabs)
             broadcastToUser(userId, { type: "new_message", message: savedMsg });
             // Send to other participants
-            broadcastToConversation(conversationId, { type: "new_message", message: savedMsg }, userId);
+            await broadcastToConversation(conversationId, { type: "new_message", message: savedMsg }, userId);
           } catch (err) {
             ws.send(JSON.stringify({ type: "error", error: "Failed to send message" }));
           }
@@ -176,8 +176,8 @@ export function initWebSocket(server: HttpServer) {
           const { conversationId } = msg as WsReadMessage;
           if (!conversationId) return;
           try {
-            messageService.markAsRead(conversationId, userId);
-            broadcastToConversation(
+            await messageService.markAsRead(conversationId, userId);
+            await broadcastToConversation(
               conversationId,
               { type: "read", conversationId, userId },
               userId

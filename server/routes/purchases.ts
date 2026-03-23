@@ -5,10 +5,10 @@ import * as purchaseService from "../services/purchaseService";
 const router = Router();
 
 // List current user's purchases
-router.get("/my", authMiddleware, (req, res) => {
+router.get("/my", authMiddleware, async (req, res) => {
   try {
     const userId = req.userId!;
-    const purchases = purchaseService.listByUser(userId);
+    const purchases = await purchaseService.listByUser(userId);
     res.json(purchases);
   } catch (err: any) {
     const status = err.status || 500;
@@ -17,10 +17,10 @@ router.get("/my", authMiddleware, (req, res) => {
 });
 
 // List all courseIds user has access to
-router.get("/my/courses", authMiddleware, (req, res) => {
+router.get("/my/courses", authMiddleware, async (req, res) => {
   try {
     const userId = req.userId!;
-    const courseIds = purchaseService.getUserCourseIds(userId);
+    const courseIds = await purchaseService.getUserCourseIds(userId);
     res.json({ courseIds });
   } catch (err: any) {
     const status = err.status || 500;
@@ -29,11 +29,11 @@ router.get("/my/courses", authMiddleware, (req, res) => {
 });
 
 // Check if current user has access to a course
-router.get("/check/:courseId", authMiddleware, (req, res) => {
+router.get("/check/:courseId", authMiddleware, async (req, res) => {
   try {
     const userId = req.userId!;
     const courseId = Number(req.params.courseId);
-    const hasAccess = purchaseService.hasAccess(userId, courseId);
+    const hasAccess = await purchaseService.hasAccess(userId, courseId);
     res.json({ hasAccess });
   } catch (err: any) {
     const status = err.status || 500;
@@ -42,10 +42,10 @@ router.get("/check/:courseId", authMiddleware, (req, res) => {
 });
 
 // List workspace purchases (admin)
-router.get("/workspace/:workspaceId", authMiddleware, (req, res) => {
+router.get("/workspace/:workspaceId", authMiddleware, async (req, res) => {
   try {
     const workspaceId = Number(req.params.workspaceId);
-    const purchases = purchaseService.listByWorkspace(workspaceId);
+    const purchases = await purchaseService.listByWorkspace(workspaceId);
     res.json(purchases);
   } catch (err: any) {
     const status = err.status || 500;
@@ -54,7 +54,7 @@ router.get("/workspace/:workspaceId", authMiddleware, (req, res) => {
 });
 
 // Create purchase
-router.post("/", authMiddleware, (req, res) => {
+router.post("/", authMiddleware, async (req, res) => {
   try {
     const userId = req.userId!;
     const { product_id, workspace_id } = req.body;
@@ -64,7 +64,7 @@ router.post("/", authMiddleware, (req, res) => {
       return;
     }
 
-    const id = purchaseService.create({
+    const id = await purchaseService.create({
       user_id: userId,
       product_id,
       workspace_id,
@@ -78,7 +78,7 @@ router.post("/", authMiddleware, (req, res) => {
 });
 
 // Update purchase status
-router.put("/:id/status", authMiddleware, (req, res) => {
+router.put("/:id/status", authMiddleware, async (req, res) => {
   try {
     const id = Number(req.params.id);
     const { status } = req.body;
@@ -88,7 +88,7 @@ router.put("/:id/status", authMiddleware, (req, res) => {
       return;
     }
 
-    purchaseService.updateStatus(id, status);
+    await purchaseService.updateStatus(id, status);
     res.json({ success: true });
   } catch (err: any) {
     const status = err.status || 500;

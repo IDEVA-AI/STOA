@@ -6,9 +6,9 @@ const router = Router();
 router.use(authMiddleware);
 
 // Student: get available times for a date
-router.get("/available/:configId/:date", (req: Request, res: Response) => {
+router.get("/available/:configId/:date", async (req: Request, res: Response) => {
   try {
-    const times = schedulingService.getAvailableTimes(
+    const times = await schedulingService.getAvailableTimes(
       Number(req.params.configId),
       req.params.date
     );
@@ -21,9 +21,9 @@ router.get("/available/:configId/:date", (req: Request, res: Response) => {
 // Student: get active configs for workspace
 router.get(
   "/configs/workspace/:workspaceId",
-  (req: Request, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
-      const configs = schedulingService.getConfigs(
+      const configs = await schedulingService.getConfigs(
         Number(req.params.workspaceId)
       );
       res.json(configs.filter((c: any) => c.is_active));
@@ -34,10 +34,10 @@ router.get(
 );
 
 // Student: book a slot
-router.post("/book", (req: Request, res: Response) => {
+router.post("/book", async (req: Request, res: Response) => {
   try {
     const { config_id, date, start_time, meet_link } = req.body;
-    const booking = schedulingService.book({
+    const booking = await schedulingService.book({
       config_id,
       user_id: req.userId!,
       date,
@@ -51,9 +51,9 @@ router.post("/book", (req: Request, res: Response) => {
 });
 
 // Student: my bookings
-router.get("/my-bookings", (req: Request, res: Response) => {
+router.get("/my-bookings", async (req: Request, res: Response) => {
   try {
-    const bookings = schedulingService.getMyBookings(req.userId!);
+    const bookings = await schedulingService.getMyBookings(req.userId!);
     res.json(bookings);
   } catch (err: any) {
     res.status(500).json({ error: err.message });
@@ -61,9 +61,9 @@ router.get("/my-bookings", (req: Request, res: Response) => {
 });
 
 // Student: cancel booking
-router.put("/bookings/:id/cancel", (req: Request, res: Response) => {
+router.put("/bookings/:id/cancel", async (req: Request, res: Response) => {
   try {
-    schedulingService.cancelBooking(Number(req.params.id), req.userId!);
+    await schedulingService.cancelBooking(Number(req.params.id), req.userId!);
     res.json({ success: true });
   } catch (err: any) {
     res.status(err.status || 500).json({ error: err.message });
@@ -71,9 +71,9 @@ router.put("/bookings/:id/cancel", (req: Request, res: Response) => {
 });
 
 // Admin: create config
-router.post("/configs", (req: Request, res: Response) => {
+router.post("/configs", async (req: Request, res: Response) => {
   try {
-    const config = schedulingService.createConfig(req.body);
+    const config = await schedulingService.createConfig(req.body);
     res.status(201).json(config);
   } catch (err: any) {
     res.status(err.status || 500).json({ error: err.message });
@@ -81,12 +81,12 @@ router.post("/configs", (req: Request, res: Response) => {
 });
 
 // Admin: get config with slots
-router.get("/configs/:id", (req: Request, res: Response) => {
+router.get("/configs/:id", async (req: Request, res: Response) => {
   try {
-    const config = schedulingService.getConfig(Number(req.params.id));
+    const config = await schedulingService.getConfig(Number(req.params.id));
     if (!config)
       return res.status(404).json({ error: "Config nao encontrada" });
-    const slots = schedulingService.getSlots(config.id);
+    const slots = await schedulingService.getSlots(config.id);
     res.json({ ...config, slots });
   } catch (err: any) {
     res.status(500).json({ error: err.message });
@@ -94,9 +94,9 @@ router.get("/configs/:id", (req: Request, res: Response) => {
 });
 
 // Admin: update config
-router.put("/configs/:id", (req: Request, res: Response) => {
+router.put("/configs/:id", async (req: Request, res: Response) => {
   try {
-    const updated = schedulingService.updateConfig(
+    const updated = await schedulingService.updateConfig(
       Number(req.params.id),
       req.body
     );
@@ -107,9 +107,9 @@ router.put("/configs/:id", (req: Request, res: Response) => {
 });
 
 // Admin: delete config
-router.delete("/configs/:id", (req: Request, res: Response) => {
+router.delete("/configs/:id", async (req: Request, res: Response) => {
   try {
-    schedulingService.deleteConfig(Number(req.params.id));
+    await schedulingService.deleteConfig(Number(req.params.id));
     res.json({ success: true });
   } catch (err: any) {
     res.status(500).json({ error: err.message });
@@ -117,9 +117,9 @@ router.delete("/configs/:id", (req: Request, res: Response) => {
 });
 
 // Admin: set slots for config
-router.put("/configs/:id/slots", (req: Request, res: Response) => {
+router.put("/configs/:id/slots", async (req: Request, res: Response) => {
   try {
-    const slots = schedulingService.setSlots(
+    const slots = await schedulingService.setSlots(
       Number(req.params.id),
       req.body.slots
     );
@@ -130,9 +130,9 @@ router.put("/configs/:id/slots", (req: Request, res: Response) => {
 });
 
 // Admin: list all bookings for config
-router.get("/configs/:id/bookings", (req: Request, res: Response) => {
+router.get("/configs/:id/bookings", async (req: Request, res: Response) => {
   try {
-    const bookings = schedulingService.getBookingsByConfig(
+    const bookings = await schedulingService.getBookingsByConfig(
       Number(req.params.id)
     );
     res.json(bookings);
@@ -142,9 +142,9 @@ router.get("/configs/:id/bookings", (req: Request, res: Response) => {
 });
 
 // Admin: update booking notes
-router.put("/bookings/:id/notes", (req: Request, res: Response) => {
+router.put("/bookings/:id/notes", async (req: Request, res: Response) => {
   try {
-    schedulingService.updateBookingNotes(
+    await schedulingService.updateBookingNotes(
       Number(req.params.id),
       req.body.notes
     );
@@ -155,9 +155,9 @@ router.put("/bookings/:id/notes", (req: Request, res: Response) => {
 });
 
 // Admin: update booking meet link
-router.put("/bookings/:id/meet-link", (req: Request, res: Response) => {
+router.put("/bookings/:id/meet-link", async (req: Request, res: Response) => {
   try {
-    schedulingService.updateBookingMeetLink(
+    await schedulingService.updateBookingMeetLink(
       Number(req.params.id),
       req.body.meet_link
     );

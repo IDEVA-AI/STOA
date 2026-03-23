@@ -1,29 +1,36 @@
 import db from "./connection";
 
-export function initializeSchema() {
-  db.exec(`
+export async function initializeSchema() {
+  await db.exec(`
     CREATE TABLE IF NOT EXISTS users (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id SERIAL PRIMARY KEY,
       name TEXT,
       avatar TEXT,
       role TEXT,
       email TEXT UNIQUE,
       password_hash TEXT,
-      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-      is_active INTEGER DEFAULT 1
+      created_at TIMESTAMPTZ DEFAULT NOW(),
+      is_active INTEGER DEFAULT 1,
+      bio TEXT,
+      phone TEXT,
+      website TEXT,
+      is_public INTEGER DEFAULT 1,
+      show_progress INTEGER DEFAULT 1
     );
 
     CREATE TABLE IF NOT EXISTS courses (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id SERIAL PRIMARY KEY,
       title TEXT,
       description TEXT,
       thumbnail TEXT,
       lessons_count INTEGER,
-      progress INTEGER DEFAULT 0
+      progress INTEGER DEFAULT 0,
+      workspace_id INTEGER,
+      is_published INTEGER DEFAULT 1
     );
 
     CREATE TABLE IF NOT EXISTS modules (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id SERIAL PRIMARY KEY,
       course_id INTEGER,
       title TEXT,
       "order" INTEGER,
@@ -31,7 +38,7 @@ export function initializeSchema() {
     );
 
     CREATE TABLE IF NOT EXISTS lessons (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id SERIAL PRIMARY KEY,
       module_id INTEGER,
       title TEXT,
       content_url TEXT,
@@ -42,84 +49,87 @@ export function initializeSchema() {
     );
 
     CREATE TABLE IF NOT EXISTS lesson_progress (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id SERIAL PRIMARY KEY,
       user_id INTEGER,
       lesson_id INTEGER,
-      completed_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      completed_at TIMESTAMPTZ DEFAULT NOW(),
       FOREIGN KEY(user_id) REFERENCES users(id),
       FOREIGN KEY(lesson_id) REFERENCES lessons(id),
       UNIQUE(user_id, lesson_id)
     );
 
     CREATE TABLE IF NOT EXISTS posts (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id SERIAL PRIMARY KEY,
       user_id INTEGER,
       content TEXT,
       likes INTEGER DEFAULT 0,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      created_at TIMESTAMPTZ DEFAULT NOW(),
+      community_id INTEGER,
+      category_id INTEGER,
+      is_pinned INTEGER DEFAULT 0,
       FOREIGN KEY(user_id) REFERENCES users(id)
     );
 
     CREATE TABLE IF NOT EXISTS post_comments (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id SERIAL PRIMARY KEY,
       post_id INTEGER,
       user_id INTEGER,
       content TEXT,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      created_at TIMESTAMPTZ DEFAULT NOW(),
       FOREIGN KEY(post_id) REFERENCES posts(id),
       FOREIGN KEY(user_id) REFERENCES users(id)
     );
 
     CREATE TABLE IF NOT EXISTS post_likes (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id SERIAL PRIMARY KEY,
       post_id INTEGER NOT NULL,
       user_id INTEGER NOT NULL,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      created_at TIMESTAMPTZ DEFAULT NOW(),
       FOREIGN KEY(post_id) REFERENCES posts(id),
       FOREIGN KEY(user_id) REFERENCES users(id),
       UNIQUE(post_id, user_id)
     );
 
     CREATE TABLE IF NOT EXISTS conversations (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-      updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+      id SERIAL PRIMARY KEY,
+      created_at TIMESTAMPTZ DEFAULT NOW(),
+      updated_at TIMESTAMPTZ DEFAULT NOW()
     );
 
     CREATE TABLE IF NOT EXISTS conversation_participants (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id SERIAL PRIMARY KEY,
       conversation_id INTEGER,
       user_id INTEGER,
-      last_read_at TEXT,
+      last_read_at TIMESTAMPTZ,
       FOREIGN KEY(conversation_id) REFERENCES conversations(id),
       FOREIGN KEY(user_id) REFERENCES users(id),
       UNIQUE(conversation_id, user_id)
     );
 
     CREATE TABLE IF NOT EXISTS messages (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id SERIAL PRIMARY KEY,
       conversation_id INTEGER,
       sender_id INTEGER,
       content TEXT NOT NULL,
-      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      created_at TIMESTAMPTZ DEFAULT NOW(),
       FOREIGN KEY(conversation_id) REFERENCES conversations(id),
       FOREIGN KEY(sender_id) REFERENCES users(id)
     );
 
     CREATE TABLE IF NOT EXISTS announcements (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id SERIAL PRIMARY KEY,
       title TEXT NOT NULL,
       type TEXT NOT NULL DEFAULT 'info',
       priority INTEGER NOT NULL DEFAULT 0,
       frequency TEXT NOT NULL DEFAULT 'once',
       target TEXT NOT NULL DEFAULT 'all',
       is_active INTEGER NOT NULL DEFAULT 1,
-      expires_at TEXT,
-      created_at TEXT DEFAULT CURRENT_TIMESTAMP
+      expires_at TIMESTAMPTZ,
+      created_at TIMESTAMPTZ DEFAULT NOW()
     );
 
     CREATE TABLE IF NOT EXISTS announcement_blocks (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id SERIAL PRIMARY KEY,
       announcement_id INTEGER NOT NULL,
       block_type TEXT NOT NULL,
       content TEXT NOT NULL,
@@ -128,51 +138,51 @@ export function initializeSchema() {
     );
 
     CREATE TABLE IF NOT EXISTS announcement_confirmations (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id SERIAL PRIMARY KEY,
       announcement_id INTEGER NOT NULL,
       user_id INTEGER NOT NULL,
-      confirmed_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      confirmed_at TIMESTAMPTZ DEFAULT NOW(),
       UNIQUE(announcement_id, user_id),
       FOREIGN KEY (announcement_id) REFERENCES announcements(id),
       FOREIGN KEY (user_id) REFERENCES users(id)
     );
 
     CREATE TABLE IF NOT EXISTS workspaces (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id SERIAL PRIMARY KEY,
       name TEXT NOT NULL,
       slug TEXT NOT NULL UNIQUE,
       logo TEXT,
       owner_id INTEGER NOT NULL,
       plan TEXT NOT NULL DEFAULT 'free',
-      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      created_at TIMESTAMPTZ DEFAULT NOW(),
       FOREIGN KEY(owner_id) REFERENCES users(id)
     );
 
     CREATE TABLE IF NOT EXISTS workspace_members (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id SERIAL PRIMARY KEY,
       workspace_id INTEGER NOT NULL,
       user_id INTEGER NOT NULL,
       role TEXT NOT NULL DEFAULT 'member',
-      joined_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      joined_at TIMESTAMPTZ DEFAULT NOW(),
       FOREIGN KEY(workspace_id) REFERENCES workspaces(id),
       FOREIGN KEY(user_id) REFERENCES users(id),
       UNIQUE(workspace_id, user_id)
     );
 
     CREATE TABLE IF NOT EXISTS products (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id SERIAL PRIMARY KEY,
       workspace_id INTEGER NOT NULL,
       title TEXT NOT NULL,
       description TEXT,
       price REAL NOT NULL DEFAULT 0,
       type TEXT NOT NULL DEFAULT 'course',
       is_published INTEGER NOT NULL DEFAULT 0,
-      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      created_at TIMESTAMPTZ DEFAULT NOW(),
       FOREIGN KEY(workspace_id) REFERENCES workspaces(id)
     );
 
     CREATE TABLE IF NOT EXISTS product_courses (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id SERIAL PRIMARY KEY,
       product_id INTEGER NOT NULL,
       course_id INTEGER NOT NULL,
       FOREIGN KEY(product_id) REFERENCES products(id) ON DELETE CASCADE,
@@ -181,31 +191,31 @@ export function initializeSchema() {
     );
 
     CREATE TABLE IF NOT EXISTS purchases (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id SERIAL PRIMARY KEY,
       user_id INTEGER NOT NULL,
       product_id INTEGER NOT NULL,
       workspace_id INTEGER NOT NULL,
       status TEXT NOT NULL DEFAULT 'active',
-      purchased_at TEXT DEFAULT CURRENT_TIMESTAMP,
-      expires_at TEXT,
+      purchased_at TIMESTAMPTZ DEFAULT NOW(),
+      expires_at TIMESTAMPTZ,
       FOREIGN KEY(user_id) REFERENCES users(id),
       FOREIGN KEY(product_id) REFERENCES products(id),
       FOREIGN KEY(workspace_id) REFERENCES workspaces(id)
     );
 
     CREATE TABLE IF NOT EXISTS trails (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id SERIAL PRIMARY KEY,
       workspace_id INTEGER NOT NULL,
       title TEXT NOT NULL,
       description TEXT,
       thumbnail TEXT,
       is_published INTEGER NOT NULL DEFAULT 0,
-      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      created_at TIMESTAMPTZ DEFAULT NOW(),
       FOREIGN KEY(workspace_id) REFERENCES workspaces(id)
     );
 
     CREATE TABLE IF NOT EXISTS trails_courses (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id SERIAL PRIMARY KEY,
       trail_id INTEGER NOT NULL,
       course_id INTEGER NOT NULL,
       position INTEGER NOT NULL DEFAULT 0,
@@ -215,18 +225,18 @@ export function initializeSchema() {
     );
 
     CREATE TABLE IF NOT EXISTS communities (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id SERIAL PRIMARY KEY,
       workspace_id INTEGER NOT NULL,
       course_id INTEGER,
       name TEXT NOT NULL,
       description TEXT,
-      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      created_at TIMESTAMPTZ DEFAULT NOW(),
       FOREIGN KEY(workspace_id) REFERENCES workspaces(id),
       FOREIGN KEY(course_id) REFERENCES courses(id)
     );
 
     CREATE TABLE IF NOT EXISTS community_categories (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id SERIAL PRIMARY KEY,
       community_id INTEGER NOT NULL,
       name TEXT NOT NULL,
       position INTEGER NOT NULL DEFAULT 0,
@@ -234,7 +244,7 @@ export function initializeSchema() {
     );
 
     CREATE TABLE IF NOT EXISTS courses_modules (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id SERIAL PRIMARY KEY,
       course_id INTEGER NOT NULL,
       module_id INTEGER NOT NULL,
       position INTEGER NOT NULL DEFAULT 0,
@@ -244,7 +254,7 @@ export function initializeSchema() {
     );
 
     CREATE TABLE IF NOT EXISTS modules_lessons (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id SERIAL PRIMARY KEY,
       module_id INTEGER NOT NULL,
       lesson_id INTEGER NOT NULL,
       position INTEGER NOT NULL DEFAULT 0,
@@ -254,36 +264,36 @@ export function initializeSchema() {
     );
 
     CREATE TABLE IF NOT EXISTS lesson_blocks (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id SERIAL PRIMARY KEY,
       lesson_id INTEGER NOT NULL,
       block_type TEXT NOT NULL,
-      content TEXT NOT NULL DEFAULT '{}',
+      content JSONB NOT NULL DEFAULT '{}'::jsonb,
       position INTEGER NOT NULL DEFAULT 0,
       FOREIGN KEY(lesson_id) REFERENCES lessons(id) ON DELETE CASCADE
     );
 
     CREATE TABLE IF NOT EXISTS lesson_templates (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id SERIAL PRIMARY KEY,
       workspace_id INTEGER NOT NULL,
       name TEXT NOT NULL,
       description TEXT,
       thumbnail TEXT,
       is_default INTEGER NOT NULL DEFAULT 0,
-      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      created_at TIMESTAMPTZ DEFAULT NOW(),
       FOREIGN KEY(workspace_id) REFERENCES workspaces(id)
     );
 
     CREATE TABLE IF NOT EXISTS lesson_template_blocks (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id SERIAL PRIMARY KEY,
       template_id INTEGER NOT NULL,
       block_type TEXT NOT NULL,
-      content TEXT NOT NULL DEFAULT '{}',
+      content JSONB NOT NULL DEFAULT '{}'::jsonb,
       position INTEGER NOT NULL DEFAULT 0,
       FOREIGN KEY(template_id) REFERENCES lesson_templates(id) ON DELETE CASCADE
     );
 
     CREATE TABLE IF NOT EXISTS invite_codes (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id SERIAL PRIMARY KEY,
       code TEXT NOT NULL UNIQUE,
       workspace_id INTEGER NOT NULL,
       product_id INTEGER,
@@ -291,37 +301,37 @@ export function initializeSchema() {
       max_uses INTEGER,
       used_count INTEGER NOT NULL DEFAULT 0,
       status TEXT NOT NULL DEFAULT 'active',
-      expires_at TEXT,
-      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      expires_at TIMESTAMPTZ,
+      created_at TIMESTAMPTZ DEFAULT NOW(),
       FOREIGN KEY(workspace_id) REFERENCES workspaces(id),
       FOREIGN KEY(product_id) REFERENCES products(id),
       FOREIGN KEY(created_by) REFERENCES users(id)
     );
 
     CREATE TABLE IF NOT EXISTS invite_redemptions (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id SERIAL PRIMARY KEY,
       invite_code_id INTEGER NOT NULL,
       user_id INTEGER NOT NULL,
-      redeemed_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      redeemed_at TIMESTAMPTZ DEFAULT NOW(),
       FOREIGN KEY(invite_code_id) REFERENCES invite_codes(id),
       FOREIGN KEY(user_id) REFERENCES users(id),
       UNIQUE(invite_code_id, user_id)
     );
 
     CREATE TABLE IF NOT EXISTS availability_configs (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id SERIAL PRIMARY KEY,
       workspace_id INTEGER NOT NULL,
       title TEXT NOT NULL DEFAULT 'Tutoria Individual',
       duration_minutes INTEGER NOT NULL DEFAULT 60,
       buffer_minutes INTEGER NOT NULL DEFAULT 15,
       max_advance_days INTEGER NOT NULL DEFAULT 30,
       is_active INTEGER NOT NULL DEFAULT 1,
-      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      created_at TIMESTAMPTZ DEFAULT NOW(),
       FOREIGN KEY(workspace_id) REFERENCES workspaces(id)
     );
 
     CREATE TABLE IF NOT EXISTS availability_slots (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id SERIAL PRIMARY KEY,
       config_id INTEGER NOT NULL,
       day_of_week INTEGER NOT NULL,
       start_time TEXT NOT NULL,
@@ -330,7 +340,7 @@ export function initializeSchema() {
     );
 
     CREATE TABLE IF NOT EXISTS bookings (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id SERIAL PRIMARY KEY,
       config_id INTEGER NOT NULL,
       user_id INTEGER NOT NULL,
       date TEXT NOT NULL,
@@ -339,72 +349,24 @@ export function initializeSchema() {
       status TEXT NOT NULL DEFAULT 'confirmed',
       meet_link TEXT,
       notes TEXT,
-      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      created_at TIMESTAMPTZ DEFAULT NOW(),
       FOREIGN KEY(config_id) REFERENCES availability_configs(id),
       FOREIGN KEY(user_id) REFERENCES users(id)
     );
 
     CREATE TABLE IF NOT EXISTS user_follows (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id SERIAL PRIMARY KEY,
       follower_id INTEGER NOT NULL,
       following_id INTEGER NOT NULL,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      created_at TIMESTAMPTZ DEFAULT NOW(),
       FOREIGN KEY(follower_id) REFERENCES users(id),
       FOREIGN KEY(following_id) REFERENCES users(id),
       UNIQUE(follower_id, following_id)
     );
   `);
 
-  // Safely add new columns to existing users table (SQLite has no IF NOT EXISTS for ALTER TABLE)
-  const columnsToAdd = [
-    { name: "email", definition: "TEXT UNIQUE" },
-    { name: "password_hash", definition: "TEXT" },
-    { name: "created_at", definition: "TEXT DEFAULT CURRENT_TIMESTAMP" },
-    { name: "is_active", definition: "INTEGER DEFAULT 1" },
-    { name: "bio", definition: "TEXT" },
-    { name: "phone", definition: "TEXT" },
-    { name: "website", definition: "TEXT" },
-    { name: "is_public", definition: "INTEGER DEFAULT 1" },
-    { name: "show_progress", definition: "INTEGER DEFAULT 1" },
-  ];
-
-  const coursesColumnsToAdd = [
-    { name: "workspace_id", definition: "INTEGER" },
-    { name: "is_published", definition: "INTEGER DEFAULT 1" },
-  ];
-
-  const postsColumnsToAdd = [
-    { name: "community_id", definition: "INTEGER" },
-    { name: "category_id", definition: "INTEGER" },
-    { name: "is_pinned", definition: "INTEGER DEFAULT 0" },
-  ];
-
-  for (const col of columnsToAdd) {
-    try {
-      db.exec(`ALTER TABLE users ADD COLUMN ${col.name} ${col.definition}`);
-    } catch (_) {
-      // Column already exists — ignore
-    }
-  }
-
-  for (const col of coursesColumnsToAdd) {
-    try {
-      db.exec(`ALTER TABLE courses ADD COLUMN ${col.name} ${col.definition}`);
-    } catch (_) {
-      // Column already exists — ignore
-    }
-  }
-
-  for (const col of postsColumnsToAdd) {
-    try {
-      db.exec(`ALTER TABLE posts ADD COLUMN ${col.name} ${col.definition}`);
-    } catch (_) {
-      // Column already exists — ignore
-    }
-  }
-
   // Performance indices
-  db.exec(`
+  await db.exec(`
     CREATE INDEX IF NOT EXISTS idx_posts_created_at ON posts(created_at);
     CREATE INDEX IF NOT EXISTS idx_posts_user_id ON posts(user_id);
     CREATE INDEX IF NOT EXISTS idx_lesson_progress_user_id ON lesson_progress(user_id);
@@ -456,29 +418,4 @@ export function initializeSchema() {
     CREATE INDEX IF NOT EXISTS idx_user_follows_follower ON user_follows(follower_id);
     CREATE INDEX IF NOT EXISTS idx_user_follows_following ON user_follows(following_id);
   `);
-
-  // Migrate existing relationships to junction tables
-  migrateDataRelationships();
-}
-
-function migrateDataRelationships() {
-  // Populate courses_modules from existing modules.course_id
-  const modules = db.prepare("SELECT id, course_id, \"order\" FROM modules WHERE course_id IS NOT NULL").all() as Array<{ id: number; course_id: number; order: number }>;
-  for (const mod of modules) {
-    try {
-      db.prepare("INSERT OR IGNORE INTO courses_modules (course_id, module_id, position) VALUES (?, ?, ?)").run(mod.course_id, mod.id, mod.order ?? 0);
-    } catch (_) {
-      // Already migrated — ignore
-    }
-  }
-
-  // Populate modules_lessons from existing lessons.module_id
-  const lessons = db.prepare("SELECT id, module_id, \"order\" FROM lessons WHERE module_id IS NOT NULL").all() as Array<{ id: number; module_id: number; order: number }>;
-  for (const lesson of lessons) {
-    try {
-      db.prepare("INSERT OR IGNORE INTO modules_lessons (module_id, lesson_id, position) VALUES (?, ?, ?)").run(lesson.module_id, lesson.id, lesson.order ?? 0);
-    } catch (_) {
-      // Already migrated — ignore
-    }
-  }
 }

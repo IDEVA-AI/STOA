@@ -25,69 +25,67 @@ function generateCode(): string {
   return crypto.randomBytes(12).toString("base64url");
 }
 
-export function create(data: {
+export async function create(data: {
   workspace_id: number;
   product_id?: number;
   created_by: number;
   max_uses?: number;
   expires_at?: string;
-}): InviteCode {
+}): Promise<InviteCode> {
   const code = generateCode();
-  const result = db
-    .prepare(
-      `INSERT INTO invite_codes (code, workspace_id, product_id, created_by, max_uses, expires_at)
-       VALUES (?, ?, ?, ?, ?, ?)`
-    )
-    .run(code, data.workspace_id, data.product_id ?? null, data.created_by, data.max_uses ?? null, data.expires_at ?? null);
-  return findById(Number(result.lastInsertRowid))!;
+  const result = await db.run(
+    `INSERT INTO invite_codes (code, workspace_id, product_id, created_by, max_uses, expires_at)
+     VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
+    [code, data.workspace_id, data.product_id ?? null, data.created_by, data.max_uses ?? null, data.expires_at ?? null]
+  );
+  return (await findById(result.rows[0].id))!;
 }
 
-export function findByCode(code: string): InviteCode | null {
-  return (db.prepare("SELECT * FROM invite_codes WHERE code = ?").get(code) as InviteCode) || null;
+export async function findByCode(code: string): Promise<InviteCode | null> {
+  return (await db.get<InviteCode>("SELECT * FROM invite_codes WHERE code = $1", [code])) || null;
 }
 
-export function findById(id: number): InviteCode | null {
-  return (db.prepare("SELECT * FROM invite_codes WHERE id = ?").get(id) as InviteCode) || null;
+export async function findById(id: number): Promise<InviteCode | null> {
+  return (await db.get<InviteCode>("SELECT * FROM invite_codes WHERE id = $1", [id])) || null;
 }
 
-export function findByWorkspace(workspaceId: number) {
-  return db
-    .prepare(
-      `SELECT ic.*, u.name AS created_by_name
-       FROM invite_codes ic
-       JOIN users u ON u.id = ic.created_by
-       WHERE ic.workspace_id = ?
-       ORDER BY ic.created_at DESC`
-    )
-    .all(workspaceId);
+export async function findByWorkspace(workspaceId: number) {
+  return await db.all(
+    `SELECT ic.*, u.name AS created_by_name
+     FROM invite_codes ic
+     JOIN users u ON u.id = ic.created_by
+     WHERE ic.workspace_id = $1
+     ORDER BY ic.created_at DESC`,
+    [workspaceId]
+  );
 }
 
-export function incrementUsage(id: number): void {
-  db.prepare("UPDATE invite_codes SET used_count = used_count + 1 WHERE id = ?").run(id);
+export async function incrementUsage(id: number): Promise<void> {
+  await db.run("UPDATE invite_codes SET used_count = used_count + 1 WHERE id = $1", [id]);
 }
 
-export function updateStatus(id: number, status: string): void {
-  db.prepare("UPDATE invite_codes SET status = ? WHERE id = ?").run(status, id);
+export async function updateStatus(id: number, status: string): Promise<void> {
+  await db.run("UPDATE invite_codes SET status = $1 WHERE id = $2", [status, id]);
 }
 
-export function remove(id: number): void {
-  db.prepare("DELETE FROM invite_codes WHERE id = ?").run(id);
+export async function remove(id: number): Promise<void> {
+  await db.run("DELETE FROM invite_codes WHERE id = $1", [id]);
 }
 
-export function createRedemption(inviteCodeId: number, userId: number): void {
-  db.prepare(
-    "INSERT INTO invite_redemptions (invite_code_id, user_id) VALUES (?, ?)"
-  ).run(inviteCodeId, userId);
+export async function createRedemption(inviteCodeId: number, userId: number): Promise<void> {
+  await db.run(
+    "INSERT INTO invite_redemptions (invite_code_id, user_id) VALUES ($1, $2)",
+    [inviteCodeId, userId]
+  );
 }
 
-export function getRedemptions(inviteCodeId: number) {
-  return db
-    .prepare(
-      `SELECT ir.*, u.name AS user_name, u.email AS user_email
-       FROM invite_redemptions ir
-       JOIN users u ON u.id = ir.user_id
-       WHERE ir.invite_code_id = ?
-       ORDER BY ir.redeemed_at DESC`
-    )
-    .all(inviteCodeId);
+export async function getRedemptions(inviteCodeId: number) {
+  return await db.all(
+    `SELECT ir.*, u.name AS user_name, u.email AS user_email
+     FROM invite_redemptions ir
+     JOIN users u ON u.id = ir.user_id
+     WHERE ir.invite_code_id = $1
+     ORDER BY ir.redeemed_at DESC`,
+    [inviteCodeId]
+  );
 }

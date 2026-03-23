@@ -6,10 +6,10 @@ const router = Router();
 router.use(authMiddleware);
 
 // List trails for workspace
-router.get("/workspace/:workspaceId", (req, res) => {
+router.get("/workspace/:workspaceId", async (req, res) => {
   try {
     const workspaceId = Number(req.params.workspaceId);
-    const trails = trailService.listByWorkspace(workspaceId);
+    const trails = await trailService.listByWorkspace(workspaceId);
     res.json(trails);
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
@@ -17,10 +17,10 @@ router.get("/workspace/:workspaceId", (req, res) => {
 });
 
 // Get trail with courses
-router.get("/:id", (req, res) => {
+router.get("/:id", async (req, res) => {
   try {
     const id = Number(req.params.id);
-    const trail = trailService.getWithCourses(id);
+    const trail = await trailService.getWithCourses(id);
     if (!trail) {
       res.status(404).json({ error: "Trail not found" });
       return;
@@ -32,14 +32,14 @@ router.get("/:id", (req, res) => {
 });
 
 // Create trail
-router.post("/", (req, res) => {
+router.post("/", async (req, res) => {
   try {
     const { workspace_id, title, description, thumbnail, is_published, courseIds } = req.body;
     if (!workspace_id || !title) {
       res.status(400).json({ error: "workspace_id and title are required" });
       return;
     }
-    const result = trailService.create({ workspace_id, title, description, thumbnail, is_published, courseIds });
+    const result = await trailService.create({ workspace_id, title, description, thumbnail, is_published, courseIds });
     res.status(201).json(result);
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
@@ -47,11 +47,11 @@ router.post("/", (req, res) => {
 });
 
 // Update trail
-router.put("/:id", (req, res) => {
+router.put("/:id", async (req, res) => {
   try {
     const id = Number(req.params.id);
     const { title, description, thumbnail, is_published, courseIds } = req.body;
-    trailService.update(id, { title, description, thumbnail, is_published, courseIds });
+    await trailService.update(id, { title, description, thumbnail, is_published, courseIds });
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
@@ -59,10 +59,10 @@ router.put("/:id", (req, res) => {
 });
 
 // Delete trail
-router.delete("/:id", (req, res) => {
+router.delete("/:id", async (req, res) => {
   try {
     const id = Number(req.params.id);
-    trailService.remove(id);
+    await trailService.remove(id);
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
@@ -70,7 +70,7 @@ router.delete("/:id", (req, res) => {
 });
 
 // Set courses for trail
-router.post("/:id/courses", (req, res) => {
+router.post("/:id/courses", async (req, res) => {
   try {
     const trailId = Number(req.params.id);
     const { courseIds } = req.body;
@@ -78,7 +78,7 @@ router.post("/:id/courses", (req, res) => {
       res.status(400).json({ error: "courseIds must be an array" });
       return;
     }
-    trailService.setCourses(trailId, courseIds);
+    await trailService.setCourses(trailId, courseIds);
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
@@ -86,7 +86,7 @@ router.post("/:id/courses", (req, res) => {
 });
 
 // Reorder courses in trail
-router.put("/:id/courses/reorder", (req, res) => {
+router.put("/:id/courses/reorder", async (req, res) => {
   try {
     const trailId = Number(req.params.id);
     const { courseIds } = req.body;
@@ -94,7 +94,7 @@ router.put("/:id/courses/reorder", (req, res) => {
       res.status(400).json({ error: "courseIds must be an array" });
       return;
     }
-    trailService.reorderCourses(trailId, courseIds);
+    await trailService.reorderCourses(trailId, courseIds);
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });

@@ -5,39 +5,39 @@ import * as postService from "../services/postService";
 const router = Router();
 router.use(authMiddleware);
 
-router.get("/community/sidebar", (req, res) => {
-  const topPosters = postService.getTopPosters(5);
-  const trendingPosts = postService.getTrendingPosts(5);
+router.get("/community/sidebar", async (req, res) => {
+  const topPosters = await postService.getTopPosters(5);
+  const trendingPosts = await postService.getTrendingPosts(5);
   res.json({ topPosters, trendingPosts });
 });
 
-router.get("/feed", (req, res) => {
-  const posts = postService.listPosts();
+router.get("/feed", async (req, res) => {
+  const posts = await postService.listPosts();
   res.json(posts);
 });
 
-router.post("/posts", (req, res) => {
+router.post("/posts", async (req, res) => {
   const { content } = req.body;
-  const result = postService.createPost(req.userId!, content);
-  res.json({ id: result.lastInsertRowid });
+  const result = await postService.createPost(req.userId!, content);
+  res.json({ id: result.rows[0]?.id });
 });
 
-router.post("/posts/:id/like", (req, res) => {
+router.post("/posts/:id/like", async (req, res) => {
   const postId = Number(req.params.id);
-  const liked = postService.toggleLike(postId, req.userId!);
+  const liked = await postService.toggleLike(postId, req.userId!);
   res.json({ liked });
 });
 
-router.get("/posts/:id/comments", (req, res) => {
+router.get("/posts/:id/comments", async (req, res) => {
   const postId = Number(req.params.id);
-  const comments = postService.getComments(postId);
+  const comments = await postService.getComments(postId);
   res.json(comments);
 });
 
-router.post("/posts/:id/comments", (req, res) => {
+router.post("/posts/:id/comments", async (req, res) => {
   const postId = Number(req.params.id);
   const { content } = req.body;
-  const comment = postService.createComment(postId, req.userId!, content);
+  const comment = await postService.createComment(postId, req.userId!, content);
   res.json(comment);
 });
 

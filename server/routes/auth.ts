@@ -26,10 +26,10 @@ router.post("/login", async (req: Request, res: Response) => {
   }
 });
 
-router.post("/refresh", (req: Request, res: Response) => {
+router.post("/refresh", async (req: Request, res: Response) => {
   try {
     const { refreshToken } = req.body;
-    const result = authService.refreshToken(refreshToken);
+    const result = await authService.refreshToken(refreshToken);
     res.status(200).json(result);
   } catch (err: any) {
     const status = err.status || 500;
@@ -37,9 +37,9 @@ router.post("/refresh", (req: Request, res: Response) => {
   }
 });
 
-router.get("/me", authMiddleware, (req: Request, res: Response) => {
+router.get("/me", authMiddleware, async (req: Request, res: Response) => {
   try {
-    const user = authService.getMe(req.userId!);
+    const user = await authService.getMe(req.userId!);
     res.status(200).json(user);
   } catch (err: any) {
     const status = err.status || 500;

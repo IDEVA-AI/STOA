@@ -1,9 +1,9 @@
 import * as courseRepo from "../repositories/courseRepository";
 
-export function listCourses(workspaceId?: number) {
-  return courseRepo.getAllCourses(workspaceId);
+export async function listCourses(workspaceId?: number) {
+  return await courseRepo.getAllCourses(workspaceId);
 }
 
-export function getCourseContent(courseId: number) {
-  return courseRepo.getCourseModules(courseId);
+export async function getCourseContent(courseId: number) {
+  return await courseRepo.getCourseModules(courseId);
 }

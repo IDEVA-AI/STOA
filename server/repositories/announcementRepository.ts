@@ -37,159 +37,138 @@ interface AnnouncementInput {
   blocks?: BlockInput[];
 }
 
-export function getAll() {
-  return db
-    .prepare(
-      `SELECT a.*, COUNT(b.id) as block_count
-       FROM announcements a
-       LEFT JOIN announcement_blocks b ON b.announcement_id = a.id
-       GROUP BY a.id
-       ORDER BY a.created_at DESC`
-    )
-    .all();
+export async function getAll() {
+  return db.all(
+    `SELECT a.*, COUNT(b.id) as block_count
+     FROM announcements a
+     LEFT JOIN announcement_blocks b ON b.announcement_id = a.id
+     GROUP BY a.id
+     ORDER BY a.created_at DESC`
+  );
 }
 
-export function getById(id: number) {
-  const announcement = db
-    .prepare("SELECT * FROM announcements WHERE id = ?")
-    .get(id) as AnnouncementRow | undefined;
+export async function getById(id: number) {
+  const announcement = await db.get<AnnouncementRow>(
+    "SELECT * FROM announcements WHERE id = $1",
+    [id]
+  );
 
   if (!announcement) return null;
 
-  const blocks = db
-    .prepare(
-      `SELECT * FROM announcement_blocks WHERE announcement_id = ? ORDER BY "order" ASC`
-    )
-    .all(id) as BlockRow[];
+  const blocks = await db.all<BlockRow>(
+    `SELECT * FROM announcement_blocks WHERE announcement_id = $1 ORDER BY "order" ASC`,
+    [id]
+  );
 
   return { ...announcement, blocks };
 }
 
-export function create(data: AnnouncementInput) {
-  const insertAnnouncement = db.prepare(`
-    INSERT INTO announcements (title, type, priority, frequency, target, is_active, expires_at)
-    VALUES (@title, @type, @priority, @frequency, @target, @is_active, @expires_at)
-  `);
+export async function create(data: AnnouncementInput) {
+  return db.transaction(async (client) => {
+    const { rows } = await client.query(
+      `INSERT INTO announcements (title, type, priority, frequency, target, is_active, expires_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`,
+      [
+        data.title,
+        data.type ?? "info",
+        data.priority ?? 0,
+        data.frequency ?? "once",
+        data.target ?? "all",
+        data.is_active ?? 1,
+        data.expires_at ?? null,
+      ]
+    );
 
-  const insertBlock = db.prepare(`
-    INSERT INTO announcement_blocks (announcement_id, block_type, content, "order")
-    VALUES (@announcement_id, @block_type, @content, @order)
-  `);
-
-  const transaction = db.transaction((data: AnnouncementInput) => {
-    const result = insertAnnouncement.run({
-      title: data.title,
-      type: data.type ?? "info",
-      priority: data.priority ?? 0,
-      frequency: data.frequency ?? "once",
-      target: data.target ?? "all",
-      is_active: data.is_active ?? 1,
-      expires_at: data.expires_at ?? null,
-    });
-
-    const announcementId = result.lastInsertRowid;
+    const announcementId = rows[0].id;
 
     if (data.blocks) {
       for (const block of data.blocks) {
-        insertBlock.run({
-          announcement_id: announcementId,
-          block_type: block.block_type,
-          content: block.content,
-          order: block.order,
-        });
+        await client.query(
+          `INSERT INTO announcement_blocks (announcement_id, block_type, content, "order")
+           VALUES ($1, $2, $3, $4)`,
+          [announcementId, block.block_type, block.content, block.order]
+        );
       }
     }
 
     return getById(Number(announcementId));
   });
-
-  return transaction(data);
 }
 
-export function update(id: number, data: AnnouncementInput) {
-  const updateAnnouncement = db.prepare(`
-    UPDATE announcements
-    SET title = @title, type = @type, priority = @priority, frequency = @frequency,
-        target = @target, is_active = @is_active, expires_at = @expires_at
-    WHERE id = @id
-  `);
-
-  const deleteBlocks = db.prepare(
-    "DELETE FROM announcement_blocks WHERE announcement_id = ?"
-  );
-
-  const insertBlock = db.prepare(`
-    INSERT INTO announcement_blocks (announcement_id, block_type, content, "order")
-    VALUES (@announcement_id, @block_type, @content, @order)
-  `);
-
-  const transaction = db.transaction((id: number, data: AnnouncementInput) => {
-    updateAnnouncement.run({
-      id,
-      title: data.title,
-      type: data.type ?? "info",
-      priority: data.priority ?? 0,
-      frequency: data.frequency ?? "once",
-      target: data.target ?? "all",
-      is_active: data.is_active ?? 1,
-      expires_at: data.expires_at ?? null,
-    });
+export async function update(id: number, data: AnnouncementInput) {
+  return db.transaction(async (client) => {
+    await client.query(
+      `UPDATE announcements
+       SET title = $1, type = $2, priority = $3, frequency = $4,
+           target = $5, is_active = $6, expires_at = $7
+       WHERE id = $8`,
+      [
+        data.title,
+        data.type ?? "info",
+        data.priority ?? 0,
+        data.frequency ?? "once",
+        data.target ?? "all",
+        data.is_active ?? 1,
+        data.expires_at ?? null,
+        id,
+      ]
+    );
 
     if (data.blocks) {
-      deleteBlocks.run(id);
+      await client.query(
+        "DELETE FROM announcement_blocks WHERE announcement_id = $1",
+        [id]
+      );
       for (const block of data.blocks) {
-        insertBlock.run({
-          announcement_id: id,
-          block_type: block.block_type,
-          content: block.content,
-          order: block.order,
-        });
+        await client.query(
+          `INSERT INTO announcement_blocks (announcement_id, block_type, content, "order")
+           VALUES ($1, $2, $3, $4)`,
+          [id, block.block_type, block.content, block.order]
+        );
       }
     }
 
     return getById(id);
   });
-
-  return transaction(id, data);
 }
 
-export function remove(id: number) {
+export async function remove(id: number): Promise<void> {
   // Delete confirmations first (no ON DELETE CASCADE on this FK)
-  db.prepare("DELETE FROM announcement_confirmations WHERE announcement_id = ?").run(id);
-  db.prepare("DELETE FROM announcement_blocks WHERE announcement_id = ?").run(id);
-  db.prepare("DELETE FROM announcements WHERE id = ?").run(id);
+  await db.run("DELETE FROM announcement_confirmations WHERE announcement_id = $1", [id]);
+  await db.run("DELETE FROM announcement_blocks WHERE announcement_id = $1", [id]);
+  await db.run("DELETE FROM announcements WHERE id = $1", [id]);
 }
 
-export function getPendingForUser(userId: number) {
-  const rows = db
-    .prepare(
-      `SELECT a.*
-       FROM announcements a
-       WHERE a.is_active = 1
-         AND (a.expires_at IS NULL OR a.expires_at > datetime('now'))
-         AND a.id NOT IN (
-           SELECT announcement_id FROM announcement_confirmations WHERE user_id = ?
-         )
-       ORDER BY a.priority DESC`
-    )
-    .all(userId) as AnnouncementRow[];
-
-  // Attach blocks for each pending announcement
-  const getBlocks = db.prepare(
-    `SELECT * FROM announcement_blocks WHERE announcement_id = ? ORDER BY "order" ASC`
+export async function getPendingForUser(userId: number) {
+  const rows = await db.all<AnnouncementRow>(
+    `SELECT a.*
+     FROM announcements a
+     WHERE a.is_active = 1
+       AND (a.expires_at IS NULL OR a.expires_at > NOW())
+       AND a.id NOT IN (
+         SELECT announcement_id FROM announcement_confirmations WHERE user_id = $1
+       )
+     ORDER BY a.priority DESC`,
+    [userId]
   );
 
-  return rows.map((row) => ({
-    ...row,
-    blocks: getBlocks.all(row.id) as BlockRow[],
-  }));
+  // Attach blocks for each pending announcement
+  const results = [];
+  for (const row of rows) {
+    const blocks = await db.all<BlockRow>(
+      `SELECT * FROM announcement_blocks WHERE announcement_id = $1 ORDER BY "order" ASC`,
+      [row.id]
+    );
+    results.push({ ...row, blocks });
+  }
+
+  return results;
 }
 
-export function confirm(announcementId: number, userId: number) {
-  return db
-    .prepare(
-      `INSERT OR IGNORE INTO announcement_confirmations (announcement_id, user_id)
-       VALUES (?, ?)`
-    )
-    .run(announcementId, userId);
+export async function confirm(announcementId: number, userId: number) {
+  return db.run(
+    `INSERT INTO announcement_confirmations (announcement_id, user_id)
+     VALUES ($1, $2) ON CONFLICT DO NOTHING`,
+    [announcementId, userId]
+  );
 }

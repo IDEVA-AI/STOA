@@ -1,4 +1,5 @@
 import db from "../db/connection";
+import { buildSetClause } from "../db/helpers";
 
 export interface User {
   id: number;
@@ -16,70 +17,42 @@ export interface User {
   show_progress: number;
 }
 
-export function findByEmail(email: string): User | null {
-  return (db.prepare("SELECT * FROM users WHERE email = ?").get(email) as User) || null;
+export async function findByEmail(email: string): Promise<User | null> {
+  return (await db.get<User>("SELECT * FROM users WHERE email = $1", [email])) || null;
 }
 
-export function findById(id: number): User | null {
-  return (db.prepare("SELECT * FROM users WHERE id = ?").get(id) as User) || null;
+export async function findById(id: number): Promise<User | null> {
+  return (await db.get<User>("SELECT * FROM users WHERE id = $1", [id])) || null;
 }
 
-export function createUser(
+export async function createUser(
   name: string,
   email: string,
   passwordHash: string,
   role: string = "Membro",
   phone?: string
-): User {
-  const result = db
-    .prepare(
-      "INSERT INTO users (name, email, password_hash, role, avatar, phone) VALUES (?, ?, ?, ?, ?, ?)"
-    )
-    .run(name, email, passwordHash, role, `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(name)}`, phone ?? null);
+): Promise<User> {
+  const result = await db.run(
+    "INSERT INTO users (name, email, password_hash, role, avatar, phone) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id",
+    [name, email, passwordHash, role, `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(name)}`, phone ?? null]
+  );
 
-  return findById(Number(result.lastInsertRowid))!;
+  return (await findById(Number(result.rows[0].id)))!;
 }
 
-export function updatePassword(userId: number, newHash: string): void {
-  db.prepare("UPDATE users SET password_hash = ? WHERE id = ?").run(newHash, userId);
+export async function updatePassword(userId: number, newHash: string): Promise<void> {
+  await db.run("UPDATE users SET password_hash = $1 WHERE id = $2", [newHash, userId]);
 }
 
-export function updateProfile(
+export async function updateProfile(
   userId: number,
   data: { name?: string; avatar?: string; bio?: string; website?: string; is_public?: number; show_progress?: number }
-): User | null {
-  const fields: string[] = [];
-  const values: any[] = [];
+): Promise<User | null> {
+  const { clause, values, nextParam } = buildSetClause(data, 1);
 
-  if (data.name !== undefined) {
-    fields.push("name = ?");
-    values.push(data.name);
-  }
-  if (data.avatar !== undefined) {
-    fields.push("avatar = ?");
-    values.push(data.avatar);
-  }
-  if (data.bio !== undefined) {
-    fields.push("bio = ?");
-    values.push(data.bio);
-  }
-  if (data.website !== undefined) {
-    fields.push("website = ?");
-    values.push(data.website);
-  }
-  if (data.is_public !== undefined) {
-    fields.push("is_public = ?");
-    values.push(data.is_public);
-  }
-  if (data.show_progress !== undefined) {
-    fields.push("show_progress = ?");
-    values.push(data.show_progress);
-  }
+  if (!clause) return findById(userId);
 
-  if (fields.length === 0) return findById(userId);
-
-  values.push(userId);
-  db.prepare(`UPDATE users SET ${fields.join(", ")} WHERE id = ?`).run(...values);
+  await db.run(`UPDATE users SET ${clause} WHERE id = $${nextParam}`, [...values, userId]);
 
   return findById(userId);
 }

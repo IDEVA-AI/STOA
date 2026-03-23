@@ -18,116 +18,116 @@ function badRequest(message: string): never {
   throw err;
 }
 
-export function listByUser(userId: number) {
-  return workspaceRepo.getByMemberId(userId);
+export async function listByUser(userId: number) {
+  return await workspaceRepo.getByMemberId(userId);
 }
 
-export function getBySlug(slug: string) {
-  const ws = workspaceRepo.getBySlug(slug);
+export async function getBySlug(slug: string) {
+  const ws = await workspaceRepo.getBySlug(slug);
   if (!ws) notFound("Workspace not found");
   return ws;
 }
 
-export function getById(id: number) {
-  const ws = workspaceRepo.getById(id);
+export async function getById(id: number) {
+  const ws = await workspaceRepo.getById(id);
   if (!ws) notFound("Workspace not found");
   return ws;
 }
 
-export function create(userId: number, data: { name: string; slug: string; logo?: string }) {
-  const existing = workspaceRepo.getBySlug(data.slug);
+export async function create(userId: number, data: { name: string; slug: string; logo?: string }) {
+  const existing = await workspaceRepo.getBySlug(data.slug);
   if (existing) badRequest("Slug already in use");
 
-  const id = workspaceRepo.create({
+  const id = await workspaceRepo.create({
     name: data.name,
     slug: data.slug,
     logo: data.logo,
     owner_id: userId,
   });
 
-  workspaceRepo.addMember(Number(id), userId, "owner");
+  await workspaceRepo.addMember(Number(id), userId, "owner");
 
-  return workspaceRepo.getById(Number(id));
+  return await workspaceRepo.getById(Number(id));
 }
 
-export function update(
+export async function update(
   workspaceId: number,
   userId: number,
   data: Partial<{ name: string; slug: string; logo: string }>
 ) {
-  const role = workspaceRepo.isMember(workspaceId, userId);
+  const role = await workspaceRepo.isMember(workspaceId, userId);
   if (!role || (role !== "owner" && role !== "admin")) {
     forbidden("Only workspace owner or admin can update the workspace");
   }
 
   if (data.slug) {
-    const existing = workspaceRepo.getBySlug(data.slug) as any;
+    const existing = await workspaceRepo.getBySlug(data.slug) as any;
     if (existing && existing.id !== workspaceId) {
       badRequest("Slug already in use");
     }
   }
 
-  workspaceRepo.update(workspaceId, data);
-  return workspaceRepo.getById(workspaceId);
+  await workspaceRepo.update(workspaceId, data);
+  return await workspaceRepo.getById(workspaceId);
 }
 
-export function remove(workspaceId: number, userId: number) {
-  const role = workspaceRepo.isMember(workspaceId, userId);
+export async function remove(workspaceId: number, userId: number) {
+  const role = await workspaceRepo.isMember(workspaceId, userId);
   if (role !== "owner") {
     forbidden("Only the workspace owner can delete the workspace");
   }
 
-  workspaceRepo.remove(workspaceId);
+  await workspaceRepo.remove(workspaceId);
 }
 
-export function getMembers(workspaceId: number) {
-  return workspaceRepo.getMembers(workspaceId);
+export async function getMembers(workspaceId: number) {
+  return await workspaceRepo.getMembers(workspaceId);
 }
 
-export function addMember(workspaceId: number, userId: number, role: string = "member") {
-  workspaceRepo.addMember(workspaceId, userId, role);
-  return workspaceRepo.getMembers(workspaceId);
+export async function addMember(workspaceId: number, userId: number, role: string = "member") {
+  await workspaceRepo.addMember(workspaceId, userId, role);
+  return await workspaceRepo.getMembers(workspaceId);
 }
 
-export function updateMemberRole(
+export async function updateMemberRole(
   workspaceId: number,
   targetUserId: number,
   role: string,
   requesterId: number
 ) {
-  const requesterRole = workspaceRepo.isMember(workspaceId, requesterId);
+  const requesterRole = await workspaceRepo.isMember(workspaceId, requesterId);
   if (!requesterRole || (requesterRole !== "owner" && requesterRole !== "admin")) {
     forbidden("Only workspace owner or admin can change member roles");
   }
 
-  const targetRole = workspaceRepo.isMember(workspaceId, targetUserId);
+  const targetRole = await workspaceRepo.isMember(workspaceId, targetUserId);
   if (!targetRole) notFound("Member not found in workspace");
 
   if (targetRole === "owner") {
     forbidden("Cannot change the owner's role");
   }
 
-  workspaceRepo.updateMemberRole(workspaceId, targetUserId, role);
-  return workspaceRepo.getMembers(workspaceId);
+  await workspaceRepo.updateMemberRole(workspaceId, targetUserId, role);
+  return await workspaceRepo.getMembers(workspaceId);
 }
 
-export function removeMember(
+export async function removeMember(
   workspaceId: number,
   targetUserId: number,
   requesterId: number
 ) {
-  const requesterRole = workspaceRepo.isMember(workspaceId, requesterId);
+  const requesterRole = await workspaceRepo.isMember(workspaceId, requesterId);
   if (!requesterRole || (requesterRole !== "owner" && requesterRole !== "admin")) {
     forbidden("Only workspace owner or admin can remove members");
   }
 
-  const targetRole = workspaceRepo.isMember(workspaceId, targetUserId);
+  const targetRole = await workspaceRepo.isMember(workspaceId, targetUserId);
   if (!targetRole) notFound("Member not found in workspace");
 
   if (targetRole === "owner") {
     forbidden("Cannot remove the workspace owner");
   }
 
-  workspaceRepo.removeMember(workspaceId, targetUserId);
-  return workspaceRepo.getMembers(workspaceId);
+  await workspaceRepo.removeMember(workspaceId, targetUserId);
+  return await workspaceRepo.getMembers(workspaceId);
 }

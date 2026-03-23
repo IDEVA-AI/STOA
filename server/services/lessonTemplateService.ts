@@ -1,15 +1,15 @@
 import * as lessonTemplateRepo from "../repositories/lessonTemplateRepository";
 import * as lessonBlockRepo from "../repositories/lessonBlockRepository";
 
-export function listByWorkspace(workspaceId: number) {
-  return lessonTemplateRepo.getByWorkspace(workspaceId);
+export async function listByWorkspace(workspaceId: number) {
+  return await lessonTemplateRepo.getByWorkspace(workspaceId);
 }
 
-export function getById(id: number) {
-  return lessonTemplateRepo.getById(id);
+export async function getById(id: number) {
+  return await lessonTemplateRepo.getById(id);
 }
 
-export function create(data: {
+export async function create(data: {
   workspace_id: number;
   name: string;
   description?: string;
@@ -18,14 +18,14 @@ export function create(data: {
   blocks?: { block_type: string; content: object; position: number }[];
 }) {
   const { blocks, ...templateData } = data;
-  const result = lessonTemplateRepo.create(templateData);
+  const result = await lessonTemplateRepo.create(templateData);
   if (blocks && blocks.length > 0) {
-    lessonTemplateRepo.setBlocks(result.id, blocks);
+    await lessonTemplateRepo.setBlocks(result.id, blocks);
   }
   return result;
 }
 
-export function update(
+export async function update(
   id: number,
   data: Partial<{
     name: string;
@@ -36,26 +36,26 @@ export function update(
   }>
 ) {
   const { blocks, ...templateData } = data;
-  lessonTemplateRepo.update(id, templateData);
+  await lessonTemplateRepo.update(id, templateData);
   if (blocks !== undefined) {
-    lessonTemplateRepo.setBlocks(id, blocks);
+    await lessonTemplateRepo.setBlocks(id, blocks);
   }
 }
 
-export function remove(id: number) {
-  lessonTemplateRepo.remove(id);
+export async function remove(id: number) {
+  await lessonTemplateRepo.remove(id);
 }
 
-export function createFromLesson(
+export async function createFromLesson(
   workspaceId: number,
   lessonId: number,
   name: string
 ) {
-  return lessonTemplateRepo.createFromLesson(workspaceId, lessonId, name);
+  return await lessonTemplateRepo.createFromLesson(workspaceId, lessonId, name);
 }
 
-export function applyToLesson(templateId: number, lessonId: number) {
-  const template = lessonTemplateRepo.getById(templateId);
+export async function applyToLesson(templateId: number, lessonId: number) {
+  const template = await lessonTemplateRepo.getById(templateId);
   if (!template) throw new Error("Template not found");
 
   const blocks = template.blocks.map(
@@ -66,5 +66,5 @@ export function applyToLesson(templateId: number, lessonId: number) {
     })
   );
 
-  lessonBlockRepo.setBlocks(lessonId, blocks);
+  await lessonBlockRepo.setBlocks(lessonId, blocks);
 }

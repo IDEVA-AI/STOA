@@ -3,10 +3,10 @@ import * as progressService from "../services/progressService";
 
 const router = Router();
 
-router.get("/dashboard", (req, res) => {
+router.get("/dashboard", async (req, res) => {
   const userId = Number(req.query.userId) || 1;
-  const overall = progressService.getOverallProgress(userId);
-  const lastAccessed = progressService.getLastAccessedLesson(userId);
+  const overall = await progressService.getOverallProgress(userId);
+  const lastAccessed = await progressService.getLastAccessedLesson(userId);
   res.json({ overall, lastAccessed });
 });
 

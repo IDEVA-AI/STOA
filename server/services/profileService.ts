@@ -19,26 +19,27 @@ function sanitizeUser(user: userRepo.User) {
   };
 }
 
-export function getProfile(userId: number) {
-  const user = userRepo.findById(userId);
+export async function getProfile(userId: number) {
+  const user = await userRepo.findById(userId);
   if (!user) {
     throw { status: 404, message: "User not found" };
   }
-  const courseCount = purchaseRepo.getUserCourseIds(userId).length;
-  const followerCount = followRepo.getFollowerCount(userId);
+  const courseIds = await purchaseRepo.getUserCourseIds(userId);
+  const courseCount = courseIds.length;
+  const followerCount = await followRepo.getFollowerCount(userId);
   return { ...sanitizeUser(user), courseCount, followerCount };
 }
 
-export function updateProfile(
+export async function updateProfile(
   userId: number,
   data: { name?: string; avatar?: string; bio?: string; website?: string; is_public?: number; show_progress?: number }
 ) {
-  const user = userRepo.findById(userId);
+  const user = await userRepo.findById(userId);
   if (!user) {
     throw { status: 404, message: "User not found" };
   }
 
-  const updated = userRepo.updateProfile(userId, data);
+  const updated = await userRepo.updateProfile(userId, data);
   if (!updated) {
     throw { status: 500, message: "Failed to update profile" };
   }
@@ -59,7 +60,7 @@ export async function changePassword(
     throw { status: 400, message: "New password must be at least 6 characters" };
   }
 
-  const user = userRepo.findById(userId);
+  const user = await userRepo.findById(userId);
   if (!user || !user.password_hash) {
     throw { status: 404, message: "User not found" };
   }
@@ -70,7 +71,7 @@ export async function changePassword(
   }
 
   const newHash = await bcrypt.hash(newPassword, SALT_ROUNDS);
-  userRepo.updatePassword(userId, newHash);
+  await userRepo.updatePassword(userId, newHash);
 
   return { message: "Password updated successfully" };
 }

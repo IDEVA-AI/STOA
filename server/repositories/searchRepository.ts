@@ -17,26 +17,24 @@ export interface SearchResults {
   posts: PostResult[];
 }
 
-export function search(query: string): SearchResults {
+export async function search(query: string): Promise<SearchResults> {
   const pattern = `%${query}%`;
 
-  const courses = db
-    .prepare(
-      `SELECT id, title, description FROM courses
-       WHERE title LIKE ? OR description LIKE ?
-       LIMIT 5`
-    )
-    .all(pattern, pattern) as CourseResult[];
+  const courses = await db.all<CourseResult>(
+    `SELECT id, title, description FROM courses
+     WHERE title ILIKE $1 OR description ILIKE $2
+     LIMIT 5`,
+    [pattern, pattern]
+  );
 
-  const posts = db
-    .prepare(
-      `SELECT p.id, p.content, u.name as user_name
-       FROM posts p
-       JOIN users u ON u.id = p.user_id
-       WHERE p.content LIKE ?
-       LIMIT 5`
-    )
-    .all(pattern) as PostResult[];
+  const posts = await db.all<PostResult>(
+    `SELECT p.id, p.content, u.name as user_name
+     FROM posts p
+     JOIN users u ON u.id = p.user_id
+     WHERE p.content ILIKE $1
+     LIMIT 5`,
+    [pattern]
+  );
 
   return { courses, posts };
 }

@@ -37,22 +37,22 @@ export async function register(
   }
 
   if (inviteCode) {
-    const validation = inviteService.validateInvite(inviteCode);
+    const validation = await inviteService.validateInvite(inviteCode);
     if (!validation.valid) {
       throw { status: 400, message: validation.reason || "Convite invalido" };
     }
   }
 
-  const existing = userRepo.findByEmail(email);
+  const existing = await userRepo.findByEmail(email);
   if (existing) {
     throw { status: 409, message: "Email already registered" };
   }
 
   const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
-  const user = userRepo.createUser(name, email, passwordHash, "Membro", phone);
+  const user = await userRepo.createUser(name, email, passwordHash, "Membro", phone);
 
   if (inviteCode) {
-    inviteService.redeemInvite(inviteCode, user.id);
+    await inviteService.redeemInvite(inviteCode, user.id);
   }
 
   const accessToken = generateToken(user.id, user.role || undefined);
@@ -66,7 +66,7 @@ export async function login(email: string, password: string): Promise<AuthResult
     throw { status: 400, message: "Email and password are required" };
   }
 
-  const user = userRepo.findByEmail(email);
+  const user = await userRepo.findByEmail(email);
   if (!user || !user.password_hash) {
     throw { status: 401, message: "Invalid credentials" };
   }
@@ -86,14 +86,14 @@ export async function login(email: string, password: string): Promise<AuthResult
   return { user: sanitizeUser(user), accessToken, refreshToken };
 }
 
-export function refreshToken(token: string): { accessToken: string } {
+export async function refreshToken(token: string): Promise<{ accessToken: string }> {
   if (!token) {
     throw { status: 400, message: "Refresh token is required" };
   }
 
   try {
     const decoded = verifyRefreshToken(token);
-    const user = userRepo.findById(decoded.userId);
+    const user = await userRepo.findById(decoded.userId);
 
     if (!user || !user.is_active) {
       throw { status: 401, message: "User not found or deactivated" };
@@ -107,8 +107,8 @@ export function refreshToken(token: string): { accessToken: string } {
   }
 }
 
-export function getMe(userId: number) {
-  const user = userRepo.findById(userId);
+export async function getMe(userId: number) {
+  const user = await userRepo.findById(userId);
   if (!user) {
     throw { status: 404, message: "User not found" };
   }

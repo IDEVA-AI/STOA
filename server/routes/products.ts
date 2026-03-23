@@ -5,10 +5,10 @@ import * as productService from "../services/productService";
 const router = Router();
 
 // List products for a workspace
-router.get("/workspace/:workspaceId", authMiddleware, (req, res) => {
+router.get("/workspace/:workspaceId", authMiddleware, async (req, res) => {
   try {
     const workspaceId = Number(req.params.workspaceId);
-    const products = productService.listByWorkspace(workspaceId);
+    const products = await productService.listByWorkspace(workspaceId);
     res.json(products);
   } catch (err: any) {
     const status = err.status || 500;
@@ -17,17 +17,17 @@ router.get("/workspace/:workspaceId", authMiddleware, (req, res) => {
 });
 
 // Get single product with courses
-router.get("/:id", authMiddleware, (req, res) => {
+router.get("/:id", authMiddleware, async (req, res) => {
   try {
     const id = Number(req.params.id);
-    const product = productService.getById(id);
+    const product = await productService.getById(id);
 
     if (!product) {
       res.status(404).json({ error: "Product not found" });
       return;
     }
 
-    const courses = productService.getCourses(id);
+    const courses = await productService.getCourses(id);
     res.json({ ...product, courses });
   } catch (err: any) {
     const status = err.status || 500;
@@ -36,7 +36,7 @@ router.get("/:id", authMiddleware, (req, res) => {
 });
 
 // Create product
-router.post("/", authMiddleware, (req, res) => {
+router.post("/", authMiddleware, async (req, res) => {
   try {
     const { workspace_id, title, description, price, type, is_published, courseIds } = req.body;
 
@@ -45,7 +45,7 @@ router.post("/", authMiddleware, (req, res) => {
       return;
     }
 
-    const id = productService.create({
+    const id = await productService.create({
       workspace_id,
       title,
       description,
@@ -55,7 +55,7 @@ router.post("/", authMiddleware, (req, res) => {
       courseIds,
     });
 
-    const product = productService.getById(id);
+    const product = await productService.getById(id);
     res.status(201).json(product);
   } catch (err: any) {
     const status = err.status || 500;
@@ -64,10 +64,10 @@ router.post("/", authMiddleware, (req, res) => {
 });
 
 // Update product
-router.put("/:id", authMiddleware, (req, res) => {
+router.put("/:id", authMiddleware, async (req, res) => {
   try {
     const id = Number(req.params.id);
-    const existing = productService.getById(id);
+    const existing = await productService.getById(id);
 
     if (!existing) {
       res.status(404).json({ error: "Product not found" });
@@ -75,9 +75,9 @@ router.put("/:id", authMiddleware, (req, res) => {
     }
 
     const { title, description, price, type, is_published, courseIds } = req.body;
-    productService.update(id, { title, description, price, type, is_published, courseIds });
+    await productService.update(id, { title, description, price, type, is_published, courseIds });
 
-    const updated = productService.getById(id);
+    const updated = await productService.getById(id);
     res.json(updated);
   } catch (err: any) {
     const status = err.status || 500;
@@ -86,17 +86,17 @@ router.put("/:id", authMiddleware, (req, res) => {
 });
 
 // Delete product
-router.delete("/:id", authMiddleware, (req, res) => {
+router.delete("/:id", authMiddleware, async (req, res) => {
   try {
     const id = Number(req.params.id);
-    const existing = productService.getById(id);
+    const existing = await productService.getById(id);
 
     if (!existing) {
       res.status(404).json({ error: "Product not found" });
       return;
     }
 
-    productService.remove(id);
+    await productService.remove(id);
     res.json({ success: true });
   } catch (err: any) {
     const status = err.status || 500;
@@ -105,10 +105,10 @@ router.delete("/:id", authMiddleware, (req, res) => {
 });
 
 // Set courses for a product
-router.post("/:id/courses", authMiddleware, (req, res) => {
+router.post("/:id/courses", authMiddleware, async (req, res) => {
   try {
     const id = Number(req.params.id);
-    const existing = productService.getById(id);
+    const existing = await productService.getById(id);
 
     if (!existing) {
       res.status(404).json({ error: "Product not found" });
@@ -121,8 +121,8 @@ router.post("/:id/courses", authMiddleware, (req, res) => {
       return;
     }
 
-    productService.setCourses(id, courseIds);
-    const courses = productService.getCourses(id);
+    await productService.setCourses(id, courseIds);
+    const courses = await productService.getCourses(id);
     res.json({ success: true, courses });
   } catch (err: any) {
     const status = err.status || 500;

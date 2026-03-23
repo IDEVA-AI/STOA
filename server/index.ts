@@ -1,6 +1,6 @@
 import "dotenv/config";
 import express from "express";
-import { createServer as createViteServer } from "vite";
+// Vite imported dynamically to avoid tsx/esbuild deadlock
 import { createServer as createHttpServer } from "http";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -11,7 +11,7 @@ import { initializeSchema } from "./db/schema";
 import { seedDatabase } from "./db/seed";
 import { setupMiddleware, errorHandler, notFoundHandler, authLimiter } from "./middleware";
 import { initWebSocket } from "./ws";
-import logger from "./lib/logger.js";
+import logger from "./lib/logger";
 import authRouter from "./routes/auth";
 import coursesRouter from "./routes/courses";
 import postsRouter from "./routes/posts";
@@ -35,10 +35,9 @@ import schedulingRouter from "./routes/scheduling";
 import followRouter from "./routes/follows";
 import { getUploadsDir } from "./services/uploadService";
 
-initializeSchema();
-seedDatabase();
-
 async function startServer() {
+  await initializeSchema();
+  await seedDatabase();
   const app = express();
   const PORT = parseInt(process.env.PORT || "4747", 10);
 
@@ -97,6 +96,7 @@ async function startServer() {
 
   // Vite middleware for development (must be before error handlers)
   if (process.env.NODE_ENV !== "production") {
+    const { createServer: createViteServer } = await import("vite");
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
@@ -129,4 +129,7 @@ async function startServer() {
   });
 }
 
-startServer();
+startServer().catch((err) => {
+  console.error("Failed to start server:", err);
+  process.exit(1);
+});

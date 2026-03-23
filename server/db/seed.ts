@@ -1,146 +1,145 @@
 import bcrypt from "bcryptjs";
 import db from "./connection";
 
-export function seedDatabase() {
-  const userCount = db.prepare("SELECT count(*) as count FROM users").get() as { count: number };
-  if (userCount.count > 0) return;
+export async function seedDatabase() {
+  const userCount = await db.get<{ count: number }>("SELECT count(*) as count FROM users");
+  if (userCount && userCount.count > 0) return;
 
   const devPasswordHash = bcrypt.hashSync("123456", 10);
 
-  db.prepare("INSERT INTO users (name, avatar, role, email, password_hash) VALUES (?, ?, ?, ?, ?)").run("Julio Carvalho", "https://api.dicebear.com/7.x/avataaars/svg?seed=Julio", "Arquiteto de Sistemas", "julio@stoa.com", devPasswordHash);
-  db.prepare("INSERT INTO users (name, avatar, role, email, password_hash) VALUES (?, ?, ?, ?, ?)").run("Ana Silva", "https://api.dicebear.com/7.x/avataaars/svg?seed=Ana", "Líder de Operações", "ana@stoa.com", devPasswordHash);
+  await db.run("INSERT INTO users (name, avatar, role, email, password_hash) VALUES ($1, $2, $3, $4, $5)", ["Julio Carvalho", "https://api.dicebear.com/7.x/avataaars/svg?seed=Julio", "Arquiteto de Sistemas", "julio@stoa.com", devPasswordHash]);
+  await db.run("INSERT INTO users (name, avatar, role, email, password_hash) VALUES ($1, $2, $3, $4, $5)", ["Ana Silva", "https://api.dicebear.com/7.x/avataaars/svg?seed=Ana", "Líder de Operações", "ana@stoa.com", devPasswordHash]);
 
-  db.prepare("INSERT INTO courses (title, description, thumbnail, lessons_count, progress) VALUES (?, ?, ?, ?, ?)").run(
+  await db.run("INSERT INTO courses (title, description, thumbnail, lessons_count, progress) VALUES ($1, $2, $3, $4, $5)", [
     "Arquitetura de Sistemas Invisíveis",
     "Como construir a estrutura que faz sua empresa rodar sem você.",
     "https://picsum.photos/seed/system/800/450",
     24,
     45
-  );
+  ]);
 
   const course1Id = 1;
-  db.prepare('INSERT INTO modules (course_id, title, "order") VALUES (?, ?, ?)').run(course1Id, "Fundamentos da Arquitetura", 1);
-  db.prepare('INSERT INTO modules (course_id, title, "order") VALUES (?, ?, ?)').run(course1Id, "Sistemas Invisíveis", 2);
+  await db.run('INSERT INTO modules (course_id, title, "order") VALUES ($1, $2, $3)', [course1Id, "Fundamentos da Arquitetura", 1]);
+  await db.run('INSERT INTO modules (course_id, title, "order") VALUES ($1, $2, $3)', [course1Id, "Sistemas Invisíveis", 2]);
 
-  db.prepare('INSERT INTO lessons (module_id, title, content_url, content_type, duration, "order") VALUES (?, ?, ?, ?, ?, ?)').run(1, "Introdução ao Pensamento Sistêmico", "https://www.youtube.com/embed/dQw4w9WgXcQ", "video", 300, 1);
-  db.prepare('INSERT INTO lessons (module_id, title, content_url, content_type, duration, "order") VALUES (?, ?, ?, ?, ?, ?)').run(1, "A Anatomia de uma Organização Viva", "https://www.youtube.com/embed/dQw4w9WgXcQ", "video", 450, 2);
-  db.prepare('INSERT INTO lessons (module_id, title, content_url, content_type, duration, "order") VALUES (?, ?, ?, ?, ?, ?)').run(2, "O Segredo da Delegação de Autoridade", "https://www.youtube.com/embed/dQw4w9WgXcQ", "video", 600, 1);
-  db.prepare('INSERT INTO lessons (module_id, title, content_url, content_type, duration, "order") VALUES (?, ?, ?, ?, ?, ?)').run(2, "Mapeando Processos que não Engessam", "https://www.youtube.com/embed/dQw4w9WgXcQ", "video", 520, 2);
+  await db.run('INSERT INTO lessons (module_id, title, content_url, content_type, duration, "order") VALUES ($1, $2, $3, $4, $5, $6)', [1, "Introdução ao Pensamento Sistêmico", "https://www.youtube.com/embed/dQw4w9WgXcQ", "video", 300, 1]);
+  await db.run('INSERT INTO lessons (module_id, title, content_url, content_type, duration, "order") VALUES ($1, $2, $3, $4, $5, $6)', [1, "A Anatomia de uma Organização Viva", "https://www.youtube.com/embed/dQw4w9WgXcQ", "video", 450, 2]);
+  await db.run('INSERT INTO lessons (module_id, title, content_url, content_type, duration, "order") VALUES ($1, $2, $3, $4, $5, $6)', [2, "O Segredo da Delegação de Autoridade", "https://www.youtube.com/embed/dQw4w9WgXcQ", "video", 600, 1]);
+  await db.run('INSERT INTO lessons (module_id, title, content_url, content_type, duration, "order") VALUES ($1, $2, $3, $4, $5, $6)', [2, "Mapeando Processos que não Engessam", "https://www.youtube.com/embed/dQw4w9WgXcQ", "video", 520, 2]);
 
-  db.prepare("INSERT INTO courses (title, description, thumbnail, lessons_count, progress) VALUES (?, ?, ?, ?, ?)").run(
+  await db.run("INSERT INTO courses (title, description, thumbnail, lessons_count, progress) VALUES ($1, $2, $3, $4, $5)", [
     "O Problema nunca é a Peça",
     "Identificando falhas estruturais antes que elas virem crises.",
     "https://picsum.photos/seed/architecture/800/450",
     18,
     10
-  );
+  ]);
 
   const course2Id = 2;
-  db.prepare('INSERT INTO modules (course_id, title, "order") VALUES (?, ?, ?)').run(course2Id, "Identificando o Problema", 1);
-  db.prepare('INSERT INTO lessons (module_id, title, content_url, content_type, duration, "order") VALUES (?, ?, ?, ?, ?, ?)').run(3, "Por que as Peças Falham?", "https://www.youtube.com/embed/dQw4w9WgXcQ", "video", 320, 1);
-  db.prepare('INSERT INTO lessons (module_id, title, content_url, content_type, duration, "order") VALUES (?, ?, ?, ?, ?, ?)').run(3, "O Custo da Ineficiência Estrutural", "https://www.youtube.com/embed/dQw4w9WgXcQ", "video", 410, 2);
+  await db.run('INSERT INTO modules (course_id, title, "order") VALUES ($1, $2, $3)', [course2Id, "Identificando o Problema", 1]);
+  await db.run('INSERT INTO lessons (module_id, title, content_url, content_type, duration, "order") VALUES ($1, $2, $3, $4, $5, $6)', [3, "Por que as Peças Falham?", "https://www.youtube.com/embed/dQw4w9WgXcQ", "video", 320, 1]);
+  await db.run('INSERT INTO lessons (module_id, title, content_url, content_type, duration, "order") VALUES ($1, $2, $3, $4, $5, $6)', [3, "O Custo da Ineficiência Estrutural", "https://www.youtube.com/embed/dQw4w9WgXcQ", "video", 410, 2]);
 
-  db.prepare("INSERT INTO posts (user_id, content) VALUES (?, ?)").run(1, "O problema nunca é a peça. É o sistema. Se você precisa estar em toda decisão, você não tem uma empresa, tem um emprego de luxo.");
+  await db.run("INSERT INTO posts (user_id, content) VALUES ($1, $2)", [1, "O problema nunca é a peça. É o sistema. Se você precisa estar em toda decisão, você não tem uma empresa, tem um emprego de luxo."]);
 
   // Seed conversations
-  db.prepare("INSERT INTO conversations (id) VALUES (1)").run();
-  db.prepare("INSERT INTO conversation_participants (conversation_id, user_id) VALUES (1, 1)").run();
-  db.prepare("INSERT INTO conversation_participants (conversation_id, user_id) VALUES (1, 2)").run();
-  db.prepare("INSERT INTO messages (conversation_id, sender_id, content) VALUES (1, 2, ?)").run("Ola Julio! Analisei a estrutura que voce propos para o novo modulo.");
-  db.prepare("INSERT INTO messages (conversation_id, sender_id, content) VALUES (1, 1, ?)").run("Otimo! Vou ajustar os diagramas e te envio ainda hoje.");
-  db.prepare("INSERT INTO messages (conversation_id, sender_id, content) VALUES (1, 2, ?)").run("Perfeito. O sistema deve ser invisivel, mas a autoridade deve ser sentida.");
+  await db.run("INSERT INTO conversations (id) VALUES (1)");
+  await db.run("INSERT INTO conversation_participants (conversation_id, user_id) VALUES ($1, $2)", [1, 1]);
+  await db.run("INSERT INTO conversation_participants (conversation_id, user_id) VALUES ($1, $2)", [1, 2]);
+  await db.run("INSERT INTO messages (conversation_id, sender_id, content) VALUES ($1, $2, $3)", [1, 2, "Ola Julio! Analisei a estrutura que voce propos para o novo modulo."]);
+  await db.run("INSERT INTO messages (conversation_id, sender_id, content) VALUES ($1, $2, $3)", [1, 1, "Otimo! Vou ajustar os diagramas e te envio ainda hoje."]);
+  await db.run("INSERT INTO messages (conversation_id, sender_id, content) VALUES ($1, $2, $3)", [1, 2, "Perfeito. O sistema deve ser invisivel, mas a autoridade deve ser sentida."]);
 
   // --- SaaS Multi-tenant seed data ---
 
   // 1. Default workspace
-  db.prepare("INSERT INTO workspaces (name, slug, owner_id, plan) VALUES (?, ?, ?, ?)").run("STOA", "stoa", 1, "free");
+  await db.run("INSERT INTO workspaces (name, slug, owner_id, plan) VALUES ($1, $2, $3, $4)", ["STOA", "stoa", 1, "free"]);
   const workspaceId = 1;
 
   // 2. Workspace members for existing users
-  db.prepare("INSERT INTO workspace_members (workspace_id, user_id, role) VALUES (?, ?, ?)").run(workspaceId, 1, "owner");
-  db.prepare("INSERT INTO workspace_members (workspace_id, user_id, role) VALUES (?, ?, ?)").run(workspaceId, 2, "member");
+  await db.run("INSERT INTO workspace_members (workspace_id, user_id, role) VALUES ($1, $2, $3)", [workspaceId, 1, "owner"]);
+  await db.run("INSERT INTO workspace_members (workspace_id, user_id, role) VALUES ($1, $2, $3)", [workspaceId, 2, "member"]);
 
   // 3. Update existing courses to belong to workspace
-  db.prepare("UPDATE courses SET workspace_id = ? WHERE workspace_id IS NULL").run(workspaceId);
+  await db.run("UPDATE courses SET workspace_id = $1 WHERE workspace_id IS NULL", [workspaceId]);
 
   // 4. Create default communities for each course
-  const courses = db.prepare("SELECT id, title FROM courses").all() as Array<{ id: number; title: string }>;
+  const courses = await db.all<{ id: number; title: string }>("SELECT id, title FROM courses");
   for (const course of courses) {
-    db.prepare("INSERT INTO communities (workspace_id, course_id, name, description) VALUES (?, ?, ?, ?)").run(
+    await db.run("INSERT INTO communities (workspace_id, course_id, name, description) VALUES ($1, $2, $3, $4)", [
       workspaceId,
       course.id,
       `${course.title} Community`,
       `Comunidade do curso ${course.title}`
-    );
+    ]);
   }
 
   // 5. Create community categories for each community
-  const communities = db.prepare("SELECT id FROM communities").all() as Array<{ id: number }>;
+  const communities = await db.all<{ id: number }>("SELECT id FROM communities");
   const categoryNames = ["Discussões", "Dúvidas", "Resultados"];
   for (const community of communities) {
     for (let i = 0; i < categoryNames.length; i++) {
-      db.prepare("INSERT INTO community_categories (community_id, name, position) VALUES (?, ?, ?)").run(community.id, categoryNames[i], i);
+      await db.run("INSERT INTO community_categories (community_id, name, position) VALUES ($1, $2, $3)", [community.id, categoryNames[i], i]);
     }
   }
 
   // 6. Create default product for each course
   for (const course of courses) {
-    db.prepare("INSERT INTO products (workspace_id, title, description, price, type, is_published) VALUES (?, ?, ?, ?, ?, ?)").run(
+    await db.run("INSERT INTO products (workspace_id, title, description, price, type, is_published) VALUES ($1, $2, $3, $4, $5, $6)", [
       workspaceId,
       course.title,
       `Acesso ao curso ${course.title}`,
       0,
       "course",
       1
-    );
+    ]);
   }
 
   // 7. Link products to courses via product_courses
-  const products = db.prepare("SELECT id, title FROM products").all() as Array<{ id: number; title: string }>;
+  const products = await db.all<{ id: number; title: string }>("SELECT id, title FROM products");
   for (const product of products) {
     const matchingCourse = courses.find((c) => c.title === product.title);
     if (matchingCourse) {
-      db.prepare("INSERT INTO product_courses (product_id, course_id) VALUES (?, ?)").run(product.id, matchingCourse.id);
+      await db.run("INSERT INTO product_courses (product_id, course_id) VALUES ($1, $2)", [product.id, matchingCourse.id]);
     }
   }
 
   // 8. Update existing posts to belong to the first community
   if (communities.length > 0) {
-    db.prepare("UPDATE posts SET community_id = ? WHERE community_id IS NULL").run(communities[0].id);
+    await db.run("UPDATE posts SET community_id = $1 WHERE community_id IS NULL", [communities[0].id]);
   }
 
   // 9. Seed default lesson templates
-  seedLessonTemplates(workspaceId);
+  await seedLessonTemplates(workspaceId);
 }
 
-function seedLessonTemplates(workspaceId: number) {
-  const count = db.prepare("SELECT count(*) as count FROM lesson_templates").get() as { count: number };
-  if (count.count > 0) return;
+async function seedLessonTemplates(workspaceId: number) {
+  const count = await db.get<{ count: number }>("SELECT count(*) as count FROM lesson_templates");
+  if (count && count.count > 0) return;
 
-  upsertDefaultTemplates(workspaceId);
+  await upsertDefaultTemplates(workspaceId);
 }
 
 /** Idempotent: inserts only templates whose name doesn't already exist for this workspace */
-export function upsertDefaultTemplates(workspaceId: number) {
-  const insertTemplate = db.prepare(
-    "INSERT INTO lesson_templates (workspace_id, name, description, is_default) VALUES (?, ?, ?, ?)"
-  );
-  const insertBlock = db.prepare(
-    "INSERT INTO lesson_template_blocks (template_id, block_type, content, position) VALUES (?, ?, ?, ?)"
-  );
-  const existingNames = (
-    db.prepare("SELECT name FROM lesson_templates WHERE workspace_id = ?").all(workspaceId) as Array<{ name: string }>
-  ).map((r) => r.name);
+export async function upsertDefaultTemplates(workspaceId: number) {
+  const existingRows = await db.all<{ name: string }>("SELECT name FROM lesson_templates WHERE workspace_id = $1", [workspaceId]);
+  const existingNames = existingRows.map((r) => r.name);
 
   const templates = getDefaultTemplateDefinitions();
 
   for (const tmpl of templates) {
     if (existingNames.includes(tmpl.name)) continue;
-    const result = insertTemplate.run(workspaceId, tmpl.name, tmpl.description, 1);
-    const templateId = Number(result.lastInsertRowid);
+    const result = await db.run(
+      "INSERT INTO lesson_templates (workspace_id, name, description, is_default) VALUES ($1, $2, $3, $4) RETURNING id",
+      [workspaceId, tmpl.name, tmpl.description, 1]
+    );
+    const templateId = result.rows[0].id;
     for (let i = 0; i < tmpl.blocks.length; i++) {
       const b = tmpl.blocks[i];
-      insertBlock.run(templateId, b.type, JSON.stringify(b.content), i);
+      await db.run(
+        "INSERT INTO lesson_template_blocks (template_id, block_type, content, position) VALUES ($1, $2, $3, $4)",
+        [templateId, b.type, JSON.stringify(b.content), i]
+      );
     }
   }
 }

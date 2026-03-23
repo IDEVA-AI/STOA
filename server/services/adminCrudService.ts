@@ -2,46 +2,46 @@ import * as repo from "../repositories/adminCrudRepository";
 
 // ── Courses ──────────────────────────────────────────────────────────
 
-export function listCourses() {
-  return repo.listCourses();
+export async function listCourses() {
+  return await repo.listCourses();
 }
 
-export function createCourse(title: string, description: string, thumbnail: string) {
-  return repo.createCourse(title, description, thumbnail);
+export async function createCourse(title: string, description: string, thumbnail: string) {
+  return await repo.createCourse(title, description, thumbnail);
 }
 
-export function updateCourse(
+export async function updateCourse(
   id: number,
   data: { title?: string; description?: string; thumbnail?: string }
 ) {
-  return repo.updateCourse(id, data);
+  return await repo.updateCourse(id, data);
 }
 
-export function deleteCourse(id: number) {
-  return repo.deleteCourse(id);
+export async function deleteCourse(id: number) {
+  return await repo.deleteCourse(id);
 }
 
 // ── Modules ──────────────────────────────────────────────────────────
 
-export function createModule(courseId: number, title: string, order: number) {
-  return repo.createModule(courseId, title, order);
+export async function createModule(courseId: number, title: string, order: number) {
+  return await repo.createModule(courseId, title, order);
 }
 
-export function updateModule(id: number, data: { title?: string; order?: number }) {
-  return repo.updateModule(id, data);
+export async function updateModule(id: number, data: { title?: string; order?: number }) {
+  return await repo.updateModule(id, data);
 }
 
-export function deleteModule(id: number) {
-  return repo.deleteModule(id);
+export async function deleteModule(id: number) {
+  return await repo.deleteModule(id);
 }
 
-export function getModulesByCourse(courseId: number) {
-  return repo.getModulesByCourse(courseId);
+export async function getModulesByCourse(courseId: number) {
+  return await repo.getModulesByCourse(courseId);
 }
 
 // ── Lessons ──────────────────────────────────────────────────────────
 
-export function createLesson(
+export async function createLesson(
   moduleId: number,
   title: string,
   contentUrl: string | null,
@@ -49,10 +49,10 @@ export function createLesson(
   duration: number | null,
   order: number
 ) {
-  return repo.createLesson(moduleId, title, contentUrl, contentType, duration, order);
+  return await repo.createLesson(moduleId, title, contentUrl, contentType, duration, order);
 }
 
-export function updateLesson(
+export async function updateLesson(
   id: number,
   data: {
     title?: string;
@@ -62,27 +62,27 @@ export function updateLesson(
     order?: number;
   }
 ) {
-  return repo.updateLesson(id, data);
+  return await repo.updateLesson(id, data);
 }
 
-export function deleteLesson(id: number) {
-  return repo.deleteLesson(id);
+export async function deleteLesson(id: number) {
+  return await repo.deleteLesson(id);
 }
 
-export function getLessonsByModule(moduleId: number) {
-  return repo.getLessonsByModule(moduleId);
+export async function getLessonsByModule(moduleId: number) {
+  return await repo.getLessonsByModule(moduleId);
 }
 
 // ── Users ────────────────────────────────────────────────────────────
 
-export function listUsers() {
-  return repo.listUsers();
+export async function listUsers() {
+  return await repo.listUsers();
 }
 
-export function updateUser(id: number, data: { role?: string; is_active?: number }) {
-  return repo.updateUser(id, data);
+export async function updateUser(id: number, data: { role?: string; is_active?: number }) {
+  return await repo.updateUser(id, data);
 }
 
-export function softDeleteUser(id: number) {
-  return repo.softDeleteUser(id);
+export async function softDeleteUser(id: number) {
+  return await repo.softDeleteUser(id);
 }
