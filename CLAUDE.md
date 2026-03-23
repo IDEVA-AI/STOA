@@ -9,7 +9,7 @@ Plataforma educacional e de comunidade para **Julio Carvalho — Arquiteto de Si
 ## Stack Técnica
 
 - **Frontend:** React 19, TypeScript, Tailwind CSS v4, Motion (Framer Motion), Lucide Icons
-- **Backend:** Express + better-sqlite3 (`nexus.db`), Vite middleware em dev
+- **Backend:** Express + PostgreSQL (pg/node-postgres), Vite middleware em dev
 - **Build:** Vite 6, tsx (runtime TS para server)
 - **Auth:** JWT (access 15m + refresh 7d), bcryptjs
 - **WebSocket:** `ws` (noServer mode, path `/ws`) — mensagens em tempo real
@@ -34,7 +34,7 @@ npm run clean     # Remove dist/
 │   ├── index.ts            # Entry point Express + Vite middleware
 │   ├── ws.ts               # WebSocket (noServer, path /ws)
 │   ├── db/
-│   │   ├── connection.ts   # SQLite connection
+│   │   ├── connection.ts   # PostgreSQL connection (pg Pool)
 │   │   ├── schema.ts       # DDL (todas as tabelas)
 │   │   └── seed.ts         # Dados iniciais
 │   ├── middleware/
@@ -69,7 +69,7 @@ npm run clean     # Remove dist/
 ├── vite.config.mjs         # .mjs para evitar conflito tsx/esbuild
 ├── Dockerfile              # Multi-stage: build → prod (Node 20-alpine)
 ├── index.html              # SPA entry
-└── nexus.db                # SQLite local (produção usa /data/nexus.db no container)
+└── .env                    # DATABASE_URL (PostgreSQL connection string)
 ```
 
 ## Infraestrutura de Produção
@@ -78,7 +78,7 @@ npm run clean     # Remove dist/
 - **Servidor:** 178.156.252.78 (Docker Swarm)
 - **Serviço:** `nexo_stoa` (1 replica)
 - **Proxy:** Traefik (entrypoint `web`, roteamento por Host header)
-- **DB:** `/data/nexus.db` (volume persistente no container)
+- **DB:** PostgreSQL via `infra_postgres` (Docker Swarm, postgres:16-alpine)
 - **Uploads:** `/data/uploads/` (volume persistente)
 - **Deploy:** Clone repo no servidor → `docker build --no-cache` → `docker service update --force`
 
@@ -180,7 +180,7 @@ Variáveis CSS: `--theme-bg`, `--theme-text`, `--theme-surface`, `--theme-line`.
 #### 2. Backend (Infraestrutura)
 - **Routes** (`server/routes/`) — endpoints da API (21 arquivos)
 - **Services** (`server/services/`) — lógica de negócio
-- **Repositories** (`server/repositories/`) — acesso a dados (SQLite)
+- **Repositories** (`server/repositories/`) — acesso a dados (PostgreSQL)
 - **Middleware** (`server/middleware/`) — auth, cors, rate limit, error handling
 - **Validation** (`server/validation/`) — schemas de validação de input
 
@@ -202,6 +202,9 @@ Variáveis CSS: `--theme-bg`, `--theme-text`, `--theme-surface`, `--theme-line`.
 - **WebSocket em noServer mode** — para não conflitar com HMR do Vite (upgrade manual por path `/ws`)
 - **SPA fallback manual** — necessário em Vite middleware mode (usa `vite.transformIndexHtml`)
 - **postsRouter é catch-all** — montado em `/api` com auth global, deve ser o último
+- **pino-pretty como stream, não transport** — transport worker causa deadlock com tsx (Node 20 não propaga ESM loaders para Worker Threads)
+- **Vite importado dinamicamente** — `await import("vite")` dentro de `startServer()` evita conflito esbuild-dentro-de-esbuild
+- **Sem imports `.js`** — extensões `.js` em imports TypeScript causam hang no tsx
 
 ## Funcionalidades Planejadas
 
