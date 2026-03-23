@@ -13,7 +13,7 @@ import Database from "better-sqlite3";
 import pg from "pg";
 import path from "path";
 
-const SQLITE_PATH = path.resolve(process.cwd(), "nexus.db");
+const SQLITE_PATH = path.resolve(process.cwd(), process.argv[2] || "nexus.db");
 const sqlite = new Database(SQLITE_PATH, { readonly: true });
 const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
 
