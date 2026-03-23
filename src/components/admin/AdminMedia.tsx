@@ -7,7 +7,7 @@ import {
 import { Heading, Label, Text } from '../ui/Typography';
 import { listItem } from '@/src/lib/motion';
 import { listMedia, uploadMedia, updateMedia, deleteMedia, getMediaStats } from '@/src/services/api';
-import type { MediaAsset, StorageStats } from '@/src/types';
+import type { MediaAsset, StorageStats } from '@/src/types/media';
 
 type MediaType = 'all' | 'image' | 'video' | 'document';
 

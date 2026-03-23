@@ -1,4 +1,5 @@
-import { Course, Module, Post, Comment, DashboardProgress, CommunitySidebar, SearchResults, Conversation, Message, AuthResponse, AuthUser, InviteInfo, Workspace, WorkspaceMember, Product, Purchase, Trail, Community, CommunityCategory, LessonBlock, AvailabilityConfig, TimeSlot, Booking, MediaAsset, StorageStats } from '../types';
+import { Course, Module, Post, Comment, DashboardProgress, CommunitySidebar, SearchResults, Conversation, Message, AuthResponse, AuthUser, InviteInfo, Workspace, WorkspaceMember, Product, Purchase, Trail, Community, CommunityCategory, LessonBlock, AvailabilityConfig, TimeSlot, Booking } from '../types';
+import type { MediaAsset, StorageStats } from '../types/media';
 
 // ── Token helpers ──────────────────────────────────────────────────────
 
