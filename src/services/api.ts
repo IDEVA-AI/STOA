@@ -1,4 +1,4 @@
-import { Course, Module, Post, Comment, DashboardProgress, CommunitySidebar, SearchResults, Conversation, Message, AuthResponse, AuthUser, InviteInfo, Workspace, WorkspaceMember, Product, Purchase, Trail, Community, CommunityCategory, LessonBlock, AvailabilityConfig, TimeSlot, Booking } from '../types';
+import { Course, Module, Post, Comment, DashboardProgress, CommunitySidebar, SearchResults, Conversation, Message, AuthResponse, AuthUser, InviteInfo, Workspace, WorkspaceMember, Product, Purchase, Trail, Community, CommunityCategory, LessonBlock, AvailabilityConfig, TimeSlot, Booking, MediaAsset, StorageStats } from '../types';
 
 // ── Token helpers ──────────────────────────────────────────────────────
 
@@ -1134,4 +1134,51 @@ export async function updateBookingNotes(id: number, notes: string): Promise<voi
     body: JSON.stringify({ notes }),
   });
   if (!res.ok) throw new Error('Falha ao salvar notas.');
+}
+
+// ── Media Library API ────────────────────────────────────────────────
+
+export async function listMedia(params: {
+  workspaceId: number; type?: string; search?: string; tags?: string; page?: number; limit?: number;
+}): Promise<{ items: MediaAsset[]; total: number }> {
+  const qs = new URLSearchParams();
+  Object.entries(params).forEach(([k, v]) => { if (v != null) qs.set(k, String(v)); });
+  const res = await authFetch(`/api/media?${qs}`);
+  if (!res.ok) throw new Error('Falha ao listar midias');
+  return res.json();
+}
+
+export async function uploadMedia(file: File, workspaceId: number): Promise<MediaAsset> {
+  const form = new FormData();
+  form.append('file', file);
+  form.append('workspaceId', String(workspaceId));
+  const token = getAccessToken();
+  const res = await fetch('/api/media', {
+    method: 'POST',
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    body: form,
+  });
+  if (!res.ok) throw new Error('Falha no upload');
+  return res.json();
+}
+
+export async function updateMedia(id: number, data: { name?: string; description?: string; tags?: string }): Promise<MediaAsset> {
+  const res = await authFetch(`/api/media/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Falha ao atualizar');
+  return res.json();
+}
+
+export async function deleteMedia(id: number): Promise<void> {
+  const res = await authFetch(`/api/media/${id}`, { method: 'DELETE' });
+  if (!res.ok) throw new Error('Falha ao deletar');
+}
+
+export async function getMediaStats(workspaceId: number): Promise<StorageStats> {
+  const res = await authFetch(`/api/media/stats?workspaceId=${workspaceId}`);
+  if (!res.ok) throw new Error('Falha ao buscar stats');
+  return res.json();
 }
