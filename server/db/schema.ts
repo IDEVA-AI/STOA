@@ -363,6 +363,32 @@ export async function initializeSchema() {
       FOREIGN KEY(following_id) REFERENCES users(id),
       UNIQUE(follower_id, following_id)
     );
+
+    CREATE TABLE IF NOT EXISTS media_assets (
+      id SERIAL PRIMARY KEY,
+      workspace_id INTEGER NOT NULL,
+      uploaded_by INTEGER NOT NULL,
+      name TEXT NOT NULL,
+      original_filename TEXT NOT NULL,
+      mime_type TEXT NOT NULL,
+      file_type TEXT NOT NULL,
+      file_path TEXT,
+      url TEXT NOT NULL,
+      size INTEGER NOT NULL DEFAULT 0,
+      width INTEGER,
+      height INTEGER,
+      duration INTEGER,
+      bunny_video_id TEXT,
+      bunny_status TEXT,
+      source TEXT NOT NULL DEFAULT 'local',
+      description TEXT,
+      tags TEXT DEFAULT '[]',
+      is_archived INTEGER NOT NULL DEFAULT 0,
+      created_at TIMESTAMPTZ DEFAULT NOW(),
+      updated_at TIMESTAMPTZ DEFAULT NOW(),
+      FOREIGN KEY(workspace_id) REFERENCES workspaces(id),
+      FOREIGN KEY(uploaded_by) REFERENCES users(id)
+    );
   `);
 
   // Performance indices
@@ -417,5 +443,9 @@ export async function initializeSchema() {
     CREATE INDEX IF NOT EXISTS idx_bookings_status ON bookings(status);
     CREATE INDEX IF NOT EXISTS idx_user_follows_follower ON user_follows(follower_id);
     CREATE INDEX IF NOT EXISTS idx_user_follows_following ON user_follows(following_id);
+    CREATE INDEX IF NOT EXISTS idx_media_assets_workspace ON media_assets(workspace_id);
+    CREATE INDEX IF NOT EXISTS idx_media_assets_type ON media_assets(file_type);
+    CREATE INDEX IF NOT EXISTS idx_media_assets_uploaded_by ON media_assets(uploaded_by);
+    CREATE INDEX IF NOT EXISTS idx_media_assets_archived ON media_assets(is_archived);
   `);
 }
