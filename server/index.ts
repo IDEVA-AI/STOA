@@ -33,6 +33,7 @@ import lessonBlocksRouter from "./routes/lessonBlocks";
 import lessonTemplatesRouter from "./routes/lessonTemplates";
 import schedulingRouter from "./routes/scheduling";
 import followRouter from "./routes/follows";
+import mediaRouter from "./routes/media";
 import { getUploadsDir } from "./services/uploadService";
 
 async function startServer() {
@@ -87,6 +88,7 @@ async function startServer() {
   app.use("/api/lesson-templates", lessonTemplatesRouter);
   app.use("/api/scheduling", schedulingRouter);
   app.use("/api/follows", followRouter);
+  app.use("/api/media", mediaRouter);
 
   // postsRouter mounted last — it uses "/api" catch-all with global authMiddleware
   app.use("/api", postsRouter);
