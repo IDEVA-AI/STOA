@@ -57,6 +57,12 @@ export default function LessonPlayerPage({
   const [showSidebar, setShowSidebar] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
+  // Flatten all lessons in order for prev/next navigation
+  const allLessons = courseContent.flatMap((mod) => mod.lessons || []);
+  const currentIdx = allLessons.findIndex((l) => l.id === selectedLesson?.id);
+  const prevLesson = currentIdx > 0 ? allLessons[currentIdx - 1] : null;
+  const nextLesson = currentIdx >= 0 && currentIdx < allLessons.length - 1 ? allLessons[currentIdx + 1] : null;
+
   const sendYTCommand = useCallback((func: string) => {
     iframeRef.current?.contentWindow?.postMessage(
       JSON.stringify({ event: 'command', func, args: '' }),
@@ -365,26 +371,32 @@ export default function LessonPlayerPage({
             )}
 
             {/* Navigation Footer */}
+            {(prevLesson || nextLesson) && (
             <footer className="pt-10 sm:pt-20 border-t border-line flex justify-between items-center">
-              <button className="flex items-center gap-4 sm:gap-6 text-warm-gray hover:text-gold transition-all group">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border border-line flex items-center justify-center group-hover:border-gold group-hover:bg-gold/5 transition-all">
-                  <ArrowRight size={18} className="rotate-180 group-hover:-translate-x-1 transition-transform" />
-                </div>
-                <div className="text-left">
-                  <Label className="opacity-40 mb-1 block text-[10px]">Anterior</Label>
-                  <p className="text-sm font-bold tracking-tight">O Mito da Eficiência</p>
-                </div>
-              </button>
-              <button className="flex items-center gap-4 sm:gap-6 text-warm-gray hover:text-gold transition-all group text-right">
-                <div className="text-right">
-                  <Label className="opacity-40 mb-1 block text-[10px]">Próxima</Label>
-                  <p className="text-sm font-bold tracking-tight">Escalabilidade Vertical</p>
-                </div>
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border border-line flex items-center justify-center group-hover:border-gold group-hover:bg-gold/5 transition-all">
-                  <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-                </div>
-              </button>
+              {prevLesson ? (
+                <button onClick={() => onSelectLesson(prevLesson)} className="flex items-center gap-4 sm:gap-6 text-warm-gray hover:text-gold transition-all group">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border border-line flex items-center justify-center group-hover:border-gold group-hover:bg-gold/5 transition-all">
+                    <ArrowRight size={18} className="rotate-180 group-hover:-translate-x-1 transition-transform" />
+                  </div>
+                  <div className="text-left">
+                    <Label className="opacity-40 mb-1 block text-[10px]">Anterior</Label>
+                    <p className="text-sm font-bold tracking-tight">{prevLesson.title}</p>
+                  </div>
+                </button>
+              ) : <div />}
+              {nextLesson ? (
+                <button onClick={() => onSelectLesson(nextLesson)} className="flex items-center gap-4 sm:gap-6 text-warm-gray hover:text-gold transition-all group text-right">
+                  <div className="text-right">
+                    <Label className="opacity-40 mb-1 block text-[10px]">Próxima</Label>
+                    <p className="text-sm font-bold tracking-tight">{nextLesson.title}</p>
+                  </div>
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border border-line flex items-center justify-center group-hover:border-gold group-hover:bg-gold/5 transition-all">
+                    <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </button>
+              ) : <div />}
             </footer>
+            )}
           </motion.div>
         </AnimatePresence>
       </main>
