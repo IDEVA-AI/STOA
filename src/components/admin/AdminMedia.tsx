@@ -163,8 +163,7 @@ export default function AdminMedia() {
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [uploading, setUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploads, setUploads] = useState<Map<string, { name: string; progress: number }>>(new Map());
   const [dragOver, setDragOver] = useState(false);
   const [stats, setStats] = useState<StorageStats | null>(null);
   const [selected, setSelected] = useState<Set<number>>(new Set());
@@ -225,22 +224,36 @@ export default function AdminMedia() {
 
   const handleUpload = useCallback(async (files: FileList | File[]) => {
     if (!files.length) return;
-    setUploading(true);
+    const fileArray = Array.from(files);
 
-    try {
-      for (const file of Array.from(files)) {
-        setUploadProgress(0);
-        const uploaded = await uploadMedia(file, WORKSPACE_ID, (pct) => setUploadProgress(pct));
+    // Initialize upload tracking
+    const initial = new Map<string, { name: string; progress: number }>();
+    fileArray.forEach((f, i) => initial.set(`${f.name}-${i}`, { name: f.name, progress: 0 }));
+    setUploads(initial);
+
+    const results = await Promise.allSettled(
+      fileArray.map(async (file, i) => {
+        const key = `${file.name}-${i}`;
+        const uploaded = await uploadMedia(file, WORKSPACE_ID, (pct) => {
+          setUploads((prev) => {
+            const next = new Map(prev);
+            next.set(key, { name: file.name, progress: pct });
+            return next;
+          });
+        });
         setAssets((prev) => [uploaded, ...prev]);
         setTotal((prev) => prev + 1);
-      }
-      fetchStats();
-    } catch (err: any) {
-      console.error('Upload failed:', err.message);
-      alert(err.message || 'Falha no upload.');
-    } finally {
-      setUploading(false);
+        return uploaded;
+      })
+    );
+
+    const failed = results.filter((r) => r.status === 'rejected');
+    if (failed.length > 0) {
+      alert(`${failed.length} arquivo(s) falharam no upload.`);
     }
+
+    fetchStats();
+    setUploads(new Map());
   }, [fetchStats]);
 
   const onFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -401,26 +414,34 @@ export default function AdminMedia() {
           </Button>
         )}
         <Button
-          icon={uploading ? <Loader2 size={16} className="animate-spin" /> : <Upload size={16} />}
+          icon={uploads.size > 0 ? <Loader2 size={16} className="animate-spin" /> : <Upload size={16} />}
           onClick={() => fileInputRef.current?.click()}
-          disabled={uploading}
+          disabled={uploads.size > 0}
         >
-          {uploading ? `Enviando${uploadProgress > 0 ? ` ${uploadProgress}%` : '...'}` : 'Upload'}
+          {uploads.size > 0 ? `Enviando ${uploads.size} arquivo${uploads.size > 1 ? 's' : ''}...` : 'Upload'}
         </Button>
       </div>
 
-      {/* Upload Progress Bar */}
-      {uploading && (
+      {/* Upload Progress Bars */}
+      {uploads.size > 0 && (
         <Card variant="elevated" padding="md">
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Loader2 size={16} className="text-gold animate-spin" />
-                <Text size="sm" className="font-bold">Enviando video...</Text>
+          <div className="space-y-4">
+            {Array.from(uploads.entries()).map(([key, { name, progress }]) => (
+              <div key={key} className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    {progress < 100 ? (
+                      <Loader2 size={14} className="text-gold animate-spin" />
+                    ) : (
+                      <Video size={14} className="text-gold" />
+                    )}
+                    <Text size="sm" className="font-bold truncate max-w-xs">{name}</Text>
+                  </div>
+                  <Label variant="gold">{progress}%</Label>
+                </div>
+                <ProgressBar value={progress} size="sm" />
               </div>
-              <Label variant="gold">{uploadProgress}%</Label>
-            </div>
-            <ProgressBar value={uploadProgress} size="md" />
+            ))}
           </div>
         </Card>
       )}
@@ -566,14 +587,14 @@ export default function AdminMedia() {
           dragOver
             ? 'border-gold bg-gold/5'
             : 'border-line hover:border-gold/50'
-        } ${uploading ? 'pointer-events-none opacity-50' : ''}`}
+        } ${uploads.size > 0 ? 'pointer-events-none opacity-50' : ''}`}
         onClick={() => dropzoneInputRef.current?.click()}
         onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
         onDragLeave={() => setDragOver(false)}
         onDrop={onDrop}
       >
         <div className="w-14 h-14 rounded-full bg-surface flex items-center justify-center group-hover:bg-gold/10 transition-colors">
-          {uploading ? (
+          {uploads.size > 0 ? (
             <Loader2 size={24} className="text-gold animate-spin" />
           ) : (
             <Upload size={24} className="text-warm-gray group-hover:text-gold transition-colors" />
@@ -581,7 +602,7 @@ export default function AdminMedia() {
         </div>
         <div className="text-center">
           <Text size="sm" className="font-bold">
-            {uploading ? `Enviando${uploadProgress > 0 ? ` — ${uploadProgress}%` : '...'}` : 'Arraste arquivos ou clique para upload'}
+            {uploads.size > 0 ? `Enviando ${uploads.size} arquivo${uploads.size > 1 ? 's' : ''}...` : 'Arraste arquivos ou clique para upload'}
           </Text>
           <Text size="xs" muted className="mt-1">JPG, PNG, MP4, PDF — videos ate 2 GB, outros ate 500 MB</Text>
         </div>
