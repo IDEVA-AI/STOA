@@ -30,7 +30,8 @@ function VideoBlock({ content }: { content: Record<string, any> }) {
 
   const ytUrl = getYouTubeEmbedUrl(url);
   const vimeoUrl = getVimeoEmbedUrl(url);
-  const embedUrl = ytUrl || vimeoUrl;
+  const isBunny = url.includes('iframe.mediadelivery.net') || url.includes('video.bunnycdn.com');
+  const embedUrl = ytUrl || vimeoUrl || (isBunny ? url : null);
 
   if (embedUrl) {
     return (
