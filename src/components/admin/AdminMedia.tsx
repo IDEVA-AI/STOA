@@ -11,7 +11,7 @@ import type { MediaAsset, StorageStats } from '@/src/types/media';
 
 type MediaType = 'all' | 'image' | 'video' | 'document';
 
-const BUNNY_CDN = 'vz-670d5a2f-df7.b-cdn.net';
+const BUNNY_CDN = 'vz-6d3fc631-54b.b-cdn.net';
 const WORKSPACE_ID = 1;
 const PAGE_SIZE = 24;
 
