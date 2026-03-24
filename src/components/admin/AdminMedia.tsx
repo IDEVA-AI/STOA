@@ -409,6 +409,22 @@ export default function AdminMedia() {
         </Button>
       </div>
 
+      {/* Upload Progress Bar */}
+      {uploading && (
+        <Card variant="elevated" padding="md">
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Loader2 size={16} className="text-gold animate-spin" />
+                <Text size="sm" className="font-bold">Enviando video...</Text>
+              </div>
+              <Label variant="gold">{uploadProgress}%</Label>
+            </div>
+            <ProgressBar value={uploadProgress} size="md" />
+          </div>
+        </Card>
+      )}
+
       {/* Filter Tabs */}
       <div className="flex gap-2">
         {tabs.map((tab) => (
