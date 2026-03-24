@@ -13,9 +13,10 @@ import { Label } from '@/src/components/ui/Typography';
 import {
   getLessonBlocks, setLessonBlocks, createTemplateFromLesson,
   getLessonTemplates, applyTemplateToLesson,
-  uploadFile, uploadImage, getLibrary,
+  uploadFile, uploadImage, getLibrary, listMedia,
 } from '@/src/services/api';
 import type { LibraryItem } from '@/src/services/api';
+import type { MediaAsset } from '@/src/types/media';
 import type { LessonTemplate } from '@/src/services/api';
 import type { LessonBlock } from '@/src/types';
 import { useWorkspace } from '@/src/hooks/useWorkspace';
@@ -114,7 +115,38 @@ function LibraryModal({
   useEffect(() => {
     if (!open) return;
     setLoading(true);
-    getLibrary()
+
+    const fetchAll = async () => {
+      const results: LibraryItem[] = [];
+
+      // Fetch from media library (Bunny videos + uploads)
+      try {
+        const media = await listMedia({ workspaceId: 1, limit: 100 });
+        for (const asset of media.items) {
+          results.push({
+            name: asset.original_filename || asset.name,
+            url: asset.url,
+            type: asset.file_type as 'image' | 'video' | 'file',
+            size: asset.size,
+            folder: asset.source || 'media',
+          });
+        }
+      } catch {}
+
+      // Fetch from legacy local uploads
+      try {
+        const legacy = await getLibrary();
+        for (const item of legacy) {
+          if (!results.some((r) => r.url === item.url)) {
+            results.push(item);
+          }
+        }
+      } catch {}
+
+      return results;
+    };
+
+    fetchAll()
       .then(setItems)
       .catch(() => setItems([]))
       .finally(() => setLoading(false));
