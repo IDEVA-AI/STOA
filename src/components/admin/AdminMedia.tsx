@@ -567,7 +567,7 @@ export default function AdminMedia() {
           <Text size="sm" className="font-bold">
             {uploading ? `Enviando${uploadProgress > 0 ? ` — ${uploadProgress}%` : '...'}` : 'Arraste arquivos ou clique para upload'}
           </Text>
-          <Text size="xs" muted className="mt-1">JPG, PNG, MP4, PDF — max. 50 MB (imagens max. 10 MB)</Text>
+          <Text size="xs" muted className="mt-1">JPG, PNG, MP4, PDF — videos ate 2 GB, outros ate 500 MB</Text>
         </div>
       </button>
 
