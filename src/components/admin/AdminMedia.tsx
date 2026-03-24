@@ -168,6 +168,7 @@ export default function AdminMedia() {
   const [stats, setStats] = useState<StorageStats | null>(null);
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [editingAsset, setEditingAsset] = useState<MediaAsset | null>(null);
+  const [previewAsset, setPreviewAsset] = useState<MediaAsset | null>(null);
   const [deleting, setDeleting] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -383,6 +384,43 @@ export default function AdminMedia() {
         accept="image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx"
       />
 
+      {/* Preview Modal */}
+      {previewAsset && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
+          onClick={() => setPreviewAsset(null)}
+        >
+          <div className="w-full max-w-4xl mx-4" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <Heading level={4} className="text-white">{previewAsset.name}</Heading>
+              <button onClick={() => setPreviewAsset(null)} className="text-white/60 hover:text-white transition-colors">
+                <X size={24} />
+              </button>
+            </div>
+            {previewAsset.file_type === 'video' && previewAsset.url ? (
+              <div className="aspect-video bg-black overflow-hidden">
+                <iframe
+                  src={previewAsset.url}
+                  className="w-full h-full"
+                  title={previewAsset.name}
+                  allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
+            ) : previewAsset.file_type === 'image' ? (
+              <img src={previewAsset.url} alt={previewAsset.name} className="max-w-full max-h-[80vh] mx-auto" />
+            ) : (
+              <div className="bg-surface p-12 text-center">
+                <FileText size={48} className="mx-auto mb-4 text-warm-gray/30" />
+                <a href={previewAsset.url} target="_blank" rel="noopener noreferrer" className="text-gold hover:underline">
+                  Abrir arquivo
+                </a>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Edit Modal */}
       {editingAsset && (
         <EditModal
@@ -512,13 +550,13 @@ export default function AdminMedia() {
                   </button>
 
                   {/* Thumbnail / Icon area */}
-                  <div className="relative">
+                  <div className="relative cursor-pointer" onClick={() => !processing && setPreviewAsset(asset)}>
                     {thumb ? (
                       <div className="h-32 overflow-hidden">
                         <img
                           src={thumb}
                           alt={asset.name}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                         />
                       </div>
                     ) : (
