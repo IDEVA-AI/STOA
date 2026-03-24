@@ -1,0 +1,128 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" fill="none">
+  <defs>
+    <linearGradient id="bg2" x1="0" y1="0" x2="800" y2="450" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0e0c0a"/>
+      <stop offset="100%" stop-color="#1a1714"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="450" fill="url(#bg2)"/>
+
+  <!-- Architectural grid -->
+  <g opacity="0.04" stroke="#b8873a" stroke-width="0.5">
+    <line x1="200" y1="0" x2="200" y2="450"/>
+    <line x1="400" y1="0" x2="400" y2="450"/>
+    <line x1="600" y1="0" x2="600" y2="450"/>
+    <line x1="0" y1="150" x2="800" y2="150"/>
+    <line x1="0" y1="300" x2="800" y2="300"/>
+  </g>
+
+  <!-- Animated structural diagram -->
+  <g transform="translate(550, 180)">
+    <!-- Central node -->
+    <rect x="-12" y="-12" width="24" height="24" fill="none" stroke="#b8873a" stroke-width="1.5" opacity="0.7">
+      <animateTransform attributeName="transform" type="rotate" from="0" to="90" dur="20s" repeatCount="indefinite"/>
+    </rect>
+    <rect x="-6" y="-6" width="12" height="12" fill="#b8873a" opacity="0.4">
+      <animate attributeName="opacity" values="0.2;0.5;0.2" dur="3s" repeatCount="indefinite"/>
+    </rect>
+
+    <!-- Top branch -->
+    <line x1="0" y1="-12" x2="0" y2="-70" stroke="#b8873a" stroke-width="0.8" opacity="0.3">
+      <animate attributeName="opacity" values="0.1;0.4;0.1" dur="4s" repeatCount="indefinite"/>
+    </line>
+    <rect x="-8" y="-86" width="16" height="16" fill="none" stroke="#b8873a" stroke-width="0.8" opacity="0.3">
+      <animate attributeName="opacity" values="0.15;0.4;0.15" dur="4s" begin="0.5s" repeatCount="indefinite"/>
+    </rect>
+
+    <!-- Right branch -->
+    <line x1="12" y1="0" x2="90" y2="0" stroke="#b8873a" stroke-width="0.8" opacity="0.3">
+      <animate attributeName="opacity" values="0.1;0.4;0.1" dur="4s" begin="1s" repeatCount="indefinite"/>
+    </line>
+    <rect x="90" y="-8" width="16" height="16" fill="none" stroke="#b8873a" stroke-width="0.8" opacity="0.3">
+      <animate attributeName="opacity" values="0.15;0.4;0.15" dur="4s" begin="1.5s" repeatCount="indefinite"/>
+    </rect>
+
+    <!-- Bottom branch -->
+    <line x1="0" y1="12" x2="0" y2="70" stroke="#b8873a" stroke-width="0.8" opacity="0.3">
+      <animate attributeName="opacity" values="0.1;0.4;0.1" dur="4s" begin="2s" repeatCount="indefinite"/>
+    </line>
+    <rect x="-8" y="70" width="16" height="16" fill="none" stroke="#b8873a" stroke-width="0.8" opacity="0.3">
+      <animate attributeName="opacity" values="0.15;0.4;0.15" dur="4s" begin="2.5s" repeatCount="indefinite"/>
+    </rect>
+
+    <!-- Left branch -->
+    <line x1="-12" y1="0" x2="-90" y2="0" stroke="#b8873a" stroke-width="0.8" opacity="0.3">
+      <animate attributeName="opacity" values="0.1;0.4;0.1" dur="4s" begin="3s" repeatCount="indefinite"/>
+    </line>
+    <rect x="-106" y="-8" width="16" height="16" fill="none" stroke="#b8873a" stroke-width="0.8" opacity="0.3">
+      <animate attributeName="opacity" values="0.15;0.4;0.15" dur="4s" begin="3.5s" repeatCount="indefinite"/>
+    </rect>
+
+    <!-- Diagonal connections -->
+    <line x1="12" y1="-12" x2="55" y2="-55" stroke="#b8873a" stroke-width="0.5" opacity="0.15" stroke-dasharray="3 3">
+      <animate attributeName="stroke-dashoffset" values="0;-6" dur="2s" repeatCount="indefinite"/>
+    </line>
+    <line x1="12" y1="12" x2="55" y2="55" stroke="#b8873a" stroke-width="0.5" opacity="0.15" stroke-dasharray="3 3">
+      <animate attributeName="stroke-dashoffset" values="0;-6" dur="2s" repeatCount="indefinite"/>
+    </line>
+    <line x1="-12" y1="-12" x2="-55" y2="-55" stroke="#b8873a" stroke-width="0.5" opacity="0.15" stroke-dasharray="3 3">
+      <animate attributeName="stroke-dashoffset" values="0;-6" dur="2s" repeatCount="indefinite"/>
+    </line>
+    <line x1="-12" y1="12" x2="-55" y2="55" stroke="#b8873a" stroke-width="0.5" opacity="0.15" stroke-dasharray="3 3">
+      <animate attributeName="stroke-dashoffset" values="0;-6" dur="2s" repeatCount="indefinite"/>
+    </line>
+
+    <!-- Outer rotating frame -->
+    <rect x="-130" y="-130" width="260" height="260" fill="none" stroke="#b8873a" stroke-width="0.3" opacity="0.08">
+      <animateTransform attributeName="transform" type="rotate" from="0" to="-360" dur="120s" repeatCount="indefinite"/>
+    </rect>
+  </g>
+
+  <!-- Animated horizontal line -->
+  <line x1="60" y1="320" x2="60" y2="320" stroke="#b8873a" stroke-width="1" opacity="0.4">
+    <animate attributeName="x2" values="60;350;350" dur="2s" fill="freeze" keyTimes="0;0.6;1"/>
+    <animate attributeName="opacity" values="0;0.4;0.4" dur="1s" fill="freeze"/>
+  </line>
+
+  <!-- Label -->
+  <text x="60" y="105" fill="#b8873a" font-family="monospace" font-size="10" letter-spacing="0.25em" opacity="0.5">
+    FORMACAO DEV.IA
+    <animate attributeName="opacity" values="0;0.5" dur="1.5s" fill="freeze"/>
+  </text>
+
+  <!-- Module number -->
+  <text x="60" y="180" fill="#b8873a" font-family="Georgia, serif" font-size="72" font-weight="900" opacity="0.08">
+    02
+    <animate attributeName="opacity" values="0;0.08" dur="2s" fill="freeze"/>
+  </text>
+
+  <!-- Title -->
+  <text x="60" y="280" fill="#f4f0e8" font-family="Georgia, serif" font-size="42" font-weight="700" letter-spacing="-0.02em">
+    Arquitetura
+    <animate attributeName="opacity" values="0;1" dur="1s" begin="0.3s" fill="freeze"/>
+  </text>
+
+  <!-- Subtitle -->
+  <text x="60" y="310" fill="#7a7268" font-family="Georgia, serif" font-size="16" font-style="italic">
+    Estruturas e sistemas organizacionais
+    <animate attributeName="opacity" values="0;1" dur="1s" begin="0.6s" fill="freeze"/>
+  </text>
+
+  <!-- Bottom accent dots -->
+  <g opacity="0.3">
+    <circle cx="60" cy="400" r="2" fill="#b8873a">
+      <animate attributeName="opacity" values="0.1;0.5;0.1" dur="3s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="75" cy="400" r="2" fill="#b8873a">
+      <animate attributeName="opacity" values="0.1;0.5;0.1" dur="3s" begin="0.5s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="90" cy="400" r="2" fill="#b8873a">
+      <animate attributeName="opacity" values="0.1;0.5;0.1" dur="3s" begin="1s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="105" cy="400" r="2" fill="#b8873a">
+      <animate attributeName="opacity" values="0.1;0.5;0.1" dur="3s" begin="1.5s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+</svg>
