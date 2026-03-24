@@ -1191,10 +1191,10 @@ async function uploadVideoDirectToBunny(file: File, workspaceId: number, onProgr
   const auth: TusUploadAuth = await res.json();
 
   // 2. Upload directly to Bunny via TUS
-  const { default: tus } = await import('tus-js-client');
+  const { Upload } = await import('tus-js-client');
 
   await new Promise<void>((resolve, reject) => {
-    const upload = new tus.Upload(file, {
+    const upload = new Upload(file, {
       endpoint: auth.tusEndpoint,
       retryDelays: [0, 3000, 5000, 10000],
       headers: {
