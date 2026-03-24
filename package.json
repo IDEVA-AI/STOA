@@ -8,7 +8,9 @@
     "build": "vite build",
     "preview": "vite preview",
     "clean": "rm -rf dist",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "deploy": "git push origin main && ssh root@178.156.252.78 'cd /home/deploy/apps/stoa && git pull origin main && bash scripts/deploy.sh'",
+    "deploy:no-cache": "git push origin main && ssh root@178.156.252.78 'cd /home/deploy/apps/stoa && docker rmi nexo-stoa:latest 2>/dev/null; git pull origin main && bash scripts/deploy.sh'"
   },
   "dependencies": {
     "@google/genai": "^1.29.0",
