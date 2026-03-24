@@ -1,3 +1,5 @@
+import crypto from "crypto";
+
 const BUNNY_API = "https://video.bunnycdn.com";
 const API_KEY = process.env.BUNNY_API_KEY || "";
 const LIBRARY_ID = process.env.BUNNY_LIBRARY_ID || "";
@@ -65,4 +67,21 @@ export function mapBunnyStatus(status: number): string {
   if (status === 3 || status === 4) return "ready";
   if (status === 5) return "failed";
   return "processing";
+}
+
+export function createTusAuth(videoId: string) {
+  const expireSeconds = 3600;
+  const expireTimestamp = Math.floor(Date.now() / 1000) + expireSeconds;
+  const signature = crypto
+    .createHash("sha256")
+    .update(LIBRARY_ID + API_KEY + expireTimestamp + videoId)
+    .digest("hex");
+
+  return {
+    videoId,
+    libraryId: LIBRARY_ID,
+    tusEndpoint: `${BUNNY_API}/tusupload`,
+    authSignature: signature,
+    authExpire: expireTimestamp,
+  };
 }

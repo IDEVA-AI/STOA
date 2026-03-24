@@ -1149,7 +1149,14 @@ export async function listMedia(params: {
   return res.json();
 }
 
-export async function uploadMedia(file: File, workspaceId: number): Promise<MediaAsset> {
+export async function uploadMedia(file: File, workspaceId: number, onProgress?: (pct: number) => void): Promise<MediaAsset> {
+  const isVideo = file.type.startsWith('video/');
+
+  if (isVideo) {
+    return uploadVideoDirectToBunny(file, workspaceId, onProgress);
+  }
+
+  // Images/docs still go through server (small files)
   const form = new FormData();
   form.append('file', file);
   form.append('workspaceId', String(workspaceId));
@@ -1161,6 +1168,68 @@ export async function uploadMedia(file: File, workspaceId: number): Promise<Medi
   });
   if (!res.ok) throw new Error('Falha no upload');
   return res.json();
+}
+
+interface TusUploadAuth {
+  videoId: string;
+  libraryId: string;
+  tusEndpoint: string;
+  authSignature: string;
+  authExpire: number;
+}
+
+async function uploadVideoDirectToBunny(file: File, workspaceId: number, onProgress?: (pct: number) => void): Promise<MediaAsset> {
+  const name = file.name.replace(/\.[^.]+$/, '');
+
+  // 1. Get TUS credentials from backend
+  const res = await authFetch('/api/media/create-upload', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, workspaceId }),
+  });
+  if (!res.ok) throw new Error('Falha ao criar upload');
+  const auth: TusUploadAuth = await res.json();
+
+  // 2. Upload directly to Bunny via TUS
+  const { default: tus } = await import('tus-js-client');
+
+  await new Promise<void>((resolve, reject) => {
+    const upload = new tus.Upload(file, {
+      endpoint: auth.tusEndpoint,
+      retryDelays: [0, 3000, 5000, 10000],
+      headers: {
+        AuthorizationSignature: auth.authSignature,
+        AuthorizationExpire: String(auth.authExpire),
+        VideoId: auth.videoId,
+        LibraryId: auth.libraryId,
+      },
+      metadata: {
+        filetype: file.type,
+        title: name,
+      },
+      onError: (err) => reject(new Error(err.message || 'Falha no upload do video')),
+      onProgress: (bytesUploaded, bytesTotal) => {
+        if (onProgress) onProgress(Math.round((bytesUploaded / bytesTotal) * 100));
+      },
+      onSuccess: () => resolve(),
+    });
+    upload.start();
+  });
+
+  // 3. Confirm upload with backend
+  const confirmRes = await authFetch('/api/media/confirm-upload', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      videoId: auth.videoId,
+      workspaceId,
+      name,
+      originalFilename: file.name,
+      size: file.size,
+    }),
+  });
+  if (!confirmRes.ok) throw new Error('Falha ao confirmar upload');
+  return confirmRes.json();
 }
 
 export async function updateMedia(id: number, data: { name?: string; description?: string; tags?: string }): Promise<MediaAsset> {

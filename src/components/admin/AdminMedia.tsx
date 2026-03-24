@@ -164,6 +164,7 @@ export default function AdminMedia() {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [dragOver, setDragOver] = useState(false);
   const [stats, setStats] = useState<StorageStats | null>(null);
   const [selected, setSelected] = useState<Set<number>>(new Set());
@@ -228,7 +229,8 @@ export default function AdminMedia() {
 
     try {
       for (const file of Array.from(files)) {
-        const uploaded = await uploadMedia(file, WORKSPACE_ID);
+        setUploadProgress(0);
+        const uploaded = await uploadMedia(file, WORKSPACE_ID, (pct) => setUploadProgress(pct));
         setAssets((prev) => [uploaded, ...prev]);
         setTotal((prev) => prev + 1);
       }
@@ -403,7 +405,7 @@ export default function AdminMedia() {
           onClick={() => fileInputRef.current?.click()}
           disabled={uploading}
         >
-          {uploading ? 'Enviando...' : 'Upload'}
+          {uploading ? `Enviando${uploadProgress > 0 ? ` ${uploadProgress}%` : '...'}` : 'Upload'}
         </Button>
       </div>
 
@@ -563,7 +565,7 @@ export default function AdminMedia() {
         </div>
         <div className="text-center">
           <Text size="sm" className="font-bold">
-            {uploading ? 'Enviando arquivos...' : 'Arraste arquivos ou clique para upload'}
+            {uploading ? `Enviando${uploadProgress > 0 ? ` — ${uploadProgress}%` : '...'}` : 'Arraste arquivos ou clique para upload'}
           </Text>
           <Text size="xs" muted className="mt-1">JPG, PNG, MP4, PDF — max. 50 MB (imagens max. 10 MB)</Text>
         </div>

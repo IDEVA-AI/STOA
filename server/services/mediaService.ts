@@ -100,6 +100,36 @@ export async function getStorageStats(workspaceId: number) {
   return mediaRepo.getStorageStats(workspaceId);
 }
 
+export async function createDirectUpload(name: string, workspaceId: number, userId: number) {
+  const video = await bunnyService.createVideo(name);
+  const tusAuth = bunnyService.createTusAuth(video.guid);
+  return { ...tusAuth, workspaceId, userId };
+}
+
+export async function confirmDirectUpload(data: {
+  videoId: string;
+  workspaceId: number;
+  userId: number;
+  name: string;
+  originalFilename: string;
+  size: number;
+}) {
+  const url = bunnyService.getPlayerUrl(data.videoId);
+  return mediaRepo.create({
+    workspace_id: data.workspaceId,
+    uploaded_by: data.userId,
+    name: data.name,
+    original_filename: data.originalFilename,
+    mime_type: "video/mp4",
+    file_type: "video",
+    url,
+    size: data.size,
+    bunny_video_id: data.videoId,
+    bunny_status: "processing",
+    source: "bunny",
+  });
+}
+
 export async function syncBunnyStatus(id: number) {
   const asset = await getMedia(id);
   if (asset.source !== "bunny" || !asset.bunny_video_id) {

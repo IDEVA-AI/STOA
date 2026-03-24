@@ -13,7 +13,21 @@ export { authLimiter, apiLimiter, messageLimiter } from "./rateLimit";
 export function setupMiddleware(app: Express): void {
   app.use(compression());
   if (process.env.NODE_ENV === "production") {
-    app.use(helmet());
+    app.use(
+      helmet({
+        contentSecurityPolicy: {
+          directives: {
+            defaultSrc: ["'self'"],
+            scriptSrc: ["'self'"],
+            styleSrc: ["'self'", "https:", "'unsafe-inline'"],
+            imgSrc: ["'self'", "data:", "https://*.b-cdn.net"],
+            connectSrc: ["'self'", "https://video.bunnycdn.com"],
+            frameSrc: ["'self'", "https://iframe.mediadelivery.net"],
+            fontSrc: ["'self'", "https:", "data:"],
+          },
+        },
+      })
+    );
   }
   app.use(corsMiddleware);
   app.use(express.json({ limit: "10mb" }));

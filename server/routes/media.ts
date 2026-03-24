@@ -90,6 +90,41 @@ router.post(
   }
 );
 
+// POST /create-upload — Create Bunny video + return TUS credentials
+router.post("/create-upload", async (req: Request, res: Response) => {
+  try {
+    const { name, workspaceId } = req.body;
+    if (!workspaceId || !name) {
+      return res.status(400).json({ error: "workspaceId and name are required" });
+    }
+    const result = await mediaService.createDirectUpload(name, Number(workspaceId), req.userId!);
+    res.json(result);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /confirm-upload — Confirm browser upload completed
+router.post("/confirm-upload", async (req: Request, res: Response) => {
+  try {
+    const { videoId, workspaceId, name, originalFilename, size } = req.body;
+    if (!videoId || !workspaceId) {
+      return res.status(400).json({ error: "videoId and workspaceId are required" });
+    }
+    const media = await mediaService.confirmDirectUpload({
+      videoId,
+      workspaceId: Number(workspaceId),
+      userId: req.userId!,
+      name,
+      originalFilename,
+      size: Number(size || 0),
+    });
+    res.status(201).json(media);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // PUT /:id — Update metadata
 router.put("/:id", async (req: Request, res: Response) => {
   try {
