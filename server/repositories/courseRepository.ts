@@ -1,15 +1,21 @@
 import db from "../db/connection";
 import * as lessonBlockRepo from "./lessonBlockRepository";
 
+const COURSES_WITH_COUNT = `SELECT c.*, (
+  SELECT COUNT(*) FROM courses_modules cm
+  JOIN modules_lessons ml ON ml.module_id = cm.module_id
+  WHERE cm.course_id = c.id
+)::int AS lessons_count FROM courses c`;
+
 export async function getAllCourses(workspaceId?: number) {
   if (workspaceId) {
-    return await db.all("SELECT * FROM courses WHERE workspace_id = $1", [workspaceId]);
+    return await db.all(`${COURSES_WITH_COUNT} WHERE c.workspace_id = $1`, [workspaceId]);
   }
-  return await db.all("SELECT * FROM courses");
+  return await db.all(COURSES_WITH_COUNT);
 }
 
 export async function getByWorkspace(workspaceId: number) {
-  return await db.all("SELECT * FROM courses WHERE workspace_id = $1", [workspaceId]);
+  return await db.all(`${COURSES_WITH_COUNT} WHERE c.workspace_id = $1`, [workspaceId]);
 }
 
 export async function getCourseModules(courseId: number) {
