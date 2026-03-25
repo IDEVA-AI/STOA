@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   Play,
@@ -17,10 +17,19 @@ import {
   Menu,
   PanelRight,
   X,
+  Star,
+  Send,
+  Trash2,
+  MessageCircle,
+  Loader2,
 } from 'lucide-react';
 import { cn } from '@/src/lib/utils';
 import type { Course, Module, Lesson } from '../types';
 import BlockRenderer from '../components/blocks/BlockRenderer';
+import {
+  getLessonRating, ratelesson, getLessonComments, postLessonComment, deleteLessonComment,
+} from '../services/api';
+import type { RatingStats, LessonComment } from '../services/api';
 import {
   Button,
   Avatar,
@@ -56,6 +65,52 @@ export default function LessonPlayerPage({
   const [showModules, setShowModules] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  // ── Rating & Comments state ──
+  const [ratingStats, setRatingStats] = useState<RatingStats>({ average: 0, count: 0, userRating: null });
+  const [hoverStar, setHoverStar] = useState(0);
+  const [comments, setComments] = useState<LessonComment[]>([]);
+  const [newComment, setNewComment] = useState('');
+  const [loadingComments, setLoadingComments] = useState(false);
+  const [submittingComment, setSubmittingComment] = useState(false);
+
+  useEffect(() => {
+    if (!selectedLesson) return;
+    getLessonRating(selectedLesson.id).then(setRatingStats).catch(() => {});
+    setLoadingComments(true);
+    getLessonComments(selectedLesson.id)
+      .then(setComments)
+      .catch(() => setComments([]))
+      .finally(() => setLoadingComments(false));
+    setNewComment('');
+  }, [selectedLesson?.id]);
+
+  const handleRate = async (rating: number) => {
+    if (!selectedLesson) return;
+    try {
+      const stats = await ratelesson(selectedLesson.id, rating);
+      setRatingStats(stats);
+    } catch {}
+  };
+
+  const handleSubmitComment = async () => {
+    if (!selectedLesson || !newComment.trim()) return;
+    setSubmittingComment(true);
+    try {
+      const comment = await postLessonComment(selectedLesson.id, newComment.trim());
+      setComments((prev) => [...prev, comment]);
+      setNewComment('');
+    } catch {}
+    setSubmittingComment(false);
+  };
+
+  const handleDeleteComment = async (commentId: number) => {
+    if (!selectedLesson || !confirm('Excluir este comentario?')) return;
+    try {
+      await deleteLessonComment(selectedLesson.id, commentId);
+      setComments((prev) => prev.filter((c) => c.id !== commentId));
+    } catch {}
+  };
 
   // Flatten all lessons in order for prev/next navigation
   const allLessons = courseContent.flatMap((mod) => mod.lessons || []);
@@ -369,6 +424,119 @@ export default function LessonPlayerPage({
                 </div>
               </>
             )}
+
+            {/* Rating Section */}
+            <section className="pt-10 sm:pt-16 border-t border-line">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div>
+                  <Label className="opacity-40 mb-2 block text-[10px] tracking-[0.3em]">AVALIE ESTA AULA</Label>
+                  <div className="flex items-center gap-1">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        onMouseEnter={() => setHoverStar(star)}
+                        onMouseLeave={() => setHoverStar(0)}
+                        onClick={() => handleRate(star)}
+                        className="p-0.5 transition-transform hover:scale-110"
+                      >
+                        <Star
+                          size={24}
+                          className={cn(
+                            'transition-colors',
+                            (hoverStar || ratingStats.userRating || 0) >= star
+                              ? 'fill-gold text-gold'
+                              : 'text-warm-gray/20'
+                          )}
+                        />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="text-right">
+                  {ratingStats.count > 0 && (
+                    <p className="text-sm text-warm-gray/60">
+                      <span className="font-bold text-gold">{ratingStats.average}</span>/5
+                      <span className="ml-2 text-xs">({ratingStats.count} {ratingStats.count === 1 ? 'avaliacao' : 'avaliacoes'})</span>
+                    </p>
+                  )}
+                  {ratingStats.userRating && (
+                    <p className="text-xs text-warm-gray/40 mt-1">Voce avaliou com {ratingStats.userRating} estrela{ratingStats.userRating > 1 ? 's' : ''}</p>
+                  )}
+                </div>
+              </div>
+            </section>
+
+            {/* Comments Section */}
+            <section className="pt-10 sm:pt-16 border-t border-line space-y-8">
+              <div className="flex items-center gap-3">
+                <MessageCircle size={18} className="text-gold" />
+                <Label className="text-[10px] tracking-[0.3em]">COMENTARIOS E DUVIDAS</Label>
+                {comments.length > 0 && (
+                  <Badge variant="muted">{comments.length}</Badge>
+                )}
+              </div>
+
+              {/* Comment input */}
+              <div className="flex gap-4">
+                <div className="flex-1">
+                  <Textarea
+                    value={newComment}
+                    onChange={(e) => setNewComment(e.target.value)}
+                    placeholder="Escreva sua duvida ou feedback sobre esta aula..."
+                    rows={3}
+                  />
+                </div>
+              </div>
+              <div className="flex justify-end">
+                <Button
+                  onClick={handleSubmitComment}
+                  disabled={!newComment.trim() || submittingComment}
+                  icon={submittingComment ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
+                >
+                  {submittingComment ? 'Enviando...' : 'Comentar'}
+                </Button>
+              </div>
+
+              {/* Comments list */}
+              {loadingComments ? (
+                <div className="flex justify-center py-8">
+                  <Loader2 size={20} className="animate-spin text-gold" />
+                </div>
+              ) : comments.length === 0 ? (
+                <p className="text-center text-sm text-warm-gray/30 font-serif italic py-8">
+                  Nenhum comentario ainda. Seja o primeiro!
+                </p>
+              ) : (
+                <div className="space-y-6">
+                  {comments.map((comment) => (
+                    <motion.div
+                      key={comment.id}
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="flex gap-4 group"
+                    >
+                      <Avatar name={comment.user_name} src={comment.user_avatar} size="sm" />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-bold text-text">{comment.user_name}</span>
+                          {comment.user_role === 'admin' && <Badge variant="gold">Instrutor</Badge>}
+                          <span className="text-xs text-warm-gray/30">
+                            {new Date(comment.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })}
+                          </span>
+                        </div>
+                        <p className="text-sm text-text/70 mt-1 leading-relaxed whitespace-pre-wrap">{comment.content}</p>
+                      </div>
+                      <button
+                        onClick={() => handleDeleteComment(comment.id)}
+                        className="opacity-0 group-hover:opacity-100 text-warm-gray/30 hover:text-red-400 transition-all p-1 self-start"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+            </section>
 
             {/* Navigation Footer */}
             {(prevLesson || nextLesson) && (

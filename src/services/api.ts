@@ -1252,3 +1252,59 @@ export async function getMediaStats(workspaceId: number): Promise<StorageStats> 
   if (!res.ok) throw new Error('Falha ao buscar stats');
   return res.json();
 }
+
+// ── Lesson Interactions ─────────────────────────────────────────────
+
+export interface RatingStats {
+  average: number;
+  count: number;
+  userRating: number | null;
+}
+
+export interface LessonComment {
+  id: number;
+  lesson_id: number;
+  user_id: number;
+  content: string;
+  user_name: string;
+  user_avatar: string | null;
+  user_role: string;
+  created_at: string;
+}
+
+export async function getLessonRating(lessonId: number): Promise<RatingStats> {
+  const res = await authFetch(`/api/lessons/${lessonId}/rating`);
+  if (!res.ok) throw new Error('Falha ao buscar avaliacao');
+  return res.json();
+}
+
+export async function ratelesson(lessonId: number, rating: number): Promise<RatingStats> {
+  const res = await authFetch(`/api/lessons/${lessonId}/rating`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ rating }),
+  });
+  if (!res.ok) throw new Error('Falha ao avaliar');
+  return res.json();
+}
+
+export async function getLessonComments(lessonId: number): Promise<LessonComment[]> {
+  const res = await authFetch(`/api/lessons/${lessonId}/comments`);
+  if (!res.ok) throw new Error('Falha ao buscar comentarios');
+  return res.json();
+}
+
+export async function postLessonComment(lessonId: number, content: string): Promise<LessonComment> {
+  const res = await authFetch(`/api/lessons/${lessonId}/comments`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ content }),
+  });
+  if (!res.ok) throw new Error('Falha ao comentar');
+  return res.json();
+}
+
+export async function deleteLessonComment(lessonId: number, commentId: number): Promise<void> {
+  const res = await authFetch(`/api/lessons/${lessonId}/comments/${commentId}`, { method: 'DELETE' });
+  if (!res.ok) throw new Error('Falha ao deletar comentario');
+}
