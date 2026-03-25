@@ -425,114 +425,91 @@ export default function LessonPlayerPage({
               </>
             )}
 
-            {/* Rating Section */}
-            <section className="pt-10 sm:pt-16 border-t border-line">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <div>
-                  <Label className="opacity-40 mb-2 block text-[10px] tracking-[0.3em]">AVALIE ESTA AULA</Label>
-                  <div className="flex items-center gap-1">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <button
-                        key={star}
-                        onMouseEnter={() => setHoverStar(star)}
-                        onMouseLeave={() => setHoverStar(0)}
-                        onClick={() => handleRate(star)}
-                        className="p-0.5 transition-transform hover:scale-110"
-                      >
-                        <Star
-                          size={24}
-                          className={cn(
-                            'transition-colors',
-                            (hoverStar || ratingStats.userRating || 0) >= star
-                              ? 'fill-gold text-gold'
-                              : 'text-warm-gray/20'
-                          )}
-                        />
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <div className="text-right">
-                  {ratingStats.count > 0 && (
-                    <p className="text-sm text-warm-gray/60">
-                      <span className="font-bold text-gold">{ratingStats.average}</span>/5
-                      <span className="ml-2 text-xs">({ratingStats.count} {ratingStats.count === 1 ? 'avaliacao' : 'avaliacoes'})</span>
-                    </p>
-                  )}
-                  {ratingStats.userRating && (
-                    <p className="text-xs text-warm-gray/40 mt-1">Voce avaliou com {ratingStats.userRating} estrela{ratingStats.userRating > 1 ? 's' : ''}</p>
-                  )}
-                </div>
-              </div>
-            </section>
-
-            {/* Comments Section */}
-            <section className="pt-10 sm:pt-16 border-t border-line space-y-8">
+            {/* Inline Rating Bar */}
+            <div className="flex items-center justify-between py-4 border-t border-line/50 max-w-4xl">
               <div className="flex items-center gap-3">
-                <MessageCircle size={18} className="text-gold" />
-                <Label className="text-[10px] tracking-[0.3em]">COMENTARIOS E DUVIDAS</Label>
-                {comments.length > 0 && (
-                  <Badge variant="muted">{comments.length}</Badge>
+                <span className="text-[10px] text-warm-gray/40 tracking-wider">AVALIAR</span>
+                <div className="flex items-center gap-0.5">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      onMouseEnter={() => setHoverStar(star)}
+                      onMouseLeave={() => setHoverStar(0)}
+                      onClick={() => handleRate(star)}
+                      className="p-0.5 transition-transform hover:scale-110"
+                    >
+                      <Star
+                        size={16}
+                        className={cn(
+                          'transition-colors',
+                          (hoverStar || ratingStats.userRating || 0) >= star
+                            ? 'fill-gold text-gold'
+                            : 'text-warm-gray/15 hover:text-warm-gray/30'
+                        )}
+                      />
+                    </button>
+                  ))}
+                </div>
+                {ratingStats.count > 0 && (
+                  <span className="text-xs text-warm-gray/40">
+                    {ratingStats.average}/5 ({ratingStats.count})
+                  </span>
                 )}
               </div>
-
-              {/* Comment input */}
-              <div className="flex gap-4">
-                <div className="flex-1">
-                  <Textarea
-                    value={newComment}
-                    onChange={(e) => setNewComment(e.target.value)}
-                    placeholder="Escreva sua duvida ou feedback sobre esta aula..."
-                    rows={3}
-                  />
-                </div>
+              <div className="flex items-center gap-2 text-warm-gray/30">
+                <MessageCircle size={14} />
+                <span className="text-xs">{comments.length}</span>
               </div>
-              <div className="flex justify-end">
+            </div>
+
+            {/* Comments Section */}
+            <section className="pt-6 border-t border-line/50 space-y-5 max-w-4xl">
+              {/* Comment input */}
+              <div className="flex gap-3 items-end">
+                <Textarea
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  placeholder="Duvida ou feedback..."
+                  rows={2}
+                  className="flex-1 text-sm"
+                />
                 <Button
+                  size="sm"
                   onClick={handleSubmitComment}
                   disabled={!newComment.trim() || submittingComment}
-                  icon={submittingComment ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
+                  icon={submittingComment ? <Loader2 size={12} className="animate-spin" /> : <Send size={12} />}
                 >
-                  {submittingComment ? 'Enviando...' : 'Comentar'}
+                  Enviar
                 </Button>
               </div>
 
               {/* Comments list */}
               {loadingComments ? (
-                <div className="flex justify-center py-8">
-                  <Loader2 size={20} className="animate-spin text-gold" />
+                <div className="flex justify-center py-4">
+                  <Loader2 size={16} className="animate-spin text-gold" />
                 </div>
-              ) : comments.length === 0 ? (
-                <p className="text-center text-sm text-warm-gray/30 font-serif italic py-8">
-                  Nenhum comentario ainda. Seja o primeiro!
-                </p>
-              ) : (
-                <div className="space-y-6">
+              ) : comments.length > 0 && (
+                <div className="space-y-4">
                   {comments.map((comment) => (
-                    <motion.div
-                      key={comment.id}
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="flex gap-4 group"
-                    >
+                    <div key={comment.id} className="flex gap-3 group">
                       <Avatar name={comment.user_name} src={comment.user_avatar} size="sm" />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className="text-sm font-bold text-text">{comment.user_name}</span>
+                          <span className="text-xs font-bold text-text">{comment.user_name}</span>
                           {comment.user_role === 'admin' && <Badge variant="gold">Instrutor</Badge>}
-                          <span className="text-xs text-warm-gray/30">
-                            {new Date(comment.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })}
+                          <span className="text-[10px] text-warm-gray/25">
+                            {new Date(comment.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}
                           </span>
+                          <button
+                            onClick={() => handleDeleteComment(comment.id)}
+                            className="opacity-0 group-hover:opacity-100 text-warm-gray/20 hover:text-red-400 transition-all ml-auto"
+                          >
+                            <Trash2 size={12} />
+                          </button>
                         </div>
-                        <p className="text-sm text-text/70 mt-1 leading-relaxed whitespace-pre-wrap">{comment.content}</p>
+                        <p className="text-sm text-text/60 mt-0.5 leading-relaxed whitespace-pre-wrap">{comment.content}</p>
                       </div>
-                      <button
-                        onClick={() => handleDeleteComment(comment.id)}
-                        className="opacity-0 group-hover:opacity-100 text-warm-gray/30 hover:text-red-400 transition-all p-1 self-start"
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    </motion.div>
+                    </div>
                   ))}
                 </div>
               )}
