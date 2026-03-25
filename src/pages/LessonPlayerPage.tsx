@@ -23,7 +23,9 @@ import {
   MessageCircle,
   Loader2,
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { cn } from '@/src/lib/utils';
+import { useAuth } from '../hooks/useAuth';
 import type { Course, Module, Lesson } from '../types';
 import BlockRenderer from '../components/blocks/BlockRenderer';
 import {
@@ -59,6 +61,9 @@ export default function LessonPlayerPage({
   onSelectLesson,
   onToggleLessonCompletion
 }: LessonPlayerPageProps) {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
   const [notes, setNotes] = useState('');
   const [bookmarks, setBookmarks] = useState<number[]>([]);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -298,7 +303,18 @@ export default function LessonPlayerPage({
                 <Label className="text-warm-gray/60 tracking-widest">{Math.floor(selectedLesson.duration! / 60)} minutos de imersão</Label>
               </div>
               <div className="space-y-4">
-                <h1 className="serif-display text-2xl sm:text-4xl lg:text-7xl leading-[0.9] tracking-tighter">{selectedLesson.title}</h1>
+                <div className="flex items-start gap-4">
+                  <h1 className="serif-display text-2xl sm:text-4xl lg:text-7xl leading-[0.9] tracking-tighter flex-1">{selectedLesson.title}</h1>
+                  {isAdmin && (
+                    <button
+                      onClick={() => navigate(`/admin/editor/${selectedLesson.id}`)}
+                      className="mt-2 p-2 text-warm-gray/30 hover:text-gold hover:bg-gold/5 transition-all rounded-sm border border-transparent hover:border-gold/20"
+                      title="Editar blocos da aula"
+                    >
+                      <PenTool size={16} />
+                    </button>
+                  )}
+                </div>
                 <p className="text-base sm:text-xl lg:text-2xl text-warm-gray font-light leading-relaxed max-w-3xl italic font-serif">
                   Uma exploração profunda sobre como os sistemas invisíveis moldam o comportamento e a escalabilidade das organizações modernas.
                 </p>
