@@ -25,6 +25,7 @@ import BlockEditorPage from './pages/BlockEditorPage';
 import SchedulingPage from './pages/SchedulingPage';
 import AnnouncementGate from './components/AnnouncementGate';
 import ErrorBoundary from './components/ErrorBoundary';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 
 function ProtectedRoute() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -198,6 +199,7 @@ export function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route element={<ProtectedRoute />}>
         <Route path="/admin/editor/:lessonId" element={<BlockEditorPage />} />
         <Route element={<Layout />}>

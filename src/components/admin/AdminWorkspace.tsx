@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Save, Trash2, UserPlus, ChevronDown } from 'lucide-react';
+import { Save, Trash2, UserPlus, ChevronDown, KeyRound } from 'lucide-react';
 import { Button, Input, FormGroup, Badge, Avatar, Card, CardBody } from '../ui';
 import { Heading, Label, Text } from '../ui/Typography';
 import { useWorkspace } from '@/src/hooks/useWorkspace';
@@ -156,6 +156,9 @@ function TeamMembers() {
   // Confirm delete state
   const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null);
 
+  // Reset password state
+  const [resetLink, setResetLink] = useState<string | null>(null);
+
   const fetchMembers = useCallback(async () => {
     if (!activeWorkspace) return;
     setLoading(true);
@@ -211,6 +214,23 @@ function TeamMembers() {
       await fetchMembers();
     } catch (err: any) {
       setError(err.message || 'Falha ao remover membro.');
+    }
+  }
+
+  async function handleResetPassword(userId: number) {
+    setError('');
+    try {
+      const { token } = await api.generatePasswordReset(userId);
+      const link = `${window.location.origin}/reset-password?token=${token}`;
+      try {
+        await navigator.clipboard.writeText(link);
+      } catch {
+        // Clipboard API may fail without HTTPS — link will be shown for manual copy
+      }
+      setResetLink(link);
+      setTimeout(() => setResetLink(null), 15000);
+    } catch (err: any) {
+      setError(err.message || 'Falha ao gerar link de reset.');
     }
   }
 
@@ -273,6 +293,19 @@ function TeamMembers() {
         {error && (
           <div className="p-3 rounded bg-red-500/10 border border-red-500/20 text-red-500 text-sm">
             {error}
+          </div>
+        )}
+
+        {resetLink && (
+          <div className="p-3 rounded bg-gold/10 border border-gold/30 text-sm space-y-2">
+            <p className="text-gold font-medium">Link de reset gerado!</p>
+            <input
+              readOnly
+              value={resetLink}
+              className="w-full bg-bg border border-line rounded px-2 py-1 text-xs font-mono text-warm-gray"
+              onFocus={(e) => e.target.select()}
+            />
+            <p className="text-warm-gray text-[10px]">Valido por 1 hora. Copie e envie ao usuario.</p>
           </div>
         )}
 
@@ -361,6 +394,14 @@ function TeamMembers() {
                       </span>
                     </td>
                     <td className="py-3">
+                      <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => handleResetPassword(member.user_id)}
+                        className="text-warm-gray hover:text-gold transition-colors p-1"
+                        title="Resetar senha"
+                      >
+                        <KeyRound size={14} />
+                      </button>
                       {confirmDeleteId === member.user_id ? (
                         <div className="flex flex-col sm:flex-row items-center gap-1">
                           <Button
@@ -389,6 +430,7 @@ function TeamMembers() {
                           <Trash2 size={14} />
                         </button>
                       )}
+                      </div>
                     </td>
                   </tr>
                 ))}

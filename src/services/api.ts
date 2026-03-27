@@ -1232,6 +1232,21 @@ async function uploadVideoDirectToBunny(file: File, workspaceId: number, onProgr
   return confirmRes.json();
 }
 
+// ── Admin Password Reset API ─────────────────────────────────────────────
+
+export async function generatePasswordReset(userId: number): Promise<{ token: string }> {
+  const res = await authFetch('/api/admin/reset-password', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ userId }),
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.error || 'Falha ao gerar link de reset');
+  }
+  return res.json();
+}
+
 export async function updateMedia(id: number, data: { name?: string; description?: string; tags?: string }): Promise<MediaAsset> {
   const res = await authFetch(`/api/media/${id}`, {
     method: 'PUT',

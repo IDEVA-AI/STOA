@@ -202,7 +202,7 @@ export default function AuthPage({ authMode, setAuthMode, onLogin, onRegister }:
               label="Senha"
               labelAction={
                 authMode === 'login' ? (
-                  <button type="button" className="text-[10px] mono-label text-gold hover:underline">Esqueceu a senha?</button>
+                  <button type="button" className="text-[10px] mono-label text-gold hover:underline" onClick={() => alert('Entre em contato com o administrador para redefinir sua senha.')}>Esqueceu a senha?</button>
                 ) : undefined
               }
             >
