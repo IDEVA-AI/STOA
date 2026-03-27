@@ -389,6 +389,18 @@ export async function initializeSchema() {
       FOREIGN KEY(workspace_id) REFERENCES workspaces(id),
       FOREIGN KEY(uploaded_by) REFERENCES users(id)
     );
+
+    CREATE TABLE IF NOT EXISTS password_reset_tokens (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER NOT NULL,
+      token_hash TEXT NOT NULL UNIQUE,
+      expires_at TIMESTAMPTZ NOT NULL,
+      used_at TIMESTAMPTZ,
+      created_by INTEGER NOT NULL,
+      created_at TIMESTAMPTZ DEFAULT NOW(),
+      FOREIGN KEY(user_id) REFERENCES users(id),
+      FOREIGN KEY(created_by) REFERENCES users(id)
+    );
   `);
 
   // Performance indices
@@ -447,5 +459,7 @@ export async function initializeSchema() {
     CREATE INDEX IF NOT EXISTS idx_media_assets_type ON media_assets(file_type);
     CREATE INDEX IF NOT EXISTS idx_media_assets_uploaded_by ON media_assets(uploaded_by);
     CREATE INDEX IF NOT EXISTS idx_media_assets_archived ON media_assets(is_archived);
+    CREATE INDEX IF NOT EXISTS idx_password_reset_tokens_user_id ON password_reset_tokens(user_id);
+    CREATE INDEX IF NOT EXISTS idx_password_reset_tokens_hash ON password_reset_tokens(token_hash);
   `);
 }

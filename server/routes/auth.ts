@@ -1,5 +1,6 @@
 import { Router, Request, Response } from "express";
 import * as authService from "../services/authService";
+import * as passwordResetService from "../services/passwordResetService";
 import { authMiddleware } from "../middleware/auth";
 
 const router = Router();
@@ -41,6 +42,17 @@ router.get("/me", authMiddleware, async (req: Request, res: Response) => {
   try {
     const user = await authService.getMe(req.userId!);
     res.status(200).json(user);
+  } catch (err: any) {
+    const status = err.status || 500;
+    res.status(status).json({ error: err.message || "Internal server error" });
+  }
+});
+
+router.post("/reset-password", async (req: Request, res: Response) => {
+  try {
+    const { token, newPassword } = req.body;
+    await passwordResetService.redeemResetToken(token, newPassword);
+    res.json({ message: "Senha redefinida com sucesso" });
   } catch (err: any) {
     const status = err.status || 500;
     res.status(status).json({ error: err.message || "Internal server error" });
