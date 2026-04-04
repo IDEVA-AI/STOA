@@ -266,6 +266,7 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
 
     const ws = new WebSocket(getWsUrl());
     wsRef.current = ws;
+    (window as any).__stoaWs = ws;
 
     ws.onopen = () => {
       ws.send(JSON.stringify({ type: 'auth', token }));

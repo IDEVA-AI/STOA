@@ -7,7 +7,7 @@ interface BlockRendererProps {
   block: LessonBlock;
 }
 
-function VideoBlock({ content }: { content: Record<string, any> }) {
+function VideoBlock({ content, blockId }: { content: Record<string, any>; blockId?: number }) {
   const url = content.url || '';
 
   if (!url) {
@@ -18,7 +18,15 @@ function VideoBlock({ content }: { content: Record<string, any> }) {
     );
   }
 
-  return <VideoPlayer src={url} />;
+  return (
+    <VideoPlayer
+      src={url}
+      blockId={blockId}
+      importStatus={content.import_status}
+      importProgress={content.import_progress}
+      importError={content.import_error}
+    />
+  );
 }
 
 const TEXT_BLOCK_CLASSES = [
@@ -174,7 +182,7 @@ function CalloutBlock({ content }: { content: Record<string, any> }) {
 export default function BlockRenderer({ block }: BlockRendererProps) {
   switch (block.block_type) {
     case 'video':
-      return <VideoBlock content={block.content} />;
+      return <VideoBlock content={block.content} blockId={block.id} />;
     case 'text':
       return <TextBlock content={block.content} />;
     case 'image':
