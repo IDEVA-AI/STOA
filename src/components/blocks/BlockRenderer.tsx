@@ -1,4 +1,5 @@
-import { Lightbulb, AlertTriangle, Info, FileDown, ExternalLink } from 'lucide-react';
+import { useState } from 'react';
+import { Lightbulb, AlertTriangle, Info, FileDown, ExternalLink, Play } from 'lucide-react';
 import { cn } from '@/src/lib/utils';
 import type { LessonBlock } from '@/src/types';
 
@@ -6,11 +7,11 @@ interface BlockRendererProps {
   block: LessonBlock;
 }
 
-function getYouTubeEmbedUrl(url: string): string | null {
+function getYouTubeVideoId(url: string): string | null {
   const match = url.match(
     /(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/
   );
-  return match ? `https://www.youtube.com/embed/${match[1]}?modestbranding=1&rel=0` : null;
+  return match ? match[1] : null;
 }
 
 function getVimeoEmbedUrl(url: string): string | null {
@@ -20,6 +21,8 @@ function getVimeoEmbedUrl(url: string): string | null {
 
 function VideoBlock({ content }: { content: Record<string, any> }) {
   const url = content.url || '';
+  const [playing, setPlaying] = useState(false);
+
   if (!url) {
     return (
       <div className="aspect-video bg-surface border border-line flex items-center justify-center text-warm-gray/40 font-serif italic">
@@ -28,11 +31,56 @@ function VideoBlock({ content }: { content: Record<string, any> }) {
     );
   }
 
-  const ytUrl = getYouTubeEmbedUrl(url);
+  const ytId = getYouTubeVideoId(url);
   const vimeoUrl = getVimeoEmbedUrl(url);
   const isBunny = url.includes('iframe.mediadelivery.net') || url.includes('video.bunnycdn.com');
-  const embedUrl = ytUrl || vimeoUrl || (isBunny ? url : null);
 
+  // YouTube: thumbnail + click-to-load + fallback link
+  if (ytId) {
+    return (
+      <div className="space-y-2">
+        <div className="aspect-video bg-black overflow-hidden border border-line shadow-[0_16px_48px_-12px_rgba(0,0,0,0.4)] relative">
+          {playing ? (
+            <iframe
+              src={`https://www.youtube.com/embed/${ytId}?modestbranding=1&rel=0&autoplay=1`}
+              className="w-full h-full"
+              title="Video"
+              allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          ) : (
+            <button
+              onClick={() => setPlaying(true)}
+              className="w-full h-full relative group cursor-pointer"
+            >
+              <img
+                src={`https://img.youtube.com/vi/${ytId}/hqdefault.jpg`}
+                alt="Video thumbnail"
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors flex items-center justify-center">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white/90 group-hover:bg-white flex items-center justify-center transition-colors shadow-lg">
+                  <Play size={32} className="text-ink ml-1" fill="currentColor" />
+                </div>
+              </div>
+            </button>
+          )}
+        </div>
+        <a
+          href={`https://www.youtube.com/watch?v=${ytId}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 text-xs text-warm-gray/50 hover:text-gold transition-colors"
+        >
+          <ExternalLink size={12} />
+          Assistir no YouTube
+        </a>
+      </div>
+    );
+  }
+
+  // Vimeo / Bunny: direct embed
+  const embedUrl = vimeoUrl || (isBunny ? url : null);
   if (embedUrl) {
     return (
       <div className="aspect-video bg-black overflow-hidden border border-line shadow-[0_16px_48px_-12px_rgba(0,0,0,0.4)]">
