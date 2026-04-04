@@ -36,6 +36,7 @@ import followRouter from "./routes/follows";
 import mediaRouter from "./routes/media";
 import lessonInteractionsRouter from "./routes/lessonInteractions";
 import { getUploadsDir } from "./services/uploadService";
+import { cleanupStaleImports } from "./services/youtubeImportService";
 
 async function startServer() {
   await initializeSchema();
@@ -130,6 +131,9 @@ async function startServer() {
 
   httpServer.listen(PORT, "0.0.0.0", () => {
     logger.info(`STOA running on http://localhost:${PORT}`);
+    cleanupStaleImports().catch((err) =>
+      console.error("[youtube-import] Cleanup failed:", err.message)
+    );
   });
 }
 
