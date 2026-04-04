@@ -1,21 +1,10 @@
-import { Lightbulb, AlertTriangle, Info, FileDown, ExternalLink, Play, BookOpen } from 'lucide-react';
+import { Lightbulb, AlertTriangle, Info, FileDown, ExternalLink, BookOpen } from 'lucide-react';
 import { cn } from '@/src/lib/utils';
 import type { LessonBlock } from '@/src/types';
+import VideoPlayer from './VideoPlayer';
 
 interface BlockRendererProps {
   block: LessonBlock;
-}
-
-function getYouTubeVideoId(url: string): string | null {
-  const match = url.match(
-    /(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/
-  );
-  return match ? match[1] : null;
-}
-
-function getVimeoEmbedUrl(url: string): string | null {
-  const match = url.match(/vimeo\.com\/(\d+)/);
-  return match ? `https://player.vimeo.com/video/${match[1]}` : null;
 }
 
 function VideoBlock({ content }: { content: Record<string, any> }) {
@@ -29,54 +18,7 @@ function VideoBlock({ content }: { content: Record<string, any> }) {
     );
   }
 
-  const ytId = getYouTubeVideoId(url);
-  const vimeoUrl = getVimeoEmbedUrl(url);
-  const isBunny = url.includes('iframe.mediadelivery.net') || url.includes('video.bunnycdn.com');
-
-  // YouTube: thumbnail + click opens YouTube
-  if (ytId) {
-    return (
-      <a
-        href={`https://www.youtube.com/watch?v=${ytId}`}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="block aspect-video bg-black overflow-hidden border border-line shadow-[0_16px_48px_-12px_rgba(0,0,0,0.4)] relative group"
-      >
-        <img
-          src={`https://img.youtube.com/vi/${ytId}/hqdefault.jpg`}
-          alt="Video thumbnail"
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors flex items-center justify-center">
-          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white/90 group-hover:bg-white flex items-center justify-center transition-colors shadow-lg">
-            <Play size={32} className="text-ink ml-1" fill="currentColor" />
-          </div>
-        </div>
-      </a>
-    );
-  }
-
-  // Vimeo / Bunny: direct embed
-  const embedUrl = vimeoUrl || (isBunny ? url : null);
-  if (embedUrl) {
-    return (
-      <div className="aspect-video bg-black overflow-hidden border border-line shadow-[0_16px_48px_-12px_rgba(0,0,0,0.4)]">
-        <iframe
-          src={embedUrl}
-          className="w-full h-full"
-          title="Video"
-          allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-        />
-      </div>
-    );
-  }
-
-  return (
-    <div className="aspect-video bg-black overflow-hidden border border-line shadow-[0_16px_48px_-12px_rgba(0,0,0,0.4)]">
-      <video src={url} controls className="w-full h-full" />
-    </div>
-  );
+  return <VideoPlayer src={url} />;
 }
 
 const TEXT_BLOCK_CLASSES = [
