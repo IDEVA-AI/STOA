@@ -70,6 +70,17 @@ export function broadcastToUser(userId: number, data: unknown) {
   }
 }
 
+export function broadcastToAll(data: unknown) {
+  const payload = JSON.stringify(data);
+  for (const sockets of clients.values()) {
+    for (const ws of sockets) {
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.send(payload);
+      }
+    }
+  }
+}
+
 async function broadcastToConversation(
   conversationId: number,
   data: unknown,
