@@ -48,6 +48,30 @@ router.get("/me", authMiddleware, async (req: Request, res: Response) => {
   }
 });
 
+router.post("/forgot-password", async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      res.status(400).json({ error: "E-mail e obrigatorio" });
+      return;
+    }
+
+    const { findByEmail } = await import("../repositories/userRepository");
+    const user = await findByEmail(email.trim().toLowerCase());
+    if (!user) {
+      // Resposta generica para nao revelar se email existe
+      res.json({ message: "Se o e-mail estiver cadastrado, voce podera redefinir sua senha." });
+      return;
+    }
+
+    const token = await passwordResetService.generateResetToken(user.id, user.id);
+    res.json({ token });
+  } catch (err: any) {
+    const status = err.status || 500;
+    res.status(status).json({ error: err.message || "Internal server error" });
+  }
+});
+
 router.post("/reset-password", async (req: Request, res: Response) => {
   try {
     const { token, newPassword } = req.body;

@@ -26,6 +26,7 @@ import SchedulingPage from './pages/SchedulingPage';
 import AnnouncementGate from './components/AnnouncementGate';
 import ErrorBoundary from './components/ErrorBoundary';
 import ResetPasswordPage from './pages/ResetPasswordPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
 
 function ProtectedRoute() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -49,7 +50,7 @@ function ProtectedRoute() {
 function Layout() {
   const { isAuthenticated, logout, user } = useAuth();
   const { activeTab, setActiveTab, adminSection, setAdminSection } = useNavigation();
-  const { selectedCourse, courseContent, selectedLesson, courseError, exitCourse, selectLesson, toggleLessonCompletion, fetchCourses } = useCourses();
+  const { selectedCourse, courseContent, selectedLesson, courseError, exitCourse, selectLesson, toggleLessonCompletion, updateBlockInLesson, updateLessonDetails, fetchCourses } = useCourses();
   const { fetchPosts } = useCommunity();
   const { theme, setTheme, spec, palette, setPalette } = useTheme();
   const { workspaces, isLoading: wsLoading } = useWorkspace();
@@ -84,6 +85,8 @@ function Layout() {
         onBack={exitCourse}
         onSelectLesson={selectLesson}
         onToggleLessonCompletion={toggleLessonCompletion}
+        onUpdateBlock={updateBlockInLesson}
+        onUpdateLessonDetails={updateLessonDetails}
       />
     );
   }
@@ -199,6 +202,7 @@ export function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route element={<ProtectedRoute />}>
         <Route path="/admin/editor/:lessonId" element={<BlockEditorPage />} />
