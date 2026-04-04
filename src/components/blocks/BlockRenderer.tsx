@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Lightbulb, AlertTriangle, Info, FileDown, ExternalLink, Play } from 'lucide-react';
 import { cn } from '@/src/lib/utils';
 import type { LessonBlock } from '@/src/types';
@@ -21,7 +20,6 @@ function getVimeoEmbedUrl(url: string): string | null {
 
 function VideoBlock({ content }: { content: Record<string, any> }) {
   const url = content.url || '';
-  const [playing, setPlaying] = useState(false);
 
   if (!url) {
     return (
@@ -35,47 +33,26 @@ function VideoBlock({ content }: { content: Record<string, any> }) {
   const vimeoUrl = getVimeoEmbedUrl(url);
   const isBunny = url.includes('iframe.mediadelivery.net') || url.includes('video.bunnycdn.com');
 
-  // YouTube: thumbnail + click-to-load + fallback link
+  // YouTube: thumbnail + click opens YouTube
   if (ytId) {
     return (
-      <div className="space-y-2">
-        <div className="aspect-video bg-black overflow-hidden border border-line shadow-[0_16px_48px_-12px_rgba(0,0,0,0.4)] relative">
-          {playing ? (
-            <iframe
-              src={`https://www.youtube.com/embed/${ytId}?modestbranding=1&rel=0&autoplay=1`}
-              className="w-full h-full"
-              title="Video"
-              allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
-          ) : (
-            <button
-              onClick={() => setPlaying(true)}
-              className="w-full h-full relative group cursor-pointer"
-            >
-              <img
-                src={`https://img.youtube.com/vi/${ytId}/hqdefault.jpg`}
-                alt="Video thumbnail"
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors flex items-center justify-center">
-                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white/90 group-hover:bg-white flex items-center justify-center transition-colors shadow-lg">
-                  <Play size={32} className="text-ink ml-1" fill="currentColor" />
-                </div>
-              </div>
-            </button>
-          )}
+      <a
+        href={`https://www.youtube.com/watch?v=${ytId}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="block aspect-video bg-black overflow-hidden border border-line shadow-[0_16px_48px_-12px_rgba(0,0,0,0.4)] relative group"
+      >
+        <img
+          src={`https://img.youtube.com/vi/${ytId}/hqdefault.jpg`}
+          alt="Video thumbnail"
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors flex items-center justify-center">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white/90 group-hover:bg-white flex items-center justify-center transition-colors shadow-lg">
+            <Play size={32} className="text-ink ml-1" fill="currentColor" />
+          </div>
         </div>
-        <a
-          href={`https://www.youtube.com/watch?v=${ytId}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 text-xs text-warm-gray/50 hover:text-gold transition-colors"
-        >
-          <ExternalLink size={12} />
-          Assistir no YouTube
-        </a>
-      </div>
+      </a>
     );
   }
 
