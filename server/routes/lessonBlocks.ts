@@ -1,6 +1,20 @@
 import { Router } from "express";
 import { authMiddleware } from "../middleware/auth";
 import * as lessonBlockService from "../services/lessonBlockService";
+import { isYouTubeUrl, extractVideoId, importVideo } from "../services/youtubeImportService";
+
+function triggerImportIfYouTube(blockId: number, content: any) {
+  if (!content?.url || !isYouTubeUrl(content.url)) return;
+  if (content.import_status === "importing" || content.import_status === "completed") return;
+
+  const videoId = extractVideoId(content.url);
+  if (!videoId) return;
+
+  // Fire and forget
+  importVideo({ blockId, youtubeUrl: content.url, videoId }).catch((err) => {
+    console.error(`[youtube-import] Failed for block ${blockId}:`, err.message);
+  });
+}
 
 const router = Router();
 router.use(authMiddleware);
@@ -46,6 +60,7 @@ router.post("/", async (req, res) => {
       position: position ?? 0,
     });
     res.status(201).json(result);
+    triggerImportIfYouTube(result.id, content);
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
   }
@@ -58,6 +73,9 @@ router.put("/:id", async (req, res) => {
     const { block_type, content, position } = req.body;
     await lessonBlockService.update(id, { block_type, content, position });
     res.json({ success: true });
+    if (content !== undefined) {
+      triggerImportIfYouTube(id, content);
+    }
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
   }
@@ -101,6 +119,12 @@ router.put("/lesson/:lessonId/batch", async (req, res) => {
     }
     const ids = await lessonBlockService.setBlocks(lessonId, blocks);
     res.json({ ids });
+    // Check each saved block for YouTube URLs
+    for (let i = 0; i < blocks.length; i++) {
+      if (blocks[i].block_type === "video") {
+        triggerImportIfYouTube(ids[i], blocks[i].content);
+      }
+    }
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
   }
