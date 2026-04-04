@@ -517,7 +517,7 @@ function BlockEditForm({ block, onChange }: { block: LessonBlock; onChange: (con
           />
           <Label>Tipo</Label>
           <div className="flex items-center gap-3">
-            {(['tip', 'warning', 'info'] as const).map((t) => (
+            {(['tip', 'warning', 'info', 'tutorial'] as const).map((t) => (
               <button
                 key={t}
                 onClick={() => update('type', t)}
@@ -528,7 +528,7 @@ function BlockEditForm({ block, onChange }: { block: LessonBlock; onChange: (con
                     : 'border-line text-warm-gray hover:border-gold/30'
                 )}
               >
-                {t === 'tip' ? 'Dica' : t === 'warning' ? 'Aviso' : 'Info'}
+                {t === 'tip' ? 'Dica' : t === 'warning' ? 'Aviso' : t === 'tutorial' ? 'Tutorial' : 'Info'}
               </button>
             ))}
           </div>

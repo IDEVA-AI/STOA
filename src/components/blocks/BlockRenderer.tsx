@@ -1,4 +1,4 @@
-import { Lightbulb, AlertTriangle, Info, FileDown, ExternalLink, Play } from 'lucide-react';
+import { Lightbulb, AlertTriangle, Info, FileDown, ExternalLink, Play, BookOpen } from 'lucide-react';
 import { cn } from '@/src/lib/utils';
 import type { LessonBlock } from '@/src/types';
 
@@ -211,6 +211,7 @@ function CalloutBlock({ content }: { content: Record<string, any> }) {
     tip: { bg: 'bg-emerald-500/5', border: 'border-emerald-500/20', icon: <Lightbulb size={20} />, iconColor: 'text-emerald-500', label: 'Dica' },
     warning: { bg: 'bg-amber-500/5', border: 'border-amber-500/20', icon: <AlertTriangle size={20} />, iconColor: 'text-amber-500', label: 'Atenção' },
     info: { bg: 'bg-blue-500/5', border: 'border-blue-500/20', icon: <Info size={20} />, iconColor: 'text-blue-500', label: 'Informação' },
+    tutorial: { bg: 'bg-violet-500/5', border: 'border-violet-500/20', icon: <BookOpen size={20} />, iconColor: 'text-violet-500', label: 'Tutorial' },
   };
 
   const s = styles[type as keyof typeof styles] || styles.info;
