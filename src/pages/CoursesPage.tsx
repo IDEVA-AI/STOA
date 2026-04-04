@@ -241,7 +241,7 @@ export default function CoursesPage({ courses, onEnterCourse }: CoursesPageProps
                   </div>
 
                   {/* Content */}
-                  <div className="p-4 sm:p-6 lg:p-10 flex flex-col flex-1 space-y-4 sm:space-y-6 lg:space-y-8">
+                  <div className="p-6 sm:p-8 lg:p-10 flex flex-col flex-1 space-y-4 sm:space-y-6 lg:space-y-8">
                     <div className="space-y-4">
                       <h3
                         className={`font-serif text-lg sm:text-2xl lg:text-3xl font-bold leading-tight tracking-tight transition-colors duration-500 ${
