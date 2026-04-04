@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" fill="none">
+  <defs>
+    <linearGradient id="bg1" x1="0" y1="0" x2="800" y2="450" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0e0c0a"/>
+      <stop offset="100%" stop-color="#1a1714"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="450" fill="url(#bg1)"/>
+
+  <!-- Grid pattern -->
+  <g opacity="0.04" stroke="#b8873a" stroke-width="0.5">
+    <line x1="200" y1="0" x2="200" y2="450"/>
+    <line x1="400" y1="0" x2="400" y2="450"/>
+    <line x1="600" y1="0" x2="600" y2="450"/>
+    <line x1="0" y1="150" x2="800" y2="150"/>
+    <line x1="0" y1="300" x2="800" y2="300"/>
+  </g>
+
+  <!-- Terminal / CLI motif -->
+  <g transform="translate(560, 140)">
+    <!-- Terminal window -->
+    <rect x="0" y="0" width="180" height="130" rx="6" stroke="#b8873a" stroke-width="1" fill="none" opacity="0.15"/>
+    <!-- Title bar -->
+    <line x1="0" y1="20" x2="180" y2="20" stroke="#b8873a" stroke-width="0.5" opacity="0.1"/>
+    <!-- Window dots -->
+    <circle cx="12" cy="10" r="3" fill="#c0392b" opacity="0.3"/>
+    <circle cx="24" cy="10" r="3" fill="#b8873a" opacity="0.2"/>
+    <circle cx="36" cy="10" r="3" fill="#27ae60" opacity="0.3"/>
+
+    <!-- Terminal lines -->
+    <g fill="#b8873a" font-family="monospace" font-size="9" opacity="0.35">
+      <text x="10" y="38">$ npm install</text>
+      <text x="10" y="52" opacity="0.2">installing dependencies...</text>
+      <text x="10" y="66">$ git clone repo</text>
+      <text x="10" y="80" opacity="0.2">cloning into ./project</text>
+      <text x="10" y="94">$ node --version</text>
+      <text x="10" y="108" fill="#27ae60" opacity="0.4">v20.20.2</text>
+    </g>
+
+    <!-- Cursor blink -->
+    <rect x="10" y="115" width="7" height="10" fill="#b8873a" opacity="0.5">
+      <animate attributeName="opacity" values="0;0.6;0" dur="1.2s" repeatCount="indefinite"/>
+    </rect>
+  </g>
+
+  <!-- Download arrow motif -->
+  <g transform="translate(620, 320)" opacity="0.12">
+    <path d="M0,-30 L0,10 M-15,-5 L0,10 L15,-5" stroke="#b8873a" stroke-width="2" fill="none"/>
+    <line x1="-20" y1="15" x2="20" y2="15" stroke="#b8873a" stroke-width="2"/>
+  </g>
+
+  <!-- Animated horizontal line -->
+  <line x1="60" y1="320" x2="60" y2="320" stroke="#b8873a" stroke-width="1" opacity="0.4">
+    <animate attributeName="x2" values="60;350;350" dur="2s" fill="freeze" keyTimes="0;0.6;1"/>
+  </line>
+
+  <!-- Label -->
+  <text x="60" y="105" fill="#b8873a" font-family="monospace" font-size="10" letter-spacing="0.25em" opacity="0.5">
+    FORMACAO DEV.IA
+  </text>
+
+  <!-- Module number -->
+  <text x="60" y="180" fill="#b8873a" font-family="Georgia, serif" font-size="72" font-weight="900" opacity="0.08">
+    04
+  </text>
+
+  <!-- Title -->
+  <text x="60" y="270" fill="#f4f0e8" font-family="Georgia, serif" font-size="38" font-weight="700" letter-spacing="-0.02em">
+    Tutoriais de
+  </text>
+  <text x="60" y="310" fill="#f4f0e8" font-family="Georgia, serif" font-size="38" font-weight="700" letter-spacing="-0.02em">
+    Instalacao
+  </text>
+
+  <!-- Subtitle -->
+  <text x="60" y="340" fill="#7a7268" font-family="Georgia, serif" font-size="16" font-style="italic">
+    Setup do ambiente de desenvolvimento
+  </text>
+
+  <!-- Bottom accent dots -->
+  <g opacity="0.3">
+    <circle cx="60" cy="400" r="2" fill="#27ae60">
+      <animate attributeName="opacity" values="0.2;0.7;0.2" dur="2.5s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="75" cy="400" r="2" fill="#b8873a"/>
+    <circle cx="90" cy="400" r="2" fill="#b8873a"/>
+    <circle cx="105" cy="400" r="2" fill="#b8873a"/>
+  </g>
+</svg>
