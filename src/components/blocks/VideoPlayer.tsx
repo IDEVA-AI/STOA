@@ -31,8 +31,13 @@ function detectSource(src: string): VideoSource {
   );
   if (ytMatch) return { type: 'youtube', videoId: ytMatch[1] };
 
-  if (src.includes('iframe.mediadelivery.net') || src.includes('video.bunnycdn.com')) {
-    return { type: 'bunny', embedUrl: src };
+  // Bunny: iframe embed, player page, or CDN play URL — normalise to embed
+  const bunnyMatch = src.match(
+    /(?:iframe\.mediadelivery\.net\/embed|player\.mediadelivery\.net\/play|video\.bunnycdn\.com\/play)\/(\d+)\/([a-f0-9-]+)/
+  );
+  if (bunnyMatch) {
+    const embedUrl = `https://iframe.mediadelivery.net/embed/${bunnyMatch[1]}/${bunnyMatch[2]}`;
+    return { type: 'bunny', embedUrl };
   }
 
   return { type: 'unknown', url: src };
