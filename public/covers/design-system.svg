@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" fill="none">
+  <defs>
+    <linearGradient id="bgDs" x1="0" y1="0" x2="800" y2="450" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0e0c0a"/>
+      <stop offset="100%" stop-color="#1a1714"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="800" height="450" fill="url(#bgDs)"/>
+
+  <g opacity="0.04" stroke="#b8873a" stroke-width="0.5">
+    <line x1="200" y1="0" x2="200" y2="450"/>
+    <line x1="400" y1="0" x2="400" y2="450"/>
+    <line x1="600" y1="0" x2="600" y2="450"/>
+    <line x1="0" y1="150" x2="800" y2="150"/>
+    <line x1="0" y1="300" x2="800" y2="300"/>
+  </g>
+
+  <!-- Token grid -->
+  <g transform="translate(540, 110)">
+    <!-- Color swatches row -->
+    <rect x="0"   y="0" width="40" height="40" fill="#b8873a" opacity="0.9"/>
+    <rect x="48"  y="0" width="40" height="40" fill="#e8d5b0" opacity="0.7"/>
+    <rect x="96"  y="0" width="40" height="40" fill="#5c2418" opacity="0.8"/>
+    <rect x="144" y="0" width="40" height="40" fill="#f4f0e8" opacity="0.15"/>
+    <rect x="192" y="0" width="40" height="40" fill="none" stroke="#b8873a" stroke-width="1" opacity="0.4"/>
+
+    <!-- Type row -->
+    <text x="0"  y="78" fill="#f4f0e8" font-family="Georgia, serif" font-size="28" font-weight="700">Aa</text>
+    <text x="64" y="78" fill="#b8873a" font-family="monospace" font-size="14" opacity="0.7">Aa</text>
+    <text x="108" y="78" fill="#7a7268" font-family="Georgia, serif" font-size="14" font-style="italic">Aa</text>
+
+    <!-- Spacing dots -->
+    <g opacity="0.5">
+      <circle cx="0"  cy="108" r="2" fill="#b8873a"/>
+      <circle cx="12" cy="108" r="3" fill="#b8873a"/>
+      <circle cx="28" cy="108" r="5" fill="#b8873a"/>
+      <circle cx="50" cy="108" r="7" fill="#b8873a"/>
+      <circle cx="78" cy="108" r="9" fill="#b8873a"/>
+    </g>
+
+    <!-- Component mocks -->
+    <rect x="0" y="134" width="100" height="28" rx="2" fill="#b8873a" opacity="0.85"/>
+    <rect x="108" y="134" width="100" height="28" rx="2" fill="none" stroke="#b8873a" stroke-width="1" opacity="0.6"/>
+
+    <rect x="0" y="176" width="232" height="54" fill="none" stroke="#b8873a" stroke-width="0.6" opacity="0.3"/>
+    <line x1="10" y1="192" x2="80" y2="192" stroke="#b8873a" stroke-width="1" opacity="0.5"/>
+    <line x1="10" y1="206" x2="200" y2="206" stroke="#b8873a" stroke-width="0.5" opacity="0.3"/>
+    <line x1="10" y1="218" x2="160" y2="218" stroke="#b8873a" stroke-width="0.5" opacity="0.3"/>
+
+    <!-- Scan line -->
+    <line x1="-8" y1="0" x2="-8" y2="0" stroke="#b8873a" stroke-width="0.8" opacity="0.6">
+      <animate attributeName="y2" values="0;230" dur="3s" repeatCount="indefinite"/>
+      <animate attributeName="y1" values="0;230" dur="3s" begin="0.8s" repeatCount="indefinite"/>
+    </line>
+  </g>
+
+  <line x1="60" y1="320" x2="60" y2="320" stroke="#b8873a" stroke-width="1" opacity="0.4">
+    <animate attributeName="x2" values="60;350;350" dur="2s" fill="freeze" keyTimes="0;0.6;1"/>
+    <animate attributeName="opacity" values="0;0.4;0.4" dur="1s" fill="freeze"/>
+  </line>
+
+  <text x="60" y="105" fill="#b8873a" font-family="monospace" font-size="10" letter-spacing="0.25em" opacity="0.5">
+    FORMACAO DEV.IA
+    <animate attributeName="opacity" values="0;0.5" dur="1.5s" fill="freeze"/>
+  </text>
+
+  <text x="60" y="180" fill="#b8873a" font-family="Georgia, serif" font-size="72" font-weight="900" opacity="0.08">
+    DS
+    <animate attributeName="opacity" values="0;0.08" dur="2s" fill="freeze"/>
+  </text>
+
+  <text x="60" y="280" fill="#f4f0e8" font-family="Georgia, serif" font-size="42" font-weight="700" letter-spacing="-0.02em">
+    Design System
+    <animate attributeName="opacity" values="0;1" dur="1s" begin="0.3s" fill="freeze"/>
+  </text>
+
+  <text x="60" y="310" fill="#7a7268" font-family="Georgia, serif" font-size="16" font-style="italic">
+    Padronizacao visual e de componentes
+    <animate attributeName="opacity" values="0;1" dur="1s" begin="0.6s" fill="freeze"/>
+  </text>
+
+  <g opacity="0.3">
+    <circle cx="60" cy="400" r="2" fill="#b8873a"><animate attributeName="opacity" values="0.1;0.5;0.1" dur="3s" repeatCount="indefinite"/></circle>
+    <circle cx="75" cy="400" r="2" fill="#b8873a"><animate attributeName="opacity" values="0.1;0.5;0.1" dur="3s" begin="0.5s" repeatCount="indefinite"/></circle>
+    <circle cx="90" cy="400" r="2" fill="#b8873a"><animate attributeName="opacity" values="0.1;0.5;0.1" dur="3s" begin="1s" repeatCount="indefinite"/></circle>
+    <circle cx="105" cy="400" r="2" fill="#b8873a"><animate attributeName="opacity" values="0.1;0.5;0.1" dur="3s" begin="1.5s" repeatCount="indefinite"/></circle>
+  </g>
+</svg>
