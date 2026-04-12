@@ -28,7 +28,6 @@ import { cn } from '@/src/lib/utils';
 import { useAuth } from '../hooks/useAuth';
 import type { Course, Module, Lesson } from '../types';
 import BlockRenderer from '../components/blocks/BlockRenderer';
-import EditableBlock from '../components/blocks/EditableBlock';
 import {
   getLessonRating, ratelesson, getLessonComments, postLessonComment, deleteLessonComment,
   updateLessonBlock, updateLesson,
@@ -382,19 +381,7 @@ export default function LessonPlayerPage({
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.4, delay: idx * 0.05 }}
                     >
-                      <EditableBlock
-                        block={block}
-                        isAdmin={isAdmin}
-                        isEditing={editingBlockId === block.id}
-                        onStartEdit={() => block.id && setEditingBlockId(block.id)}
-                        onSave={async (content) => {
-                          if (!block.id) return;
-                          await updateLessonBlock(block.id, { content });
-                          onUpdateBlock(block.id, content);
-                          setEditingBlockId(null);
-                        }}
-                        onCancel={() => setEditingBlockId(null)}
-                      />
+                      <BlockRenderer block={block} />
                     </motion.div>
                   ))}
               </div>
