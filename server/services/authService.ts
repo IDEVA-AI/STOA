@@ -86,7 +86,7 @@ export async function login(email: string, password: string): Promise<AuthResult
   return { user: sanitizeUser(user), accessToken, refreshToken };
 }
 
-export async function refreshToken(token: string): Promise<{ accessToken: string }> {
+export async function refreshToken(token: string): Promise<{ accessToken: string; refreshToken: string }> {
   if (!token) {
     throw { status: 400, message: "Refresh token is required" };
   }
@@ -100,7 +100,8 @@ export async function refreshToken(token: string): Promise<{ accessToken: string
     }
 
     const accessToken = generateToken(user.id, user.role || undefined);
-    return { accessToken };
+    const newRefreshToken = generateRefreshToken(user.id);
+    return { accessToken, refreshToken: newRefreshToken };
   } catch (err: any) {
     if (err.status) throw err;
     throw { status: 401, message: "Invalid or expired refresh token" };

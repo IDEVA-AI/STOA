@@ -15,6 +15,8 @@ interface CourseContextType {
   exitCourse: () => void;
   selectLesson: (lesson: Lesson) => void;
   toggleLessonCompletion: (lessonId: number) => void;
+  updateBlockInLesson: (blockId: number, content: Record<string, any>) => void;
+  updateLessonDetails: (lessonId: number, data: Partial<Pick<Lesson, 'title' | 'description'>>) => void;
   fetchCourses: () => Promise<Course[]>;
 }
 
@@ -68,6 +70,32 @@ export function CourseProvider({ children }: { children: ReactNode }) {
     setSelectedLesson(lesson);
   }, []);
 
+  const updateBlockInLesson = useCallback((blockId: number, content: Record<string, any>) => {
+    const updateBlocks = (blocks?: import('../types').LessonBlock[]) =>
+      blocks?.map(b => b.id === blockId ? { ...b, content } : b);
+
+    setCourseContent(prev => prev.map(module => ({
+      ...module,
+      lessons: module.lessons?.map(lesson => ({
+        ...lesson,
+        blocks: updateBlocks(lesson.blocks),
+      }))
+    })));
+
+    setSelectedLesson(prev => prev ? { ...prev, blocks: updateBlocks(prev.blocks) } : prev);
+  }, []);
+
+  const updateLessonDetails = useCallback((lessonId: number, data: Partial<Pick<Lesson, 'title' | 'description'>>) => {
+    const patch = (lesson: Lesson) => lesson.id === lessonId ? { ...lesson, ...data } : lesson;
+
+    setCourseContent(prev => prev.map(module => ({
+      ...module,
+      lessons: module.lessons?.map(patch),
+    })));
+
+    setSelectedLesson(prev => prev ? patch(prev) : prev);
+  }, []);
+
   const toggleLessonCompletion = useCallback((lessonId: number) => {
     setCourseContent(prev => prev.map(module => ({
       ...module,
@@ -93,7 +121,7 @@ export function CourseProvider({ children }: { children: ReactNode }) {
     <CourseContext.Provider value={{
       courses, setCourses, selectedCourse, courseContent, selectedLesson,
       courseLoading, courseError,
-      enterCourse, exitCourse, selectLesson, toggleLessonCompletion, fetchCourses
+      enterCourse, exitCourse, selectLesson, toggleLessonCompletion, updateBlockInLesson, updateLessonDetails, fetchCourses
     }}>
       {children}
     </CourseContext.Provider>

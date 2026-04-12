@@ -38,7 +38,7 @@ async function authFetch(input: RequestInfo | URL, init?: RequestInit): Promise<
   if (res.status === 401 && getRefreshToken()) {
     const refreshed = await refreshToken(getRefreshToken()!);
     if (refreshed) {
-      setTokens(refreshed.accessToken, refreshed.refreshToken);
+      setTokens(refreshed.accessToken, refreshed.refreshToken ?? getRefreshToken()!);
       headers.set('Authorization', `Bearer ${refreshed.accessToken}`);
       return fetch(input, { ...init, headers });
     } else {
@@ -358,7 +358,7 @@ export async function createLesson(moduleId: number, data: { title: string; cont
   return res.json();
 }
 
-export async function updateLesson(id: number, data: { title?: string; content_url?: string; content_type?: string; duration?: number; order?: number }): Promise<void> {
+export async function updateLesson(id: number, data: { title?: string; description?: string; content_url?: string; content_type?: string; duration?: number; order?: number }): Promise<void> {
   const res = await authFetch(`/api/admin/crud/lessons/${id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },

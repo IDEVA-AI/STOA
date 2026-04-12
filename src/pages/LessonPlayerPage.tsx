@@ -28,8 +28,10 @@ import { cn } from '@/src/lib/utils';
 import { useAuth } from '../hooks/useAuth';
 import type { Course, Module, Lesson } from '../types';
 import BlockRenderer from '../components/blocks/BlockRenderer';
+import EditableBlock from '../components/blocks/EditableBlock';
 import {
   getLessonRating, ratelesson, getLessonComments, postLessonComment, deleteLessonComment,
+  updateLessonBlock, updateLesson,
 } from '../services/api';
 import type { RatingStats, LessonComment } from '../services/api';
 import {
@@ -50,6 +52,8 @@ interface LessonPlayerPageProps {
   onBack: () => void;
   onSelectLesson: (lesson: Lesson) => void;
   onToggleLessonCompletion: (lessonId: number) => void;
+  onUpdateBlock: (blockId: number, content: Record<string, any>) => void;
+  onUpdateLessonDetails: (lessonId: number, data: { title?: string; description?: string }) => void;
 }
 
 export default function LessonPlayerPage({
@@ -59,7 +63,9 @@ export default function LessonPlayerPage({
   courseError,
   onBack,
   onSelectLesson,
-  onToggleLessonCompletion
+  onToggleLessonCompletion,
+  onUpdateBlock,
+  onUpdateLessonDetails,
 }: LessonPlayerPageProps) {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -69,6 +75,7 @@ export default function LessonPlayerPage({
   const [isPlaying, setIsPlaying] = useState(false);
   const [showModules, setShowModules] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
+  const [editingBlockId, setEditingBlockId] = useState<number | null>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   // ── Rating & Comments state ──
@@ -88,6 +95,7 @@ export default function LessonPlayerPage({
       .catch(() => setComments([]))
       .finally(() => setLoadingComments(false));
     setNewComment('');
+    setEditingBlockId(null);
   }, [selectedLesson?.id]);
 
   const handleRate = async (rating: number) => {
@@ -304,7 +312,27 @@ export default function LessonPlayerPage({
               </div>
               <div className="space-y-4">
                 <div className="flex items-start gap-4">
-                  <h1 className="serif-display text-2xl sm:text-4xl lg:text-7xl leading-[0.9] tracking-tighter flex-1">{selectedLesson.title}</h1>
+                  {isAdmin ? (
+                    <h1
+                      className="serif-display text-2xl sm:text-4xl lg:text-7xl leading-[0.9] tracking-tighter flex-1 cursor-text outline-none focus:ring-1 focus:ring-gold/30 focus:rounded-sm focus:px-2 focus:-mx-2 transition-all"
+                      contentEditable
+                      suppressContentEditableWarning
+                      onBlur={(e) => {
+                        const newTitle = e.currentTarget.textContent?.trim();
+                        if (newTitle && newTitle !== selectedLesson.title) {
+                          updateLesson(selectedLesson.id, { title: newTitle }).catch(() => {});
+                          onUpdateLessonDetails(selectedLesson.id, { title: newTitle });
+                        }
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); }
+                        if (e.key === 'Escape') { e.currentTarget.textContent = selectedLesson.title; e.currentTarget.blur(); }
+                      }}
+                      dangerouslySetInnerHTML={{ __html: selectedLesson.title }}
+                    />
+                  ) : (
+                    <h1 className="serif-display text-2xl sm:text-4xl lg:text-7xl leading-[0.9] tracking-tighter flex-1">{selectedLesson.title}</h1>
+                  )}
                   {isAdmin && (
                     <button
                       onClick={() => navigate(`/admin/editor/${selectedLesson.id}`)}
@@ -315,9 +343,29 @@ export default function LessonPlayerPage({
                     </button>
                   )}
                 </div>
-                <p className="text-base sm:text-xl lg:text-2xl text-warm-gray font-light leading-relaxed max-w-3xl italic font-serif">
-                  Uma exploração profunda sobre como os sistemas invisíveis moldam o comportamento e a escalabilidade das organizações modernas.
-                </p>
+                {isAdmin ? (
+                  <p
+                    className="text-base sm:text-xl lg:text-2xl text-warm-gray font-light leading-relaxed max-w-3xl italic font-serif cursor-text outline-none focus:ring-1 focus:ring-gold/30 focus:rounded-sm focus:px-2 focus:-mx-2 transition-all empty:before:content-['Adicionar_descricao...'] empty:before:text-warm-gray/30"
+                    contentEditable
+                    suppressContentEditableWarning
+                    onBlur={(e) => {
+                      const newDesc = e.currentTarget.textContent?.trim() || '';
+                      if (newDesc !== (selectedLesson.description || '')) {
+                        updateLesson(selectedLesson.id, { description: newDesc }).catch(() => {});
+                        onUpdateLessonDetails(selectedLesson.id, { description: newDesc });
+                      }
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); }
+                      if (e.key === 'Escape') { e.currentTarget.textContent = selectedLesson.description || ''; e.currentTarget.blur(); }
+                    }}
+                    dangerouslySetInnerHTML={{ __html: selectedLesson.description || '' }}
+                  />
+                ) : selectedLesson.description ? (
+                  <p className="text-base sm:text-xl lg:text-2xl text-warm-gray font-light leading-relaxed max-w-3xl italic font-serif">
+                    {selectedLesson.description}
+                  </p>
+                ) : null}
               </div>
             </header>
 
@@ -334,7 +382,19 @@ export default function LessonPlayerPage({
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.4, delay: idx * 0.05 }}
                     >
-                      <BlockRenderer block={block} />
+                      <EditableBlock
+                        block={block}
+                        isAdmin={isAdmin}
+                        isEditing={editingBlockId === block.id}
+                        onStartEdit={() => block.id && setEditingBlockId(block.id)}
+                        onSave={async (content) => {
+                          if (!block.id) return;
+                          await updateLessonBlock(block.id, { content });
+                          onUpdateBlock(block.id, content);
+                          setEditingBlockId(null);
+                        }}
+                        onCancel={() => setEditingBlockId(null)}
+                      />
                     </motion.div>
                   ))}
               </div>

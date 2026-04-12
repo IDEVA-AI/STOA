@@ -26,6 +26,7 @@ export interface Lesson {
   id: number;
   module_id: number;
   title: string;
+  description?: string;
   content_url?: string;
   content_type?: 'video' | 'pdf' | 'text';
   duration?: number;
