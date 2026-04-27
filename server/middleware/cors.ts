@@ -1,6 +1,7 @@
 import cors from "cors";
 
 const allowedOrigins = [
+  "https://membros.onexos.com.br",
   "https://membros.jcarv.in",
   "http://localhost:4747",
   "http://localhost:5173",

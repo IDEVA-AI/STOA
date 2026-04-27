@@ -4,7 +4,7 @@
 
 Plataforma educacional e de comunidade para **Julio Carvalho — Arquiteto de Sistemas Organizacionais**. O nome "STOA" remete à Stoá grega, local de ensino e troca de ideias. O sistema inclui cursos, feed de comunidade, painel administrativo, mensagens, agendamentos e perfil do usuário.
 
-**Status atual:** Em produção em `https://membros.jcarv.in`. Acesso via convite vinculado a produto.
+**Status atual:** Em produção em `https://membros.onexos.com.br`. Acesso via convite vinculado a produto.
 
 ## Stack Técnica
 
@@ -74,7 +74,7 @@ npm run clean     # Remove dist/
 
 ## Infraestrutura de Produção
 
-- **Domínio:** `membros.jcarv.in`
+- **Domínio:** `membros.onexos.com.br`
 - **Servidor:** 178.156.252.78 (Docker Swarm)
 - **Serviço:** `nexo_stoa` (1 replica)
 - **Proxy:** Traefik (entrypoint `web`, roteamento por Host header)
@@ -87,7 +87,7 @@ npm run clean     # Remove dist/
 Fluxo: **Convite → Produto → Cursos/Comunidades**
 
 1. Admin cria convite vinculado a um produto (ex: Formação DEV.IA)
-2. Usuário acessa link `https://membros.jcarv.in/login?invite=CODIGO`
+2. Usuário acessa link `https://membros.onexos.com.br/login?invite=CODIGO`
 3. Ao registrar, o sistema: adiciona ao workspace, cria purchase do produto
 4. Purchase ativa dá acesso aos cursos e comunidades vinculados ao produto
 
