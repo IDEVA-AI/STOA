@@ -113,7 +113,7 @@ export default function AdminInvites() {
   };
 
   const copyLink = (invite: Invite) => {
-    const link = `https://membros.jcarv.in/login?invite=${invite.code}`;
+    const link = `${window.location.origin}/login?invite=${invite.code}`;
     navigator.clipboard.writeText(link);
     setCopiedId(invite.id);
     setTimeout(() => setCopiedId(null), 2000);
